@@ -196,7 +196,7 @@ public class PatternTerminalRecipeTransferHandler implements IOverlayHandler {
     private void setSuggestion(boolean craft, IRecipeHandler recipe, GuiWirelessDualInterfaceTerminal gui,
         List<OrderStack<?>> in) {
         gui.setUploadContext(recipe, craft);
-        String suggestion;
+        String suggestion = "";
         if (craft) {
             Optional<ItemStack> molecular = AEApi.instance()
                 .definitions()
@@ -205,19 +205,16 @@ public class PatternTerminalRecipeTransferHandler implements IOverlayHandler {
                 .maybeStack(1);
             if (molecular.isPresent()) {
                 suggestion = Platform.getItemDisplayName(molecular.get());
-            } else {
-                suggestion = "";
             }
         } else {
-            suggestion = recipe.getRecipeTabName();
             if (Mods.isGt5Loaded() && recipe instanceof GTNEIDefaultHandler) {
                 suggestion = GTUtil.getRecipeName(recipe, in);
             }
-            if (suggestion == null && getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL_ENHANCED_SEARCH)) {
+            if (getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL_ENHANCED_SEARCH)) {
                 suggestion = EnhancedSearch.poolQuery(recipe);
             }
+            if (suggestion == null && recipe.getRecipeTabName() != null) suggestion = recipe.getRecipeTabName();
         }
-        if (suggestion == null) suggestion = "";
         if (getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL)) {
             gui.setSearchFieldText(suggestion);
             gui.setHighlightSlot();

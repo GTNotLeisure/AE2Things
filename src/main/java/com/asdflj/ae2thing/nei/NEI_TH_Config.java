@@ -68,9 +68,11 @@ public class NEI_TH_Config implements IConfigureNEI {
         addOption(new BaseToggleButton(ButtonConstants.INVENTORY_STATE));
         addOption(new BaseToggleButton(ButtonConstants.ULTRA_TERMINAL_MODE));
         addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL, false));
-        addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_APPEND_CIRCUIT_DAMAGE));
-        addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_APPEND_NON_CONSUMED_ITEMS, false));
-        addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_INCLUDE_NON_CONSUMED, false));
+        if (Mods.isGt5Loaded()) {
+            addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_APPEND_CIRCUIT_DAMAGE));
+            addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_APPEND_NON_CONSUMED_ITEMS, false));
+            addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_INCLUDE_NON_CONSUMED, false));
+        }
         addOption(new OptionTextField(ButtonConstants.DUAL_INTERFACE_TERMINAL_NO_MERGE));
         addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_AUTO_UPLOAD, false));
         addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_ENHANCED_SEARCH, false));

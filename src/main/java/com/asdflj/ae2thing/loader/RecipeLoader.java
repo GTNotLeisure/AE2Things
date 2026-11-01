@@ -10,7 +10,6 @@ import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.FLUID_PACKET_ENCODER
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.INFUSION_INTERFACE;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.INFUSION_PATTERN_TERMINAL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_CREATIVE_COBBLESTONE_CELL;
-import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_CREATIVE_LAVA_CELL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_CREATIVE_WATER_CELL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_INFINITY_CELL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_INFINITY_FLUID_CELL;
@@ -45,11 +44,7 @@ import com.asdflj.ae2thing.util.Util;
 import com.glodblock.github.common.storage.CellType;
 
 import appeng.api.AEApi;
-import appeng.api.util.AEColor;
 import cpw.mods.fml.common.registry.GameRegistry;
-import gregtech.api.enums.TierEU;
-import gregtech.api.recipe.RecipeMaps;
-import gregtech.api.util.GTRecipeBuilder;
 import thaumcraft.common.config.ConfigBlocks;
 
 public class RecipeLoader implements Runnable {
@@ -127,25 +122,6 @@ public class RecipeLoader implements Runnable {
         .definitions()
         .materials()
         .logicProcessor()
-        .maybeStack(1)
-        .orNull();
-    public static final ItemStack AE2_VIEW_CELL = AEApi.instance()
-        .definitions()
-        .items()
-        .viewCell()
-        .maybeStack(1)
-        .orNull();
-
-    public static final ItemStack AE2_WIRELESS = AEApi.instance()
-        .definitions()
-        .blocks()
-        .wireless()
-        .maybeStack(1)
-        .orNull();
-    public static final ItemStack AE2_CERTUS = AEApi.instance()
-        .definitions()
-        .items()
-        .certusQuartzWrench()
         .maybeStack(1)
         .orNull();
 
@@ -280,29 +256,8 @@ public class RecipeLoader implements Runnable {
             GameRegistry.addShapelessRecipe(fluidImportBus(), MANA_IMPORT_BUS.stack());
             GameRegistry.addShapelessRecipe(fluidExportBus(), MANA_EXPORT_BUS.stack());
         }
-        if (Mods.isLegacyGt5Loaded() || Mods.isGt5UnofficialLoaded()) {
-            if (ae2StuffWireless != null) {
-                GameRegistry.addShapelessRecipe(
-                    ItemAndBlockHolder.WIRELESS_DISTRIBUTOR.stack(),
-                    ae2StuffWireless,
-                    AE2_WIRELESS);
-            }
-            for (int i = 0; i < AEColor.values().length; i++) {
-                GameRegistry.addShapelessRecipe(
-                    ItemAndBlockHolder.WIRELESS_DISTRIBUTOR.stack(),
-                    ItemAndBlockHolder.WIRELESS_DISTRIBUTOR.stack(i));
-            }
-            GameRegistry.addShapelessRecipe(ItemAndBlockHolder.WIRE_CUTTER.stack(), AE2_WIRELESS, AE2_CERTUS);
-            if (Mods.THAUMCRAFT.isModLoaded() && Mods.THAUMIC_EXPLORATION.isModLoaded()) {
-                ItemStack EVERBURN_URN = GameRegistry.findItemStack("ThaumicExploration", "everburnUrn", 1);
-                GTRecipeBuilder.builder()
-                    .circuit(20)
-                    .itemInputs(CELL_HOUSING.stack(1, 1), AE2_SINGULARITY, EVERBURN_URN)
-                    .itemOutputs(ITEM_CREATIVE_LAVA_CELL.stack(1))
-                    .duration(400)
-                    .eut(TierEU.RECIPE_LuV)
-                    .addTo(RecipeMaps.assemblerRecipes);
-            }
+        if (Mods.isGt5Loaded()) {
+            GTRecipeLoader.INSTANCE.run();
         }
         if (!Mods.SNL.isModLoaded()) {
             GameRegistry.addShapelessRecipe(
