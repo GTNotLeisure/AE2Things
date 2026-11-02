@@ -64,7 +64,7 @@ dependencies {
     compileOnly("curse.maven:hbms-nuclear-tech-mod-235439:5534354")
     compileOnly(files("libs/hbmaeaddon-1.4-dev.jar"))
     compileOnlyApi(files("libs/programmablehatches-0.1.3p50-dev.jar"))
-    compileOnly(files("libs/sciencenotleisure-0.2.7-rc2-dev.jar"))
+    compileOnly(files("libs/sciencenotleisure-0.2.7-rc2.1-dev.jar"))
 
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:EnderIO:2.10.51:dev")
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:Botania:1.13.42-GTNH:dev")

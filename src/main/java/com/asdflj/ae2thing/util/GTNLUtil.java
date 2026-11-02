@@ -3,7 +3,7 @@ package com.asdflj.ae2thing.util;
 import net.minecraft.item.ItemStack;
 
 import com.asdflj.ae2thing.integration.Mods;
-import com.science.gtnl.utils.appliedEnergistics.processingPattern.ProcessingPatternCapacity;
+import com.science.gtnl.config.OtherConfig;
 import com.science.gtnl.utils.enums.GTNLItemList;
 
 import appeng.util.Platform;
@@ -20,7 +20,7 @@ public final class GTNLUtil {
     public static boolean isPatternCapacityEnabled() {
         if (!Mods.SNL.isModLoaded()) return false;
         try {
-            return ProcessingPatternCapacity.isEnabled();
+            return OtherConfig.applied_energistics.enableProcessingPatternCapacityMixin;
         } catch (Throwable ignored) {
             return false;
         }
@@ -29,7 +29,9 @@ public final class GTNLUtil {
     public static int patternPages() {
         if (!isPatternCapacityEnabled()) return DEFAULT_PAGES;
         try {
-            return Math.max(DEFAULT_PAGES, Math.clamp(ProcessingPatternCapacity.pageCount(), 1, MAX_PAGES));
+            return Math.max(
+                DEFAULT_PAGES,
+                Math.clamp(OtherConfig.applied_energistics.processingPatternCapacityMultiplier, 1, MAX_PAGES));
         } catch (Throwable ignored) {
             return DEFAULT_PAGES;
         }
