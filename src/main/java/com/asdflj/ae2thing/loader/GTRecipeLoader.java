@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.loader;
 
-import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_CREATIVE_LAVA_CELL;
 import static com.glodblock.github.loader.ItemAndBlockHolder.CELL_HOUSING;
 
 import net.minecraft.item.ItemStack;
@@ -38,6 +37,12 @@ public class GTRecipeLoader implements Runnable {
         .maybeStack(1)
         .orNull();
     private static final ItemStack ae2StuffWireless = Ae2StuffIntegration.wirelessBlockStack();
+    private static final ItemStack AE2_WIRELESS_HUB = AEApi.instance()
+        .definitions()
+        .blocks()
+        .wirelessHub()
+        .maybeStack(1)
+        .orNull();
     private static final ItemStack EVERBURN_URN = GameRegistry.findItemStack("ThaumicExploration", "everburnUrn", 1);
 
     @Override
@@ -45,6 +50,10 @@ public class GTRecipeLoader implements Runnable {
         if (ae2StuffWireless != null) {
             GameRegistry
                 .addShapelessRecipe(ItemAndBlockHolder.WIRELESS_DISTRIBUTOR.stack(), ae2StuffWireless, AE2_WIRELESS);
+        }
+        if (AE2_WIRELESS_HUB != null) {
+            GameRegistry
+                .addShapelessRecipe(ItemAndBlockHolder.WIRELESS_DISTRIBUTOR.stack(), AE2_WIRELESS_HUB, AE2_WIRELESS);
         }
         for (int i = 0; i < AEColor.values().length; i++) {
             GameRegistry.addShapelessRecipe(
@@ -61,7 +70,7 @@ public class GTRecipeLoader implements Runnable {
             GTRecipeBuilder.builder()
                 .circuit(20)
                 .itemInputs(CELL_HOUSING.stack(1, 1), AE2_SINGULARITY, EVERBURN_URN)
-                .itemOutputs(ITEM_CREATIVE_LAVA_CELL.stack(1))
+                .itemOutputs(ItemAndBlockHolder.ITEM_CREATIVE_LAVA_CELL.stack(1))
                 .duration(400)
                 .eut(TierEU.RECIPE_LuV)
                 .addTo(RecipeMaps.assemblerRecipes);

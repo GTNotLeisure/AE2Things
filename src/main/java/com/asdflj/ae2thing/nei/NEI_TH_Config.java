@@ -18,12 +18,12 @@ import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.nei.recipes.NEIRecipeUtil;
 import com.github.vfyjxf.nee.nei.NEETerminalBookmarkContainerHandler;
 
+import appeng.core.AELog;
 import codechicken.lib.config.ConfigTagParent;
 import codechicken.nei.NEIClientConfig;
 import codechicken.nei.api.API;
 import codechicken.nei.api.IConfigureNEI;
 import codechicken.nei.config.Option;
-import codechicken.nei.config.OptionTextField;
 import codechicken.nei.event.NEIConfigsLoadedEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 
@@ -73,7 +73,7 @@ public class NEI_TH_Config implements IConfigureNEI {
             addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_APPEND_NON_CONSUMED_ITEMS, false));
             addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_INCLUDE_NON_CONSUMED, false));
         }
-        addOption(new OptionTextField(ButtonConstants.DUAL_INTERFACE_TERMINAL_NO_MERGE));
+        addOption(new BaseTextField(ButtonConstants.DUAL_INTERFACE_TERMINAL_NO_MERGE));
         addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_AUTO_UPLOAD, false));
         addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_ENHANCED_SEARCH, false));
         addOption(new BaseToggleButton(ButtonConstants.DUAL_INTERFACE_TERMINAL_ENHANCED_SEARCH_DEBUG, false));
@@ -113,7 +113,9 @@ public class NEI_TH_Config implements IConfigureNEI {
     private static void addOption(Option option) {
         try {
             API.addOption(option);
-        } catch (Throwable ignored) {}
+        } catch (Throwable t) {
+            AELog.error("[AE2Thing]: failed to register NEI option '{}'", option.name, t);
+        }
     }
 
     public static boolean getConfigValue(String identifier) {
