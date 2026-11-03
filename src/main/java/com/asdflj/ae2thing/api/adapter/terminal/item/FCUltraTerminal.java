@@ -2,7 +2,6 @@ package com.asdflj.ae2thing.api.adapter.terminal.item;
 
 import static com.asdflj.ae2thing.nei.NEI_TH_Config.getConfigValue;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.inventory.IInventory;
@@ -19,6 +18,7 @@ import com.glodblock.github.util.UltraTerminalModes;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketInventoryAction;
 import appeng.helpers.InventoryAction;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class FCUltraTerminal implements IItemTerminal {
 
@@ -36,7 +36,7 @@ public class FCUltraTerminal implements IItemTerminal {
 
     @Override
     public List<TerminalItems> getMainInvTerminals() {
-        List<TerminalItems> terminal = new ArrayList<>();
+        List<TerminalItems> terminal = new ObjectArrayList<>();
         for (int i = 0; i < player().inventory.mainInventory.length; ++i) {
             ItemStack item = player().inventory.getStackInSlot(i);
             terminal.addAll(getTerminalItems(item, i));
@@ -45,7 +45,7 @@ public class FCUltraTerminal implements IItemTerminal {
     }
 
     private List<TerminalItems> getTerminalItems(ItemStack source, int slot) {
-        List<TerminalItems> terminal = new ArrayList<>();
+        List<TerminalItems> terminal = new ObjectArrayList<>();
         if (source != null && source.getItem() instanceof ItemWirelessUltraTerminal) {
             NBTTagCompound tag = this.newNBT();
             tag.setInteger(Constants.SLOT, slot);
@@ -67,7 +67,7 @@ public class FCUltraTerminal implements IItemTerminal {
 
     @Override
     public List<TerminalItems> getBaublesInvTerminals(IInventory handler) {
-        List<TerminalItems> terminal = new ArrayList<>();
+        List<TerminalItems> terminal = new ObjectArrayList<>();
         if (handler == null) return terminal;
         for (int i = 0; i < handler.getSizeInventory(); ++i) {
             ItemStack item = handler.getStackInSlot(i);

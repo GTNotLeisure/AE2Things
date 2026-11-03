@@ -3,7 +3,6 @@ package com.asdflj.ae2thing.api;
 import java.lang.reflect.Type;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 
 import net.minecraft.item.ItemStack;
@@ -45,10 +44,11 @@ import appeng.me.GridStorage;
 import appeng.me.helpers.IGridProxyable;
 import appeng.parts.AEBasePart;
 import appeng.util.Platform;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public class CraftingDebugHelper implements ICraftingCallback {
 
-    private static final HashMap<Long, LimitedSizeLinkedList<CraftingInfo>> history = new HashMap<>();
+    private static final Object2ObjectOpenHashMap<Long, LimitedSizeLinkedList<CraftingInfo>> history = new Object2ObjectOpenHashMap<>();
     private final CraftingInfo info;
     private final ICraftingCallback callback;
 
@@ -326,7 +326,7 @@ public class CraftingDebugHelper implements ICraftingCallback {
         }
     }
 
-    public static HashMap<Long, LimitedSizeLinkedList<CraftingInfo>> getHistory() {
+    public static Object2ObjectOpenHashMap<Long, LimitedSizeLinkedList<CraftingInfo>> getHistory() {
         return history;
     }
 

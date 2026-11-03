@@ -1,7 +1,5 @@
 package com.asdflj.ae2thing.common.storage.infinityCell;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -31,6 +29,8 @@ import appeng.api.storage.data.IItemList;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.Platform;
 import appeng.util.item.AEFluidStackType;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 public class InfinityFluidStorageCellInventory implements ITFluidCellInventory {
 
@@ -295,8 +295,8 @@ public class InfinityFluidStorageCellInventory implements ITFluidCellInventory {
 
     @Override
     public List<IAEFluidStack> getContents() {
-        if (Platform.isClient()) return Collections.emptyList();
-        List<IAEFluidStack> ret = new ArrayList<>();
+        if (Platform.isClient()) return ObjectLists.emptyList();
+        List<IAEFluidStack> ret = new ObjectArrayList<>();
         for (IAEFluidStack fluid : this.getCellFluids()) {
             ret.add(fluid);
         }

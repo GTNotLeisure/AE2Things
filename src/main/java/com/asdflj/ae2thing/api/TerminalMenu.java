@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.api;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.item.ItemStack;
@@ -17,13 +16,14 @@ import com.asdflj.ae2thing.client.event.OpenTerminalEvent;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 @SideOnly(Side.CLIENT)
 public class TerminalMenu {
 
-    public static List<IItemTerminal> terminalHandlers = new ArrayList<>();
-    private final List<TerminalItems> terminalItems = new ArrayList<>();
-    private final List<ItemStack> items = new ArrayList<>();
+    public static List<IItemTerminal> terminalHandlers = new ObjectArrayList<>();
+    private final List<TerminalItems> terminalItems = new ObjectArrayList<>();
+    private final List<ItemStack> items = new ObjectArrayList<>();
 
     public TerminalMenu() {
         for (IItemTerminal handler : terminalHandlers) {

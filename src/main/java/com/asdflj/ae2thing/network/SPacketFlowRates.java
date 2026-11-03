@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.network;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.client.Minecraft;
@@ -14,6 +13,7 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 /**
  * Delivers per-stack item flow rates to the open terminal.
@@ -25,7 +25,7 @@ import io.netty.buffer.ByteBuf;
  */
 public class SPacketFlowRates implements IMessage {
 
-    private Map<IAEStack<?>, FlowRate> rates = new HashMap<>();
+    private Map<IAEStack<?>, FlowRate> rates = new Object2ObjectOpenHashMap<>();
 
     public SPacketFlowRates() {
         // NO-OP
@@ -41,7 +41,7 @@ public class SPacketFlowRates implements IMessage {
         if (size < 0) {
             throw new IllegalArgumentException("Invalid flow-rate entry count: " + size);
         }
-        this.rates = new HashMap<>();
+        this.rates = new Object2ObjectOpenHashMap<>();
         for (int i = 0; i < size; i++) {
             final IAEStack<?> stack = Platform.readStackByte(buf);
             final long in = buf.readLong();

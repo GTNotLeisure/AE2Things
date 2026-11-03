@@ -4,18 +4,20 @@ import java.util.List;
 
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.IRecipeHandler;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public interface IRecipeExtractor {
 
-    List<OrderStack<?>> getInputIngredients(List<PositionedStack> rawInputs);
+    ObjectList<OrderStack<?>> getInputIngredients(List<PositionedStack> rawInputs);
 
-    List<OrderStack<?>> getOutputIngredients(List<PositionedStack> rawOutputs);
+    ObjectList<OrderStack<?>> getOutputIngredients(List<PositionedStack> rawOutputs);
 
-    default List<OrderStack<?>> getInputIngredients(List<PositionedStack> rawInputs, IRecipeHandler recipe, int index) {
+    default ObjectList<OrderStack<?>> getInputIngredients(List<PositionedStack> rawInputs, IRecipeHandler recipe,
+        int index) {
         return getInputIngredients(rawInputs);
     }
 
-    default List<OrderStack<?>> getOutputIngredients(List<PositionedStack> rawOutputs, IRecipeHandler recipe,
+    default ObjectList<OrderStack<?>> getOutputIngredients(List<PositionedStack> rawOutputs, IRecipeHandler recipe,
         int index) {
         return getOutputIngredients(rawOutputs);
     }

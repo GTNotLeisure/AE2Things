@@ -5,7 +5,6 @@ import static codechicken.lib.gui.GuiDraw.getTipLineId;
 import static com.asdflj.ae2thing.nei.NEI_TH_Config.getConfigValue;
 
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -26,11 +25,12 @@ import com.asdflj.ae2thing.util.CPUCraftingPreview;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.util.item.AEItemStack;
 import codechicken.lib.gui.GuiDraw;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import mcp.mobius.waila.handlers.nei.TooltipHandlerWaila;
 
 public class CraftingStatePreview extends TooltipHandlerWaila {
 
-    private static final List<CPUCraftingPreview> cpus = new ArrayList<>();
+    private static final List<CPUCraftingPreview> cpus = new ObjectArrayList<>();
     private static final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
     private static final int maxStacksPerRow = CPUCraftingPreview.maxSize;
     private static int width;

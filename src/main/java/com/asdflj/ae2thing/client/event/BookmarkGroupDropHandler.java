@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.event;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -16,6 +15,7 @@ import codechicken.nei.bookmark.SortableGroup;
 import codechicken.nei.guihook.IContainerInputHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 @SideOnly(Side.CLIENT)
 public class BookmarkGroupDropHandler implements IContainerInputHandler {
@@ -84,7 +84,7 @@ public class BookmarkGroupDropHandler implements IContainerInputHandler {
         final SortableGroup group = ItemPanels.bookmarkPanel.sortableGroup;
         if (group == null) return;
 
-        final List<ItemStack> stacks = new ArrayList<>();
+        final List<ItemStack> stacks = new ObjectArrayList<>();
         for (BookmarkItem item : group.getBookmarkItems()) {
             final ItemStack stack = item.getItemStack();
             // Group headers / recipe entries have no item stack; dropping null would clear config slots.

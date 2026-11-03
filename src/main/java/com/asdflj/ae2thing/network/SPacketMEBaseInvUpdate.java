@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.BufferOverflowException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
@@ -16,6 +15,7 @@ import appeng.core.AELog;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public abstract class SPacketMEBaseInvUpdate implements IMessage {
 
@@ -28,7 +28,7 @@ public abstract class SPacketMEBaseInvUpdate implements IMessage {
     protected int writtenBytes = 0;
     protected final ByteBuf data = Unpooled.buffer(OPERATION_BYTE_LIMIT);
     protected byte ref = (byte) 0;
-    protected final List<IAEStack<?>> list = new ArrayList<>();
+    protected final List<IAEStack<?>> list = new ObjectArrayList<>();
 
     public SPacketMEBaseInvUpdate() {}
 

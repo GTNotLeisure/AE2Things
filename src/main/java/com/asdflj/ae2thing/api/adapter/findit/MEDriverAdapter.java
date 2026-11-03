@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.api.adapter.findit;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.item.ItemStack;
@@ -13,6 +12,7 @@ import appeng.api.networking.IGridNode;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.util.DimensionalCoord;
 import appeng.tile.storage.TileDrive;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class MEDriverAdapter implements IFindItAdapter {
 
@@ -23,7 +23,7 @@ public class MEDriverAdapter implements IFindItAdapter {
 
     @Override
     public List<StorageProvider> getStorageProver(IGrid grid, IGridNode node, IAEStack<?> request) {
-        List<StorageProvider> list = new ArrayList<>();
+        List<StorageProvider> list = new ObjectArrayList<>();
         if (node.getMachine() instanceof TileDrive drive) {
             for (int i = 0; i < drive.getCellCount(); i++) {
                 ItemStack is = drive.getStackInSlot(i);

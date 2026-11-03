@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.me;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
@@ -17,12 +16,13 @@ import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.util.DimensionalCoord;
 import appeng.client.gui.widgets.IScrollSource;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class WirelessConnectorRepo implements IDisplayRepo {
 
     private final IScrollSource src;
-    private final List<Info> infos = new ArrayList<>();
-    private final List<Info> dsp = new ArrayList<>();
+    private final List<Info> infos = new ObjectArrayList<>();
+    private final List<Info> dsp = new ObjectArrayList<>();
     private int rowSize = 9;
     private String searchString = "";
 
@@ -61,7 +61,7 @@ public class WirelessConnectorRepo implements IDisplayRepo {
         }
 
         this.dsp.clear();
-        final List<Info> tmp = new ArrayList<>();
+        final List<Info> tmp = new ObjectArrayList<>();
         String innerSearch = this.searchString;
         this.dsp.addAll(infos);
         if (!innerSearch.isEmpty()) {
@@ -87,7 +87,7 @@ public class WirelessConnectorRepo implements IDisplayRepo {
                                 finalM,
                                 result.left.getDisplayName(i)
                                     .toLowerCase()))
-                        .collect(Collectors.toList()));
+                        .collect(Collectors.toCollection(ObjectArrayList::new)));
                 this.dsp.clear();
                 this.dsp.addAll(tmp);
                 tmp.clear();

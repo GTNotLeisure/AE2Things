@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.util;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -10,6 +9,8 @@ import net.minecraft.item.ItemStack;
 
 import org.apache.commons.lang3.tuple.ImmutablePair;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 public class InvUtil {
 
     public interface IInv {
@@ -18,7 +19,7 @@ public class InvUtil {
 
     }
 
-    public static List<IInv> INVENTORY = new ArrayList<>();
+    public static List<IInv> INVENTORY = new ObjectArrayList<>();
     private final EntityPlayer player;
 
     public InvUtil(EntityPlayer player) {
@@ -56,7 +57,7 @@ public class InvUtil {
     }
 
     public List<ItemStack> matcher(Predicate<ItemStack> item) {
-        List<ItemStack> items = new ArrayList<>();
+        List<ItemStack> items = new ObjectArrayList<>();
         for (IInv obj : INVENTORY) {
             IInventory inv = obj.getInventory(player);
             for (int i = 0; i < inv.getSizeInventory(); i++) {

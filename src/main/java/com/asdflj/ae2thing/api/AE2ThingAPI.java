@@ -4,8 +4,6 @@ import static net.minecraft.init.Items.glass_bottle;
 
 import java.io.File;
 import java.io.FileWriter;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 import net.minecraft.client.Minecraft;
@@ -45,6 +43,8 @@ import appeng.util.ReadableNumberConverter;
 import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 public final class AE2ThingAPI implements IAE2ThingAPI {
 
@@ -56,9 +56,9 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
     private static final Fluid mana = new Mana();
     private static final AE2ThingAPI API = new AE2ThingAPI();
     public static final int CRAFTING_HISTORY_SIZE = Config.craftingHistorySize;
-    private static final Set<Class<? extends Item>> backpackItems = new HashSet<>();
+    private static final Set<Class<? extends Item>> backpackItems = new ObjectOpenHashSet<>();
     private StorageManager storageManager = null;
-    private static final HashMap<Class<?>, String> inputFields = new HashMap<>();
+    private static final Object2ObjectOpenHashMap<Class<?>, String> inputFields = new Object2ObjectOpenHashMap<>();
 
     private static ItemStack fluidContainer = BUCKET;
     public static final ReadableNumberConverter readableNumber = ReadableNumberConverter.INSTANCE;

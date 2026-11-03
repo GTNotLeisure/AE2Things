@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.common.item;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -26,6 +25,7 @@ import appeng.util.item.AEItemStack;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.common.items.ItemEssence;
@@ -61,7 +61,7 @@ public class ItemPhial extends ItemEssence implements IRegister<ItemPhial> {
     }
 
     public static List<ItemStack> getItems() {
-        List<ItemStack> list = new ArrayList<>();
+        List<ItemStack> list = new ObjectArrayList<>();
         list.add(new ItemStack(ItemAndBlockHolder.PHIAL, 1, 0));
         for (Aspect tag : Aspect.aspects.values()) {
             ItemStack i = new ItemStack(ItemAndBlockHolder.PHIAL, 1, 1);

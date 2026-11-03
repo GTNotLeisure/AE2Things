@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.common.storage.backpack;
 
-import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -9,6 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidTank;
 
 import appeng.util.Platform;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 public abstract class BaseBackpackHandler implements IInventory {
 
@@ -38,7 +38,7 @@ public abstract class BaseBackpackHandler implements IInventory {
     }
 
     public List<FluidTank> getFluidTanks() {
-        return Collections.emptyList();
+        return ObjectLists.emptyList();
     }
 
     public void markFluidAsDirty() {

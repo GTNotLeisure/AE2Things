@@ -5,11 +5,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.TreeSet;
 
 import net.minecraft.client.Minecraft;
 
@@ -30,7 +28,9 @@ import cpw.mods.fml.relauncher.SideOnly;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 
 @SideOnly(Side.CLIENT)
 public final class RecipeSearchAlias {
@@ -78,16 +78,16 @@ public final class RecipeSearchAlias {
     private RecipeSearchAlias() {}
 
     public static List<String> resolve(String head) {
-        if (head == null) return Collections.emptyList();
+        if (head == null) return ObjectLists.emptyList();
         final String key = normalize(head);
-        if (key.isEmpty()) return Collections.emptyList();
+        if (key.isEmpty()) return ObjectLists.emptyList();
         loadAliases();
         final List<String> user = userAliases.get(key);
         if (user != null && !user.isEmpty()) return copyDistinct(user);
         ensureIndex();
         final List<String> exact = index.get(key);
         if (exact != null && !exact.isEmpty()) return copyDistinct(exact);
-        if (hasCatalysts(head.trim())) return Collections.singletonList(head.trim());
+        if (hasCatalysts(head.trim())) return ObjectLists.singleton(head.trim());
         final List<String> family = familyByPrefix(key);
         if (!family.isEmpty()) return family;
         return contains(key);
@@ -323,7 +323,7 @@ public final class RecipeSearchAlias {
         builder.append(INDEX_HEADER)
             .append(fingerprint())
             .append(separator);
-        for (String identifier : new TreeSet<>(indexTitles.keySet())) {
+        for (String identifier : new ObjectRBTreeSet<>(indexTitles.keySet())) {
             final String title = indexTitles.get(identifier);
             if (title == null) continue;
             builder.append(TITLE_LINE)
@@ -332,7 +332,7 @@ public final class RecipeSearchAlias {
                 .append(title)
                 .append(separator);
         }
-        for (String key : new TreeSet<>(index.keySet())) {
+        for (String key : new ObjectRBTreeSet<>(index.keySet())) {
             for (String identifier : index.get(key)) {
                 builder.append(key)
                     .append(" = ")
@@ -348,7 +348,7 @@ public final class RecipeSearchAlias {
         try {
             builder.append(Minecraft.getMinecraft().gameSettings.language);
         } catch (Throwable ignored) {}
-        final TreeSet<String> mods = new TreeSet<>();
+        final ObjectRBTreeSet<String> mods = new ObjectRBTreeSet<>();
         try {
             for (ModContainer mod : Loader.instance()
                 .getModList()) {
@@ -378,9 +378,9 @@ public final class RecipeSearchAlias {
             if (!key.startsWith(candidate)) continue;
             if (best == null || candidate.length() > best.length()) best = candidate;
         }
-        if (best == null) return Collections.emptyList();
+        if (best == null) return ObjectLists.emptyList();
         final List<String> values = index.get(best);
-        return values == null ? Collections.emptyList() : copyDistinct(values);
+        return values == null ? ObjectLists.emptyList() : copyDistinct(values);
     }
 
     private static List<String> contains(String key) {
@@ -423,7 +423,7 @@ public final class RecipeSearchAlias {
             return Files.readAllLines(target.toPath(), StandardCharsets.UTF_8);
         } catch (IOException e) {
             LOG.warn("Failed to read {}", target, e);
-            return Collections.emptyList();
+            return ObjectLists.emptyList();
         }
     }
 

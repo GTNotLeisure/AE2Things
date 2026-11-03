@@ -2,7 +2,6 @@ package com.asdflj.ae2thing.client.gui.container;
 
 import static com.asdflj.ae2thing.api.Constants.TC_CRAFTING;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -47,6 +46,7 @@ import appeng.container.slot.SlotRestrictedInput;
 import appeng.tile.inventory.InvOperation;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import thaumcraft.api.ThaumcraftApiHelper;
 import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
@@ -454,7 +454,7 @@ public class ContainerInfusionPatternTerminal extends BasePatternContainerMonito
     }
 
     protected ItemStack[] getInputs() {
-        final ArrayList<ItemStack> input = new ArrayList<>();
+        final ObjectArrayList<ItemStack> input = new ObjectArrayList<>();
         boolean hasInput = false;
         for (SlotFake craftingSlot : this.craftingSlots) {
             ItemStack stack = craftingSlot.getStack();
@@ -468,7 +468,7 @@ public class ContainerInfusionPatternTerminal extends BasePatternContainerMonito
     }
 
     protected ItemStack[] getOutputs() {
-        final ArrayList<ItemStack> output = new ArrayList<>();
+        final ObjectArrayList<ItemStack> output = new ObjectArrayList<>();
         boolean hasOutput = false;
         for (final SlotFake outputSlot : this.outputSlots) {
             ItemStack stack = outputSlot.getStack();

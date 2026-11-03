@@ -1,7 +1,6 @@
 package com.asdflj.ae2thing.util.enhancedsearch;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -20,6 +19,7 @@ import gregtech.api.recipe.RecipeMap;
 import gregtech.common.blocks.ItemMachines;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 
 @SideOnly(Side.CLIENT)
 public final class GTRecipeUtil {
@@ -224,7 +224,7 @@ public final class GTRecipeUtil {
             if (mapId.isEmpty()) return false;
             if (mapId.equals(id)) return true;
             if (mapId.equals(baseMapId(id))) return true;
-            return matchesTransferRect(Collections.singleton(map), id);
+            return matchesTransferRect(ObjectSets.singleton(map), id);
         }
 
         private static RecipeCategory categoryById(String id) {

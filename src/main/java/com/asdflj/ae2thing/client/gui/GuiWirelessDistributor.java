@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.gui;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.resources.I18n;
@@ -36,6 +35,7 @@ import appeng.core.localization.ButtonToolTips;
 import appeng.core.localization.GuiText;
 import appeng.integration.IntegrationRegistry;
 import appeng.integration.IntegrationType;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class GuiWirelessDistributor extends AEBaseGui implements IInfoTerminal {
 
@@ -47,9 +47,9 @@ public class GuiWirelessDistributor extends AEBaseGui implements IInfoTerminal {
     private int rows;
     protected THGuiTextField searchField;
     protected final IDisplayRepo repo;
-    private final List<Component> components = new ArrayList<>();
-    private final List<IClickable> clickables = new ArrayList<>();
-    private final List<IScrollable> scrollables = new ArrayList<>();
+    private final List<Component> components = new ObjectArrayList<>();
+    private final List<IClickable> clickables = new ObjectArrayList<>();
+    private final List<IScrollable> scrollables = new ObjectArrayList<>();
 
     public GuiWirelessDistributor(InventoryPlayer inventoryPlayer, TileWirelessDistributor te) {
         super(new ContainerWirelessDistributor(inventoryPlayer, te));

@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.common.block;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -159,8 +158,8 @@ public class BlockWirelessDistributor extends BaseTileBlock implements IRegister
     }
 
     @Override
-    public ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
-        ArrayList<ItemStack> arr = new ArrayList<>();
+    public java.util.ArrayList<ItemStack> getDrops(World world, int x, int y, int z, int metadata, int fortune) {
+        java.util.ArrayList<ItemStack> arr = new java.util.ArrayList<>();
         if (world.getTileEntity(x, y, z) instanceof SubBlocks tile) {
             arr.add(new ItemStack(this, 1, tile.getDamage()));
         }

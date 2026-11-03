@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.gui.widget;
 
-import java.util.ArrayList;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,6 +15,7 @@ import appeng.api.storage.data.AEStackTypeRegistry;
 import appeng.api.storage.data.IAEStackType;
 import appeng.client.gui.widgets.TypeToggleButton;
 import appeng.util.AEStackTypeFilter;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 
 /**
@@ -27,7 +27,7 @@ import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 public class TypeFilterWidget {
 
     private final Map<TypeToggleButton, IAEStackType<?>> buttons = new IdentityHashMap<>();
-    private final List<TypeToggleButton> orderedButtons = new ArrayList<>();
+    private final List<TypeToggleButton> orderedButtons = new ObjectArrayList<>();
     private Reference2BooleanMap<IAEStackType<?>> filters;
     private final int windowId;
 

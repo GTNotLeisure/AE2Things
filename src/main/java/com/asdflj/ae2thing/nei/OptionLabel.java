@@ -1,7 +1,5 @@
 package com.asdflj.ae2thing.nei;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -11,6 +9,8 @@ import org.lwjgl.opengl.GL11;
 
 import codechicken.lib.gui.GuiDraw;
 import codechicken.nei.config.Option;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 public class OptionLabel extends Option {
 
@@ -29,7 +29,7 @@ public class OptionLabel extends Option {
     private String cachedSource;
     private int cachedWidth = Integer.MIN_VALUE;
     private boolean cachedUnicode;
-    private List<Line> cachedLines = Collections.emptyList();
+    private List<Line> cachedLines = ObjectLists.emptyList();
     private int cachedHeight = PADDING_TOP + PADDING_BOTTOM;
 
     public OptionLabel(String name, String... keys) {
@@ -47,7 +47,7 @@ public class OptionLabel extends Option {
         this.cachedWidth = width;
         this.cachedUnicode = unicode;
 
-        final List<Line> lines = new ArrayList<>();
+        final List<Line> lines = new ObjectArrayList<>();
         for (int i = 0; i < this.keys.length; i++) {
             if (i > 0) lines.add(new Line("", PARAGRAPH_GAP));
             final String text = translateN(this.keys[i]);

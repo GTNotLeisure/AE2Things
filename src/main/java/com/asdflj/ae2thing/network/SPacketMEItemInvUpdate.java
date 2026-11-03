@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.network;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -17,6 +16,7 @@ import appeng.api.storage.data.IAEStack;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /**
  * Packet dedicated to item inventory update.
@@ -43,7 +43,7 @@ public class SPacketMEItemInvUpdate extends SPacketMEBaseInvUpdate implements IM
     }
 
     public List<IAEItemStack> getItemStacks() {
-        List<IAEItemStack> items = new ArrayList<>();
+        List<IAEItemStack> items = new ObjectArrayList<>();
         for (IAEStack<?> stack : this.list) {
             if (stack instanceof IAEItemStack item) {
                 items.add(item);

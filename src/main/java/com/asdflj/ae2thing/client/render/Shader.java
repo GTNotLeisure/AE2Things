@@ -3,7 +3,6 @@ package com.asdflj.ae2thing.client.render;
 import java.io.BufferedReader;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.OpenGlHelper;
@@ -11,6 +10,8 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.opengl.GL11;
 import org.lwjgl.opengl.GL20;
+
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /*
  * copy from xiaoxing2005-Korosensei-s-Wonderful-Tools
@@ -26,7 +27,7 @@ public class Shader {
     public String domain;
     public String vertShaderFilename;
     public String fragShaderFilename;
-    public static ArrayList<Shader> allShaderProgram = new ArrayList<>();
+    public static ObjectArrayList<Shader> allShaderProgram = new ObjectArrayList<>();
 
     public Shader(String name, String vertShaderFilename, String fragShaderFilename) {
         this.name = name;

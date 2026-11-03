@@ -1,7 +1,5 @@
 package com.asdflj.ae2thing.client.gui.widget;
 
-import java.util.Collections;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.I18n;
 
@@ -10,6 +8,7 @@ import com.asdflj.ae2thing.util.Info;
 import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.core.localization.PlayerMessages;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 public class HighLightButton extends BaseGuiButton {
 
@@ -31,7 +30,7 @@ public class HighLightButton extends BaseGuiButton {
         if (info != null) {
             BlockPosHighlighter.highlightBlocks(
                 mc.thePlayer,
-                Collections.singletonList(info.a),
+                ObjectLists.singleton(info.a),
                 PlayerMessages.InterfaceHighlighted.getName(),
                 I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_IN_OTHER_DIM, info.a.getDimension()));
             mc.thePlayer.closeScreen();

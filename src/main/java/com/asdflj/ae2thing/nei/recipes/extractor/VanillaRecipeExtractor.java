@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.nei.recipes.extractor;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import com.asdflj.ae2thing.nei.NEEUtils;
@@ -10,6 +9,8 @@ import com.asdflj.ae2thing.nei.object.OrderStack;
 
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.IRecipeHandler;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class VanillaRecipeExtractor implements IRecipeExtractor {
 
@@ -20,28 +21,29 @@ public class VanillaRecipeExtractor implements IRecipeExtractor {
     }
 
     @Override
-    public List<OrderStack<?>> getInputIngredients(List<PositionedStack> rawInputs) {
+    public ObjectList<OrderStack<?>> getInputIngredients(List<PositionedStack> rawInputs) {
         return convert(rawInputs, NEEUtils.NULL_IDENTIFIER, false);
     }
 
     @Override
-    public List<OrderStack<?>> getOutputIngredients(List<PositionedStack> rawOutputs) {
+    public ObjectList<OrderStack<?>> getOutputIngredients(List<PositionedStack> rawOutputs) {
         return convert(rawOutputs, NEEUtils.NULL_IDENTIFIER, true);
     }
 
     @Override
-    public List<OrderStack<?>> getInputIngredients(List<PositionedStack> rawInputs, IRecipeHandler recipe, int index) {
+    public ObjectList<OrderStack<?>> getInputIngredients(List<PositionedStack> rawInputs, IRecipeHandler recipe,
+        int index) {
         return convert(rawInputs, NEEUtils.realIdentifierOf(recipe), false);
     }
 
     @Override
-    public List<OrderStack<?>> getOutputIngredients(List<PositionedStack> rawOutputs, IRecipeHandler recipe,
+    public ObjectList<OrderStack<?>> getOutputIngredients(List<PositionedStack> rawOutputs, IRecipeHandler recipe,
         int index) {
         return convert(rawOutputs, NEEUtils.realIdentifierOf(recipe), true);
     }
 
-    private List<OrderStack<?>> convert(List<PositionedStack> raw, String identifier, boolean output) {
-        List<OrderStack<?>> tmp = new LinkedList<>();
+    private ObjectList<OrderStack<?>> convert(List<PositionedStack> raw, String identifier, boolean output) {
+        final ObjectList<OrderStack<?>> tmp = new ObjectArrayList<>();
         for (int i = 0; i < raw.size(); i++) {
             final PositionedStack positionedStack = raw.get(i);
             if (positionedStack == null) continue;

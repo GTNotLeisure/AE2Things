@@ -3,8 +3,6 @@ package com.asdflj.ae2thing.common.tile;
 import java.io.ByteArrayOutputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Predicate;
 
@@ -53,13 +51,14 @@ import appeng.util.Platform;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class TileWirelessDistributor extends AENetworkTile
     implements IGridTickable, IColorableTile, SubBlocks, IPowerChannelState {
 
     private int damage = 0;
-    private final List<GridConnectionWrapper> connectionWrappers = new ArrayList<>();
-    private final List<DimensionalCoord> dimensionalCoords = new ArrayList<>();
+    private final List<GridConnectionWrapper> connectionWrappers = new ObjectArrayList<>();
+    private final List<DimensionalCoord> dimensionalCoords = new ObjectArrayList<>();
     private int usedChannels = 0;
     private boolean loaded = false;
     private boolean scanning = false;
@@ -327,7 +326,7 @@ public class TileWirelessDistributor extends AENetworkTile
 
     @MENetworkEventSubscribe
     public void onChannelUpdate(MENetworkChannelsChanged event) {
-        List<GridConnectionWrapper> list = new ArrayList<>();
+        List<GridConnectionWrapper> list = new ObjectArrayList<>();
         for (GridConnectionWrapper wrapper : connectionWrappers) {
             if (wrapper.pos.getTileEntity() == null || wrapper.tile == null
                 || wrapper.pos.getTileEntity() != wrapper.tile
@@ -358,7 +357,7 @@ public class TileWirelessDistributor extends AENetworkTile
 
     @MENetworkEventSubscribe
     public void onChannelUpdate(MENetworkChannelChanged event) {
-        List<GridConnectionWrapper> list = new ArrayList<>();
+        List<GridConnectionWrapper> list = new ObjectArrayList<>();
         for (GridConnectionWrapper wrapper : connectionWrappers) {
             if (wrapper.connection.b()
                 .equals(event.node)) {
@@ -382,7 +381,7 @@ public class TileWirelessDistributor extends AENetworkTile
 
     private List<Chunk> getChunks(World world) {
         Chunk centerChunk = world.getChunkFromBlockCoords(this.xCoord, this.zCoord);
-        List<Chunk> chunks = new LinkedList<>();
+        List<Chunk> chunks = new ObjectArrayList<>();
         int chunkRadius = (this.radius.getValue() - 1) / 2; // 将区块数量转换为偏移量
         for (int x = -chunkRadius; x <= chunkRadius; x++) {
             for (int z = -chunkRadius; z <= chunkRadius; z++) {
@@ -425,7 +424,7 @@ public class TileWirelessDistributor extends AENetworkTile
     private List<TileEntity> getAllAvailableTileEntity(Predicate<BaseMetaTileEntity> filter) {
         World world = this.getTile()
             .getWorldObj();
-        List<TileEntity> arr = new ArrayList<>();
+        List<TileEntity> arr = new ObjectArrayList<>();
         for (Chunk c : getChunks(world)) {
             for (Object obj : c.chunkTileEntityMap.values()) {
                 if (obj instanceof BaseMetaTileEntity tile && tile.getProxy() != null && filter.test(tile)) {

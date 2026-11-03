@@ -1,8 +1,5 @@
 package com.asdflj.ae2thing.common.storage;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -32,11 +29,15 @@ import appeng.core.AELog;
 import appeng.tile.grid.AENetworkInvTile;
 import appeng.util.item.AEFluidStackType;
 import appeng.util.item.AEItemStackType;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 
 public class StorageManager extends WorldSavedData {
 
-    private final Map<UUID, DataStorage> disks = new HashMap<>();
-    private final Map<UUID, Set<IGrid>> grids = new HashMap<>();
+    private final Map<UUID, DataStorage> disks = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, Set<IGrid>> grids = new Object2ObjectOpenHashMap<>();
 
     public StorageManager(String name) {
         super(name);
@@ -65,7 +66,7 @@ public class StorageManager extends WorldSavedData {
 
     private void addGrid(UUID uid, IGrid grid) {
         if (!Config.cellLink || grid == null || grid.isEmpty()) return;
-        this.grids.putIfAbsent(uid, new HashSet<>());
+        this.grids.putIfAbsent(uid, new ObjectOpenHashSet<>());
         this.grids.get(uid)
             .add(grid);
     }
@@ -115,7 +116,7 @@ public class StorageManager extends WorldSavedData {
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
-        final Map<UUID, DataStorage> d = new HashMap<>();
+        final Map<UUID, DataStorage> d = new Object2ObjectOpenHashMap<>();
         try {
             final NBTTagList diskList = data.getTagList(Constants.DISKLIST, 10);
             for (int i = 0; i < diskList.tagCount(); i++) {
@@ -209,7 +210,7 @@ public class StorageManager extends WorldSavedData {
             storage,
             drive,
             storageGrid -> storageGrid
-                .postAlterationOfStoredItems(AEItemStackType.ITEM_STACK_TYPE, Collections.singletonList(change), null));
+                .postAlterationOfStoredItems(AEItemStackType.ITEM_STACK_TYPE, ObjectLists.singleton(change), null));
     }
 
     public void postFluidChange(final DataStorage storage, IChestOrDrive drive, IAEFluidStack change) {
@@ -217,10 +218,8 @@ public class StorageManager extends WorldSavedData {
         this.postChanges(
             storage,
             drive,
-            storageGrid -> storageGrid.postAlterationOfStoredItems(
-                AEFluidStackType.FLUID_STACK_TYPE,
-                Collections.singletonList(change),
-                null));
+            storageGrid -> storageGrid
+                .postAlterationOfStoredItems(AEFluidStackType.FLUID_STACK_TYPE, ObjectLists.singleton(change), null));
     }
 
     public void postOtherChange(final DataStorage storage, IChestOrDrive drive, IAEStack<?> change) {
@@ -230,7 +229,7 @@ public class StorageManager extends WorldSavedData {
         this.postChanges(
             storage,
             drive,
-            storageGrid -> storageGrid.postAlterationOfStoredItems(type, Collections.singleton(change), null));
+            storageGrid -> storageGrid.postAlterationOfStoredItems(type, ObjectSets.singleton(change), null));
     }
 
     private void postChanges(final DataStorage storage, IChestOrDrive drive, Consumer<IStorageGrid> postChange) {
@@ -247,7 +246,7 @@ public class StorageManager extends WorldSavedData {
                     g -> g.isEmpty() || !g.getPivot()
                         .isActive());
                 if (iGrids.size() <= 1) return;
-                Set<IGrid> cp = new HashSet<>(iGrids);
+                Set<IGrid> cp = new ObjectOpenHashSet<>(iGrids);
                 for (IGrid grid : cp) {
                     if (grid.isEmpty() || grid.equals(curGrid)) continue;
                     postChange.accept(grid.getCache(IStorageGrid.class));

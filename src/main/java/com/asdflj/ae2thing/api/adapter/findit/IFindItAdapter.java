@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.api.adapter.findit;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.item.ItemStack;
@@ -18,14 +17,15 @@ import appeng.api.storage.IMEInventoryHandler;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IAEStackType;
 import appeng.util.IterationCounter;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public interface IFindItAdapter {
 
     Class<? extends IGridHost> getCls();
 
     default List<StorageProvider> getStorageProviders(IGrid grid, IAEStack<?> request) {
-        if (request == null) return new ArrayList<>();
-        List<StorageProvider> list = new ArrayList<>();
+        if (request == null) return new ObjectArrayList<>();
+        List<StorageProvider> list = new ObjectArrayList<>();
         for (IGridNode node : grid.getMachines(getCls())) {
             List<StorageProvider> results = getStorageProver(grid, node, request);
             if (results != null && !results.isEmpty()) {

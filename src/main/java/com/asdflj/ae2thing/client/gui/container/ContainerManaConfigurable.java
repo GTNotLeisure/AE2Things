@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.gui.container;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,6 +23,7 @@ import appeng.container.slot.AppEngSlot;
 import appeng.tile.inventory.AppEngInternalAEInventory;
 import appeng.util.Platform;
 import appeng.util.item.AEFluidStack;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public abstract class ContainerManaConfigurable extends ContainerUpgradeable {
 
@@ -101,7 +101,7 @@ public abstract class ContainerManaConfigurable extends ContainerUpgradeable {
         if (Platform.isServer()) {
             // clear out config items that are no longer valid (for instance, capacity upgrade removed)
             final AppEngInternalAEInventory inv = this.getFakeFluidInv();
-            final Map<Integer, IAEFluidStack> tmp = new HashMap<>();
+            final Map<Integer, IAEFluidStack> tmp = new Object2ObjectOpenHashMap<>();
             for (int i = 0; i < inv.getSizeInventory(); ++i) {
                 if (inv.getStackInSlot(i) != null && !this
                     .isValidForConfig(i, AEFluidStack.create(ItemFluidPacket.getFluidStack(inv.getStackInSlot(i))))) {

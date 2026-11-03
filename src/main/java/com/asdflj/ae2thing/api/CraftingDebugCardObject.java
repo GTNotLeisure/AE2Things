@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.api;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -22,6 +21,7 @@ import appeng.util.Platform;
 import appeng.util.ReadableNumberConverter;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class CraftingDebugCardObject {
 
@@ -105,7 +105,7 @@ public class CraftingDebugCardObject {
     @SideOnly(Side.CLIENT)
     private static List<String> getHistoryText(LimitedSizeLinkedList<CraftingDebugHelper.CraftingInfo> history,
         Mode mode) {
-        List<String> msg = new ArrayList<>();
+        List<String> msg = new ObjectArrayList<>();
         if (history.isEmpty()) return msg;
         for (CraftingDebugHelper.CraftingInfo info : history) {
             if (mode == Mode.Player && !info.isPlayer) continue;

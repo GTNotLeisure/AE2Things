@@ -3,10 +3,7 @@ package com.asdflj.ae2thing.api;
 import static com.asdflj.ae2thing.nei.NEI_TH_Config.getConfigValue;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -25,12 +22,15 @@ import appeng.api.storage.IItemDisplayRegistry;
 import appeng.api.storage.data.IAEItemStack;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 @Deprecated
 @SideOnly(Side.CLIENT)
 public class Pinned {
 
-    private final HashMap<IAEItemStack, PinInfo> pinInfo = new HashMap<>();
+    private final Object2ObjectOpenHashMap<IAEItemStack, PinInfo> pinInfo = new Object2ObjectOpenHashMap<>();
     public static int MAX_PINNED = 9;
     public static Pinned INSTANCE = new Pinned();
     private long lastRunTime;
@@ -65,7 +65,7 @@ public class Pinned {
         }
 
         if (pinInfo.size() > MAX_PINNED) {
-            List<Map.Entry<IAEItemStack, PinInfo>> toRemove = new ArrayList<>(pinInfo.entrySet());
+            List<Map.Entry<IAEItemStack, PinInfo>> toRemove = new ObjectArrayList<>(pinInfo.entrySet());
             toRemove.sort(TIME_COMPARATOR);
             for (Map.Entry<IAEItemStack, PinInfo> entry : toRemove.subList(0, toRemove.size() - MAX_PINNED)) {
                 pinInfo.remove(entry.getKey());
@@ -84,9 +84,9 @@ public class Pinned {
     }
 
     public List<IAEItemStack> getSortedPinnedItems() {
-        List<Map.Entry<IAEItemStack, PinInfo>> list = new ArrayList<>(pinInfo.entrySet());
+        List<Map.Entry<IAEItemStack, PinInfo>> list = new ObjectArrayList<>(pinInfo.entrySet());
         list.sort(TIME_COMPARATOR);
-        List<IAEItemStack> pinnedItems = new ArrayList<>(list.size());
+        List<IAEItemStack> pinnedItems = new ObjectArrayList<>(list.size());
         for (Map.Entry<IAEItemStack, PinInfo> entry : list) {
             pinnedItems.add(entry.getKey());
         }
@@ -119,7 +119,7 @@ public class Pinned {
             }
             return;
         }
-        HashSet<IAEItemStack> set = new HashSet<>(items);
+        ObjectOpenHashSet<IAEItemStack> set = new ObjectOpenHashSet<>(items);
         for (IAEItemStack item : this.pinInfo.keySet()) {
             if (!set.contains(item)) {
                 this.pinInfo.get(item).canPrune = true;

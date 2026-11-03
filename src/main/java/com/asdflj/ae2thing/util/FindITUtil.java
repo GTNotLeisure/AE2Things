@@ -1,7 +1,5 @@
 package com.asdflj.ae2thing.util;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -32,12 +30,13 @@ import codechicken.nei.guihook.IContainerDrawHandler;
 import codechicken.nei.guihook.IContainerInputHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 @SideOnly(Side.CLIENT)
 public class FindITUtil implements Runnable {
 
     private static SlotHighlighter slotHighlighter;
-    private final List<StorageProvider> storageProviderList = new ArrayList<>();
+    private final List<StorageProvider> storageProviderList = new ObjectArrayList<>();
     public static FindITUtil instance = new FindITUtil();
     private long expirationTime = 0;
 
@@ -66,7 +65,7 @@ public class FindITUtil implements Runnable {
         this.expirationTime = System.currentTimeMillis() + FindItConfig.ITEM_HIGHLIGHTING_DURATION * 1000L;
         List<DimensionalCoord> list = storageProviderList.stream()
             .map(StorageProvider::getCoord)
-            .collect(Collectors.toList());
+            .collect(Collectors.toCollection(ObjectArrayList::new));
         BlockPosHighlighter.highlightBlocks(
             Minecraft.getMinecraft().thePlayer,
             list,
@@ -92,7 +91,7 @@ public class FindITUtil implements Runnable {
             return;
         }
         if (c.getTarget() instanceof TileEntity t) {
-            HashSet<Slot> slots = getSlots(c, t);
+            java.util.HashSet<Slot> slots = getSlots(c, t);
             if (slots.isEmpty()) return;
             slotHighlighter.highlightSlots(
                 guiContainer,
@@ -101,8 +100,8 @@ public class FindITUtil implements Runnable {
         }
     }
 
-    private @NotNull HashSet<Slot> getSlots(AEBaseContainer c, TileEntity t) {
-        HashSet<Slot> slots = new HashSet<>();
+    private @NotNull java.util.HashSet<Slot> getSlots(AEBaseContainer c, TileEntity t) {
+        java.util.HashSet<Slot> slots = new java.util.HashSet<>();
         for (StorageProvider storageProvider : storageProviderList) {
             if (storageProvider.getCoord()
                 .equals(new DimensionalCoord(t))) {

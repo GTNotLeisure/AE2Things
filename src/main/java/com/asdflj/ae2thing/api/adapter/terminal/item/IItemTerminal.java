@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.api.adapter.terminal.item;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -15,6 +14,8 @@ import com.asdflj.ae2thing.api.adapter.terminal.ITerminal;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.util.BaublesUtil;
 
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+
 public interface IItemTerminal extends ITerminal {
 
     default boolean supportBaubles() {
@@ -22,7 +23,7 @@ public interface IItemTerminal extends ITerminal {
     }
 
     default List<TerminalItems> getTerminalItems() {
-        List<TerminalItems> terminal = new ArrayList<>(this.getMainInvTerminals());
+        List<TerminalItems> terminal = new ObjectArrayList<>(this.getMainInvTerminals());
         if (Mods.BAUBLES.isModLoaded() && this.supportBaubles()) {
             terminal.addAll(getBaublesInvTerminals(BaublesUtil.getBaublesInv(this.player())));
         }
@@ -30,7 +31,7 @@ public interface IItemTerminal extends ITerminal {
     }
 
     default List<TerminalItems> getMainInvTerminals() {
-        List<TerminalItems> arr = new ArrayList<>();
+        List<TerminalItems> arr = new ObjectArrayList<>();
         for (int i = 0; i < this.getInventory().mainInventory.length; i++) {
             ItemStack item = this.getInventory()
                 .getStackInSlot(i);
@@ -45,7 +46,7 @@ public interface IItemTerminal extends ITerminal {
     }
 
     default List<TerminalItems> getBaublesInvTerminals(IInventory inv) {
-        List<TerminalItems> arr = new ArrayList<>();
+        List<TerminalItems> arr = new ObjectArrayList<>();
         if (inv == null) return arr;
         for (int i = 0; i < inv.getSizeInventory(); i++) {
             ItemStack item = inv.getStackInSlot(i);

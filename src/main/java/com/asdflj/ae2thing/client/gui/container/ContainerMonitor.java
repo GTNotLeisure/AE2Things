@@ -4,7 +4,6 @@ import static appeng.util.IterationCounter.fetchNewId;
 import static com.asdflj.ae2thing.api.Constants.MessageType.UPDATE_PLAYER_ITEM;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -77,6 +76,7 @@ import appeng.util.inv.AdaptorPlayerHand;
 import appeng.util.item.AEFluidStack;
 import appeng.util.item.AEFluidStackType;
 import appeng.util.item.AEItemStack;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLongPair;
 
 public abstract class ContainerMonitor extends BaseNetworkContainer implements IConfigurableObject, IConfigManagerHost,
@@ -88,7 +88,7 @@ public abstract class ContainerMonitor extends BaseNetworkContainer implements I
     protected final IConfigManager clientCM;
     protected final ItemMonitor monitor;
     protected final FluidMonitor fluidMonitor;
-    protected final List<GenericMonitor> genericMonitors = new ArrayList<>();
+    protected final List<GenericMonitor> genericMonitors = new ObjectArrayList<>();
     protected ITerminalHost host;
     protected IConfigManagerHost gui;
     protected IConfigManager serverCM;
@@ -514,7 +514,7 @@ public abstract class ContainerMonitor extends BaseNetworkContainer implements I
 
         private final IMEMonitor monitor;
         private final List<ICrafting> crafters;
-        private final List<IAEStack<?>> changes = new ArrayList<>();
+        private final List<IAEStack<?>> changes = new ObjectArrayList<>();
 
         public GenericMonitor(IMEMonitor monitor, List<ICrafting> crafters) {
             this.monitor = monitor;

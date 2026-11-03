@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.common.storage;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -39,6 +38,7 @@ import appeng.util.Platform;
 import de.eydamos.backpack.item.ItemBackpackBase;
 import de.eydamos.backpack.util.BackpackUtil;
 import forestry.storage.items.ItemBackpack;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class CellInventory implements ITCellInventory {
 
@@ -46,8 +46,8 @@ public class CellInventory implements ITCellInventory {
     protected IStorageItemCell cellType;
     protected final ISaveProvider container;
     protected final EntityPlayer player;
-    protected final List<IInventory> modInv = new ArrayList<>();
-    protected final List<BaseBackpackHandler> fluidInv = new ArrayList<>();
+    protected final List<IInventory> modInv = new ObjectArrayList<>();
+    protected final List<BaseBackpackHandler> fluidInv = new ObjectArrayList<>();
     protected IItemList<IAEItemStack> cellItems = null;
 
     public CellInventory(final ItemStack o, final ISaveProvider c, final EntityPlayer p) throws AppEngException {
@@ -69,10 +69,10 @@ public class CellInventory implements ITCellInventory {
         boolean hasBackpack = Mods.BACKPACK.isModLoaded();
         AE2ThingAPI api = AE2ThingAPI.instance();
 
-        List<IInventory> forestryBackpacks = hasForestry ? new ArrayList<>() : null;
-        List<IInventory> adventureBackpacks = hasAdventureBackpack ? new ArrayList<>() : null;
-        List<IInventory> regularBackpacks = hasBackpack ? new ArrayList<>() : null;
-        List<IInventory> apiBackpacks = new ArrayList<>();
+        List<IInventory> forestryBackpacks = hasForestry ? new ObjectArrayList<>() : null;
+        List<IInventory> adventureBackpacks = hasAdventureBackpack ? new ObjectArrayList<>() : null;
+        List<IInventory> regularBackpacks = hasBackpack ? new ObjectArrayList<>() : null;
+        List<IInventory> apiBackpacks = new ObjectArrayList<>();
 
         for (ItemStack stack : player.inventory.mainInventory) {
             if (stack == null) {
@@ -109,7 +109,7 @@ public class CellInventory implements ITCellInventory {
             this.modInv.addAll(regularBackpacks);
         }
         if (Mods.OK_BACKPACK.isModLoaded()) {
-            List<BaseBackpackHandler> backpacks = new ArrayList<>();
+            List<BaseBackpackHandler> backpacks = new ObjectArrayList<>();
             OKBackpackHandler.addPlayerBackpacks(player, backpacks);
             this.modInv.addAll(backpacks);
         }

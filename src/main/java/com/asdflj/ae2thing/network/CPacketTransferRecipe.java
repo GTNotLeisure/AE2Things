@@ -1,8 +1,5 @@
 package com.asdflj.ae2thing.network;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import javax.annotation.Nullable;
 
 import net.minecraft.inventory.Container;
@@ -18,11 +15,13 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class CPacketTransferRecipe implements IMessage {
 
-    private List<OrderStack<?>> inputs;
-    private List<OrderStack<?>> outputs;
+    private ObjectList<OrderStack<?>> inputs;
+    private ObjectList<OrderStack<?>> outputs;
     private String identifier;
     public boolean isCraft;
     private static final int MAX_INDEX = 32;
@@ -40,21 +39,22 @@ public class CPacketTransferRecipe implements IMessage {
     public CPacketTransferRecipe() {}
 
     @SuppressWarnings("unused")
-    public CPacketTransferRecipe(List<OrderStack<?>> IN, List<OrderStack<?>> OUT, boolean craft) {
+    public CPacketTransferRecipe(ObjectList<OrderStack<?>> IN, ObjectList<OrderStack<?>> OUT, boolean craft) {
         this(IN, OUT, craft, false);
     }
 
-    public CPacketTransferRecipe(List<OrderStack<?>> IN, List<OrderStack<?>> OUT, boolean craft, boolean shift) {
+    public CPacketTransferRecipe(ObjectList<OrderStack<?>> IN, ObjectList<OrderStack<?>> OUT, boolean craft,
+        boolean shift) {
         this(IN, OUT, craft, shift, Constants.NEI_DEFAULT);
     }
 
-    public CPacketTransferRecipe(List<OrderStack<?>> IN, List<OrderStack<?>> OUT, boolean craft, boolean shift,
-        String identifier) {
+    public CPacketTransferRecipe(ObjectList<OrderStack<?>> IN, ObjectList<OrderStack<?>> OUT, boolean craft,
+        boolean shift, String identifier) {
         this(IN, OUT, craft, shift, identifier, false, null, -1);
     }
 
-    public CPacketTransferRecipe(List<OrderStack<?>> IN, List<OrderStack<?>> OUT, boolean craft, boolean shift,
-        String identifier, boolean autoEncode, @Nullable NBTTagCompound target, int targetSlot) {
+    public CPacketTransferRecipe(ObjectList<OrderStack<?>> IN, ObjectList<OrderStack<?>> OUT, boolean craft,
+        boolean shift, String identifier, boolean autoEncode, @Nullable NBTTagCompound target, int targetSlot) {
         this.inputs = IN;
         this.outputs = OUT;
         this.isCraft = craft;
@@ -110,8 +110,8 @@ public class CPacketTransferRecipe implements IMessage {
     public void fromBytes(ByteBuf buf) {
         isCraft = buf.readBoolean();
         shift = buf.readBoolean();
-        inputs = new LinkedList<>();
-        outputs = new LinkedList<>();
+        inputs = new ObjectArrayList<>();
+        outputs = new ObjectArrayList<>();
         NBTTagCompound nbt_m = ByteBufUtils.readTag(buf);
         NBTTagCompound nbt_i = nbt_m.getCompoundTag("i");
         NBTTagCompound nbt_o = nbt_m.getCompoundTag("o");

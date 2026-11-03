@@ -1,13 +1,14 @@
 package com.asdflj.ae2thing.client.render;
 
 import java.util.Collection;
-import java.util.HashMap;
 
 import com.asdflj.ae2thing.integration.Mods;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+
 public class SlotRender {
 
-    private static final HashMap<Class<? extends ISlotRender>, ISlotRender> renders = new HashMap<>();
+    private static final Object2ObjectOpenHashMap<Class<? extends ISlotRender>, ISlotRender> renders = new Object2ObjectOpenHashMap<>();
     private static final SlotRender API = new SlotRender();
 
     private SlotRender() {

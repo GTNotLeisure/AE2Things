@@ -1,11 +1,6 @@
 package com.asdflj.ae2thing.nei;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -13,20 +8,26 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.oredict.OreDictionary;
 
 import com.asdflj.ae2thing.nei.object.OrderStack;
+import com.asdflj.ae2thing.nei.recipes.NEIRecipeUtil;
+import com.asdflj.ae2thing.util.GTUtil;
 
+import codechicken.nei.PositionedStack;
+import codechicken.nei.recipe.IRecipeHandler;
 import gregtech.api.util.GTOreDictUnificator;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class NEIUtils {
 
-    public static List<OrderStack<?>> compress(List<OrderStack<?>> list) {
-        List<OrderStack<?>> comp = new LinkedList<>();
+    public static ObjectList<OrderStack<?>> compress(ObjectList<OrderStack<?>> list) {
+        final ObjectList<OrderStack<?>> comp = new ObjectArrayList<>();
         for (OrderStack<?> orderStack : list) {
             if (orderStack == null) continue;
             if (orderStack.getStack() instanceof FluidStack) {
                 comp.add(orderStack);
                 continue;
             }
-            ItemStack currentStack = (ItemStack) orderStack.getStack();
+            final ItemStack currentStack = (ItemStack) orderStack.getStack();
             if (currentStack.stackSize == 0) {
                 comp.add(orderStack);
                 continue;
@@ -46,26 +47,25 @@ public class NEIUtils {
                 comp.add(orderStack);
             }
         }
-        return comp.stream()
-            .filter(Objects::nonNull)
-            .collect(Collectors.toList());
+        return comp;
     }
 
-    public static List<OrderStack<?>> clearNull(List<OrderStack<?>> list) {
-        AtomicInteger i = new AtomicInteger(0);
-        return list.stream()
-            .filter(Objects::nonNull)
-            .filter(
-                orderStack -> !(orderStack.getStack() != null && orderStack.getStack() instanceof ItemStack
-                    && ((ItemStack) orderStack.getStack()).stackSize == 0))
-            .peek(orderStack -> orderStack.setIndex(i.getAndIncrement()))
-            .collect(Collectors.toList());
+    public static ObjectList<OrderStack<?>> clearNull(ObjectList<OrderStack<?>> list) {
+        final ObjectList<OrderStack<?>> out = new ObjectArrayList<>(list.size());
+        int index = 0;
+        for (OrderStack<?> orderStack : list) {
+            if (orderStack == null) continue;
+            if (orderStack.getStack() instanceof ItemStack is && is.stackSize == 0) continue;
+            orderStack.setIndex(index++);
+            out.add(orderStack);
+        }
+        return out;
     }
 
-    public static List<OrderStack<?>> replaceHotIngot(List<OrderStack<?>> outputs) {
+    public static ObjectList<OrderStack<?>> replaceHotIngot(ObjectList<OrderStack<?>> outputs) {
         if (outputs == null || outputs.isEmpty()) return outputs;
 
-        List<OrderStack<?>> result = new ArrayList<>(outputs.size());
+        final ObjectList<OrderStack<?>> result = new ObjectArrayList<>(outputs.size());
         for (OrderStack<?> src : outputs) {
             if (src == null || !(src.getStack() instanceof ItemStack is)) {
                 result.add(src);
@@ -73,20 +73,20 @@ public class NEIUtils {
             }
 
             for (int id : OreDictionary.getOreIDs(is)) {
-                String oreName = OreDictionary.getOreName(id);
+                final String oreName = OreDictionary.getOreName(id);
                 if (oreName == null || !oreName.startsWith("ingotHot")) continue;
 
-                String coldName = "ingot" + oreName.substring("ingotHot".length());
-                List<ItemStack> candidates = OreDictionary.getOres(coldName);
+                final String coldName = "ingot" + oreName.substring("ingotHot".length());
+                final List<ItemStack> candidates = OreDictionary.getOres(coldName);
                 if (candidates == null || candidates.isEmpty()) continue;
 
                 // noinspection SequencedCollectionMethodCanBeUsed
-                ItemStack cold = candidates.get(0);
+                final ItemStack cold = candidates.get(0);
                 if (cold == null) continue;
 
                 ItemStack out = cold.copy();
                 try {
-                    ItemStack unified = GTOreDictUnificator.setStack(out);
+                    final ItemStack unified = GTOreDictUnificator.setStack(out);
                     if (unified != null) out = unified;
                 } catch (Throwable ignored) {}
 
@@ -105,9 +105,9 @@ public class NEIUtils {
         return result;
     }
 
-    public static List<OrderStack<?>> multiply(List<OrderStack<?>> list, int multiplier) {
+    public static ObjectList<OrderStack<?>> multiply(ObjectList<OrderStack<?>> list, int multiplier) {
         if (list == null || list.isEmpty() || multiplier <= 1) return list;
-        final List<OrderStack<?>> out = new ArrayList<>(list.size());
+        final ObjectList<OrderStack<?>> out = new ObjectArrayList<>(list.size());
         for (OrderStack<?> src : list) {
             if (src == null) continue;
             if (src.getStack() instanceof ItemStack is) {
@@ -137,17 +137,54 @@ public class NEIUtils {
         return out;
     }
 
-    public static List<OrderStack<?>> prepareNonConsumedInputs(List<OrderStack<?>> list, boolean includeNonConsumed) {
+    public static ObjectList<OrderStack<?>> prepareInputs(ObjectList<OrderStack<?>> list, boolean includeNonConsumed,
+        IRecipeHandler handler, int recipeIndex) {
         if (list == null || list.isEmpty()) return list;
-        final List<OrderStack<?>> out = new ArrayList<>(list.size());
+        final boolean circuitToBoard = isCircuitToBoardRecipe(handler, recipeIndex);
+        final ObjectList<OrderStack<?>> out = new ObjectArrayList<>(list.size());
         for (OrderStack<?> orderStack : list) {
             if (orderStack == null) continue;
             if (orderStack.getStack() instanceof ItemStack is && is.stackSize == 0) {
                 if (!includeNonConsumed) continue;
                 is.stackSize = 1;
             }
+            if (circuitToBoard && orderStack.getStack() instanceof ItemStack board
+                && GTUtil.isUniversalCircuitBoard(board)) {
+                final ItemStack[] candidates = orderStack.getItems();
+                if (candidates != null) {
+                    for (ItemStack candidate : candidates) {
+                        if (!GTUtil.isPlainCircuit(candidate)) continue;
+                        final ItemStack copy = candidate.copy();
+                        copy.stackSize = board.stackSize;
+                        orderStack.putStack(copy);
+                        break;
+                    }
+                }
+            }
             out.add(orderStack);
         }
         return out;
+    }
+
+    public static boolean isCircuitToBoardRecipe(IRecipeHandler handler, int recipeIndex) {
+        try {
+            boolean boardOutput = false;
+            for (OrderStack<?> output : NEIRecipeUtil
+                .getPackageOutputs(handler, recipeIndex, !NEIRecipeUtil.notUseOther(handler))) {
+                if (output != null && output.getStack() instanceof ItemStack item
+                    && GTUtil.isUniversalCircuitBoard(item)) {
+                    boardOutput = true;
+                    break;
+                }
+            }
+            if (!boardOutput) return false;
+            for (PositionedStack ingredient : handler.getIngredientStacks(recipeIndex)) {
+                if (ingredient == null || ingredient.items == null) continue;
+                for (ItemStack candidate : ingredient.items) {
+                    if (GTUtil.isPlainCircuit(candidate)) return true;
+                }
+            }
+        } catch (Throwable ignored) {}
+        return false;
     }
 }

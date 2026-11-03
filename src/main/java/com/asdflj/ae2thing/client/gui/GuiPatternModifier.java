@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.gui;
 
-import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
@@ -33,6 +32,7 @@ import codechicken.nei.VisiblityData;
 import codechicken.nei.api.INEIGuiHandler;
 import codechicken.nei.api.TaggedInventoryArea;
 import cpw.mods.fml.common.Optional;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 @Optional.Interface(modid = "NotEnoughItems", iface = "codechicken.nei.api.INEIGuiHandler")
 public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
@@ -182,12 +182,12 @@ public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
 
     @Override
     public Iterable<Integer> getItemSpawnSlots(GuiContainer gui, ItemStack item) {
-        return Collections.emptyList();
+        return ObjectLists.emptyList();
     }
 
     @Override
     public List<TaggedInventoryArea> getInventoryAreas(GuiContainer gui) {
-        return Collections.emptyList();
+        return ObjectLists.emptyList();
     }
 
     @Override

@@ -80,6 +80,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import it.unimi.dsi.fastutil.objects.Object2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import it.unimi.dsi.fastutil.objects.ReferenceOpenHashSet;
 
@@ -493,10 +494,10 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
             this.refreshChannels();
             final TypeChannel channel = this.channels.get(type);
             if (channel != null && channel.exposed) {
-                return Collections.singletonList(channel.handler);
+                return ObjectLists.singleton(channel.handler);
             }
         }
-        return Collections.emptyList();
+        return ObjectLists.emptyList();
     }
 
     @Override

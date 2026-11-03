@@ -3,7 +3,6 @@ package com.asdflj.ae2thing.network;
 import static appeng.api.networking.crafting.CraftingItemList.ACTIVE;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
@@ -59,6 +58,7 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class CPacketInventoryActionExtend implements IMessage {
 
@@ -319,7 +319,7 @@ public class CPacketInventoryActionExtend implements IMessage {
         }
 
         private List<IAEStack<?>> getActiveCraftingItems(IItemList<IAEStack<?>> list) {
-            List<IAEStack<?>> activeItems = new ArrayList<>();
+            List<IAEStack<?>> activeItems = new ObjectArrayList<>();
             for (IAEStack<?> item : list) {
                 activeItems.add(item);
             }
@@ -329,7 +329,7 @@ public class CPacketInventoryActionExtend implements IMessage {
             if (activeItems.size() <= CPUCraftingPreview.maxSize) {
                 return activeItems;
             }
-            return new ArrayList<>(activeItems.subList(0, CPUCraftingPreview.maxSize));
+            return new ObjectArrayList<>(activeItems.subList(0, CPUCraftingPreview.maxSize));
         }
     }
 

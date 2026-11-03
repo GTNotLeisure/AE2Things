@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.gui.container.widget;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayerMP;
@@ -33,6 +32,7 @@ import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class PatternContainer implements IPatternContainer, IOptionalSlotHost, IWidgetSlot {
 
@@ -50,7 +50,7 @@ public class PatternContainer implements IPatternContainer, IOptionalSlotHost, I
     protected final AppEngInternalInventory cOut = new AppEngInternalInventory(null, 1);
     private final IPatternTerminal it;
     private final ContainerWirelessDualInterfaceTerminal container;
-    private final List<Slot> slots = new ArrayList<>();
+    private final List<Slot> slots = new ObjectArrayList<>();
     private final ITerminalHost host;
 
     public PatternContainer(InventoryPlayer ip, ITerminalHost host, ContainerWirelessDualInterfaceTerminal container) {

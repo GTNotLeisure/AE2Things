@@ -1,7 +1,5 @@
 package com.asdflj.ae2thing.common.tile;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 import javax.annotation.Nonnull;
@@ -39,6 +37,8 @@ import appeng.me.storage.MEInventoryHandler;
 import appeng.tile.grid.AENetworkTile;
 import appeng.util.IterationCounter;
 import appeng.util.item.AEItemStackType;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import thaumcraft.api.aspects.Aspect;
 import thaumicenergistics.common.storage.AEEssentiaStack;
 import thaumicenergistics.common.storage.AEEssentiaStackType;
@@ -67,13 +67,13 @@ public class TileEssentiaDiscretizer extends AENetworkTile implements IPriorityH
     public List<IMEInventoryHandler> getCellArray(IAEStackType<?> type) {
         if (getProxy().isActive()) {
             if (type == AEItemStackType.ITEM_STACK_TYPE) {
-                return Collections.singletonList(phialInv.invHandler);
+                return ObjectLists.singleton(phialInv.invHandler);
             }
             if (type == AEEssentiaStackType.ESSENTIA_STACK_TYPE) {
-                return Collections.singletonList(essentiaCraftInv.invHandler);
+                return ObjectLists.singleton(essentiaCraftInv.invHandler);
             }
         }
-        return Collections.emptyList();
+        return ObjectLists.emptyList();
     }
 
     @Override
@@ -243,7 +243,7 @@ public class TileEssentiaDiscretizer extends AENetworkTile implements IPriorityH
                 IMEMonitor<AEEssentiaStack> essentiaGrid = getEssentiaGrid();
                 if (essentiaGrid == null) return;
 
-                List<IAEItemStack> mappedChanges = new ArrayList<>();
+                List<IAEItemStack> mappedChanges = new ObjectArrayList<>();
                 for (AEEssentiaStack essentia : change) {
                     if (essentia == null || essentia.getAspect() == null) continue;
                     AEEssentiaStack query = new AEEssentiaStack(essentia.getAspect(), 1);

@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.util;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.block.Block;
@@ -26,6 +25,8 @@ import com.gtnewhorizon.gtnhlib.util.CoordinatePacker;
 import blockrenderer6343.client.renderer.WorldSceneRenderer;
 import codechicken.nei.NEIClientUtils;
 import codechicken.nei.recipe.GuiRecipe;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class BRUtil {
 
@@ -35,13 +36,13 @@ public class BRUtil {
 
     public interface ITransferHandler {
 
-        ImmutablePair<List<OrderStack<?>>, List<OrderStack<?>>> handler(List<ItemStack> ingredients);
+        ImmutablePair<ObjectList<OrderStack<?>>, ObjectList<OrderStack<?>>> handler(List<ItemStack> ingredients);
     }
 
     public static ITransferHandler handler = ingredients -> {
         String defaultName = StatCollector.translateToLocal("blockrenderer6343.multiblock.structure");
-        List<OrderStack<?>> in = new ArrayList<>();
-        List<OrderStack<?>> out = new ArrayList<>();
+        ObjectList<OrderStack<?>> in = new ObjectArrayList<>();
+        ObjectList<OrderStack<?>> out = new ObjectArrayList<>();
         ItemStack item;
         for (int i = 0; i < ingredients.size(); i++) {
             item = ingredients.get(i);
@@ -74,7 +75,7 @@ public class BRUtil {
             .terminal()
             .isPatternTerminal()) {
             try {
-                ImmutablePair<List<OrderStack<?>>, List<OrderStack<?>>> result = com.asdflj.ae2thing.util.BRUtil.handler
+                ImmutablePair<ObjectList<OrderStack<?>>, ObjectList<OrderStack<?>>> result = com.asdflj.ae2thing.util.BRUtil.handler
                     .handler(ingredients);
                 AE2Thing.proxy.netHandler.sendToServer(
                     new CPacketTransferRecipe(
@@ -93,7 +94,7 @@ public class BRUtil {
     }
 
     public static List<ItemStack> getIngredients(WorldSceneRenderer renderer) {
-        List<ItemStack> ingredients = new ArrayList<>();
+        List<ItemStack> ingredients = new ObjectArrayList<>();
         for (long renderedBlock : renderer.renderedBlocks) {
             int x = CoordinatePacker.unpackX(renderedBlock);
             int y = CoordinatePacker.unpackY(renderedBlock);
@@ -102,7 +103,7 @@ public class BRUtil {
             if (block.equals(Blocks.air)) continue;
             int meta = renderer.world.getBlockMetadata(x, y, z);
             int qty = block.quantityDropped(renderer.world.rand);
-            ArrayList<ItemStack> itemStacks = new ArrayList<>();
+            java.util.ArrayList<ItemStack> itemStacks = new java.util.ArrayList<>();
             if (qty != 1) {
                 itemStacks.add(new ItemStack(block));
             } else {

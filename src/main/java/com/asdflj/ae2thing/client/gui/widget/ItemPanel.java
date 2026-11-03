@@ -4,7 +4,6 @@ import static appeng.client.gui.AEBaseGui.isCtrlKeyDown;
 import static net.minecraft.client.gui.GuiScreen.isShiftKeyDown;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
@@ -60,6 +59,7 @@ import appeng.util.IConfigManagerHost;
 import appeng.util.Platform;
 import codechicken.nei.LayoutManager;
 import codechicken.nei.util.TextHistory;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 
 public class ItemPanel
@@ -85,7 +85,7 @@ public class ItemPanel
     private GuiImgButton SortDirBox;
     private GuiImgButton searchBoxSettings;
     private final TypeFilterWidget typeFilter;
-    private final List<VirtualMEMonitorableSlot> virtualSlots = new ArrayList<>();
+    private final List<VirtualMEMonitorableSlot> virtualSlots = new ObjectArrayList<>();
     private static String memoryText = "";
     private final TextHistory history;
     private boolean needsViewUpdate = false;

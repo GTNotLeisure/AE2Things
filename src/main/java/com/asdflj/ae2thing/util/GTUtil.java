@@ -4,17 +4,18 @@ import static com.asdflj.ae2thing.api.Constants.MessageType.UPDATE_PLAYER_ITEM;
 import static com.asdflj.ae2thing.nei.NEI_TH_Config.getConfigValue;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
+import net.minecraftforge.oredict.OreDictionary;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.integration.Compat;
@@ -26,6 +27,7 @@ import com.asdflj.ae2thing.network.SPacketMEItemInvUpdate;
 import appeng.api.util.IInterfaceViewable;
 import appeng.util.item.AEItemStack;
 import codechicken.nei.recipe.IRecipeHandler;
+import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.ItemList;
@@ -38,9 +40,42 @@ import gregtech.api.recipe.RecipeMap;
 import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.ItemMachines;
 import gregtech.nei.GTNEIDefaultHandler;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public class GTUtil {
+
+    public static final ObjectSet<String> UNIVERSAL_CIRCUIT_BOARDS = ObjectSet.of(
+        "CircuitULV",
+        "CircuitLV",
+        "CircuitMV",
+        "CircuitHV",
+        "CircuitEV",
+        "CircuitIV",
+        "CircuitLuV",
+        "CircuitZPM",
+        "CircuitUV",
+        "CircuitUHV",
+        "CircuitUEV",
+        "CircuitUIV",
+        "CircuitUMV",
+        "CircuitUXV",
+        "CircuitMAX");
+
+    private static final IntSet CIRCUIT_BOARD_ORES = new IntOpenHashSet();
+
+    static {
+        for (String name : UNIVERSAL_CIRCUIT_BOARDS) {
+            final Item board = GameRegistry.findItem(Mods.CORE_MOD.getID(), name);
+            if (board == null) continue;
+            for (int id : OreDictionary.getOreIDs(new ItemStack(board))) {
+                CIRCUIT_BOARD_ORES.add(id);
+            }
+        }
+    }
 
     public static IInterfaceViewable getIInterfaceViewable(TileEntity tile) {
         if (tile instanceof BaseMetaTileEntity bmte && bmte.getMetaTileEntity() instanceof IInterfaceViewable iv) {
@@ -57,7 +92,7 @@ public class GTUtil {
     }
 
     @SideOnly(Side.CLIENT)
-    public static String getRecipeName(IRecipeHandler recipe, List<OrderStack<?>> in, boolean enhancedSearch) {
+    public static String getRecipeName(IRecipeHandler recipe, ObjectList<OrderStack<?>> in, boolean enhancedSearch) {
         String head = null;
         try {
             head = recipe.getOverlayIdentifier();
@@ -135,7 +170,26 @@ public class GTUtil {
         return GTUtility.isAnyIntegratedCircuit(stack);
     }
 
-    private static Collection<String> collectNCTokens(IRecipeHandler recipe, List<OrderStack<?>> in,
+    public static boolean isCircuitBoard(ItemStack stack) {
+        if (stack == null || stack.getItem() == null) return false;
+        for (int id : OreDictionary.getOreIDs(stack)) {
+            if (CIRCUIT_BOARD_ORES.contains(id)) return true;
+        }
+        return false;
+    }
+
+    public static boolean isUniversalCircuitBoard(ItemStack stack) {
+        if (!isCircuitBoard(stack)) return false;
+        final GameRegistry.UniqueIdentifier id = GameRegistry.findUniqueIdentifierFor(stack.getItem());
+        return id != null && Mods.CORE_MOD.getID()
+            .equals(id.modId) && UNIVERSAL_CIRCUIT_BOARDS.contains(id.name);
+    }
+
+    public static boolean isPlainCircuit(ItemStack stack) {
+        return isCircuitBoard(stack) && !isUniversalCircuitBoard(stack);
+    }
+
+    private static Collection<String> collectNCTokens(IRecipeHandler recipe, ObjectList<OrderStack<?>> in,
         boolean appendCircuit, boolean appendNonConsumedItems) {
         Set<String> tokens = new ObjectLinkedOpenHashSet<>();
         if (!(recipe instanceof GTNEIDefaultHandler)) return tokens;

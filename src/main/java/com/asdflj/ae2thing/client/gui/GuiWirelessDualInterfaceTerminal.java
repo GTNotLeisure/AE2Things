@@ -4,8 +4,6 @@ import static com.asdflj.ae2thing.client.render.RenderHelper.updateColorAndDrawI
 import static com.asdflj.ae2thing.nei.NEI_TH_Config.getConfigValue;
 
 import java.awt.Point;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -87,6 +85,7 @@ import codechicken.nei.item.ItemFluidDisplay;
 import codechicken.nei.recipe.IRecipeHandler;
 import codechicken.nei.recipe.RecipeCatalysts;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 
 public class GuiWirelessDualInterfaceTerminal extends GuiBaseInterfaceWireless implements IWidgetGui, IGuiDrawSlot,
@@ -127,8 +126,8 @@ public class GuiWirelessDualInterfaceTerminal extends GuiBaseInterfaceWireless i
     private String interfaceSearchFeedbackKey;
     private String interfaceSearchFeedbackTooltip;
     private String interfaceSearchDumpedQuery;
-    private final List<DualTerminalComponentTree.Component> itemSlotComponents = new ArrayList<>();
-    private final List<GuiButton> panelButtonsScratch = new ArrayList<>();
+    private final List<DualTerminalComponentTree.Component> itemSlotComponents = new ObjectArrayList<>();
+    private final List<GuiButton> panelButtonsScratch = new ObjectArrayList<>();
     private VirtualMESlot renderedVirtualSlotUnderMouse;
     private DualPatternSlot[] patternInputSlots;
     private DualPatternSlot[] patternOutputSlots;
@@ -616,13 +615,13 @@ public class GuiWirelessDualInterfaceTerminal extends GuiBaseInterfaceWireless i
         Slot hoveredSlot = super.getSlot(mouseX, mouseY);
         if (panel == this.patternPanel) {
             if (this.findPatternPanelSlotAt(mouseX, mouseY) == null && !this.isPatternSlot(hoveredSlot)) {
-                return new ArrayList<>();
+                return new ObjectArrayList<>();
             }
         } else if (panel == this.itemPanel) {
             VirtualMEMonitorableSlot virtualSlot = this.findItemPanelSlotAt(mouseX, mouseY);
-            if (virtualSlot == null || virtualSlot.getAEStack() == null) return new ArrayList<>();
+            if (virtualSlot == null || virtualSlot.getAEStack() == null) return new ObjectArrayList<>();
         } else if (panel != null || this.findPanelButtonAt(mouseX, mouseY) != null) {
-            return new ArrayList<>();
+            return new ObjectArrayList<>();
         }
         super.handleItemTooltip(stack, mouseX, mouseY, lines);
         if (this.renderedVirtualSlotUnderMouse instanceof VirtualMEPatternSlot patternSlot) {
@@ -667,14 +666,14 @@ public class GuiWirelessDualInterfaceTerminal extends GuiBaseInterfaceWireless i
         boolean panelTooltip = pointerPanel != null
             && this.ownsTooltipAt(pointerPanel, this.lastMouseX, this.lastMouseY);
         if (panelTooltip) {
-            this.deferredPanelTooltip = new ArrayList<>(textLines);
+            this.deferredPanelTooltip = new ObjectArrayList<>(textLines);
             this.deferredPanelTooltipX = x;
             this.deferredPanelTooltipY = y;
             this.deferredPanelTooltipFont = font;
             return;
         }
         if (pointerPanel != null) return;
-        this.deferredPanelTooltip = new ArrayList<>(textLines);
+        this.deferredPanelTooltip = new ObjectArrayList<>(textLines);
         this.deferredPanelTooltipX = x;
         this.deferredPanelTooltipY = y;
         this.deferredPanelTooltipFont = font;
@@ -1427,7 +1426,7 @@ public class GuiWirelessDualInterfaceTerminal extends GuiBaseInterfaceWireless i
         final boolean hasPool = pageId != null && !pageId.trim()
             .isEmpty();
         final String poolId = hasPool ? pageId.trim() : null;
-        final List<String> poolIds = hasPool ? Collections.singletonList(poolId) : Collections.emptyList();
+        final List<String> poolIds = hasPool ? ObjectLists.singleton(poolId) : ObjectLists.emptyList();
         final boolean gated = !craft && hasPool && InterfacePoolResolver.hasCatalysts(poolId);
         final String nameHint = EnhancedSearch.recipeTabName(recipe);
         for (InterfaceWirelessSection section : this.masterList.getVisibleSections()) {

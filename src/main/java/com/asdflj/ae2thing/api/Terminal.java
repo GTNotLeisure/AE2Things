@@ -1,8 +1,6 @@
 package com.asdflj.ae2thing.api;
 
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
@@ -26,27 +24,29 @@ import appeng.client.gui.AEBaseGui;
 import codechicken.nei.recipe.GuiRecipe;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 public class Terminal {
 
     public static Terminal API = new Terminal();
-    private static final HashSet<Class<? extends AEBaseGui>> terminal = new HashSet<>();
-    private static final HashSet<Class<? extends AEBaseGui>> terminalBlackList = new HashSet<>();
-    private static final HashMap<Class<? extends Container>, ICraftingTerminalAdapter> craftingTerminal = new HashMap<>();
-    private static final HashMap<Class<? extends IGridHost>, IFindItAdapter> storageProviders = new HashMap<>();
-    private static final HashMap<Class<? extends Container>, IPatternTerminalAdapter> patternTerminal = new HashMap<>();
-    private static final HashMap<Class<? extends Item>, ITerminalHandler> terminalItem = new HashMap<>();
-    private static final HashSet<ITerminal> terminalSet = new HashSet<>();
+    private static final ObjectOpenHashSet<Class<? extends AEBaseGui>> terminal = new ObjectOpenHashSet<>();
+    private static final ObjectOpenHashSet<Class<? extends AEBaseGui>> terminalBlackList = new ObjectOpenHashSet<>();
+    private static final Object2ObjectOpenHashMap<Class<? extends Container>, ICraftingTerminalAdapter> craftingTerminal = new Object2ObjectOpenHashMap<>();
+    private static final Object2ObjectOpenHashMap<Class<? extends IGridHost>, IFindItAdapter> storageProviders = new Object2ObjectOpenHashMap<>();
+    private static final Object2ObjectOpenHashMap<Class<? extends Container>, IPatternTerminalAdapter> patternTerminal = new Object2ObjectOpenHashMap<>();
+    private static final Object2ObjectOpenHashMap<Class<? extends Item>, ITerminalHandler> terminalItem = new Object2ObjectOpenHashMap<>();
+    private static final ObjectOpenHashSet<ITerminal> terminalSet = new ObjectOpenHashSet<>();
 
     public void registerTerminal(Class<? extends AEBaseGui> clazz) {
         terminal.add(clazz);
     }
 
-    public HashSet<Class<? extends AEBaseGui>> getTerminal() {
+    public ObjectOpenHashSet<Class<? extends AEBaseGui>> getTerminal() {
         return terminal;
     }
 
-    public HashSet<ITerminal> getTerminalSet() {
+    public ObjectOpenHashSet<ITerminal> getTerminalSet() {
         return terminalSet;
     }
 
@@ -90,7 +90,7 @@ public class Terminal {
         craftingTerminal.put(adapter.getContainer(), adapter);
     }
 
-    public HashMap<Class<? extends Container>, ICraftingTerminalAdapter> getCraftingTerminal() {
+    public Object2ObjectOpenHashMap<Class<? extends Container>, ICraftingTerminalAdapter> getCraftingTerminal() {
         return craftingTerminal;
     }
 

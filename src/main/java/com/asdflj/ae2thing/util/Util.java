@@ -1,7 +1,6 @@
 package com.asdflj.ae2thing.util;
 
 import java.lang.reflect.Field;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -68,6 +67,7 @@ import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class Util {
 
@@ -305,7 +305,7 @@ public class Util {
     }
 
     public static List<Integer> getBackpackSlot(EntityPlayer player) {
-        List<Integer> result = new ArrayList<>();
+        List<Integer> result = new ObjectArrayList<>();
         for (int x = 0; x < player.inventory.mainInventory.length; x++) {
             ItemStack item = player.inventory.mainInventory[x];
             if (item == null || item.getItem() == null) continue;

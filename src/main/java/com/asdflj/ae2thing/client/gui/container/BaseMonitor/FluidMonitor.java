@@ -1,7 +1,5 @@
 package com.asdflj.ae2thing.client.gui.container.BaseMonitor;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -23,6 +21,8 @@ import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IItemList;
 import appeng.util.Platform;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, IProcessItemList {
 
@@ -31,9 +31,9 @@ public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, I
     private final IItemList<IAEFluidStack> fluids = AEApi.instance()
         .storage()
         .createFluidList();
-    private final Set<IAEItemStack> craftingFluids = new HashSet<>();
+    private final Set<IAEItemStack> craftingFluids = new ObjectOpenHashSet<>();
     private final List<ICrafting> crafters;
-    private final List<IAEFluidStack> toSend = new ArrayList<>();
+    private final List<IAEFluidStack> toSend = new ObjectArrayList<>();
 
     public FluidMonitor(IStorageGrid storageGrid, List<ICrafting> crafters) {
         this.fluidMonitor = storageGrid.getFluidInventory();
@@ -139,7 +139,7 @@ public class FluidMonitor implements IMEMonitorHandlerReceiver<IAEFluidStack>, I
         if (Platform.isServer() && c instanceof EntityPlayer && this.fluidMonitor != null && this.itemMonitor != null) {
             final IItemList<IAEFluidStack> monitorCache = this.fluidMonitor.getStorageList();
             final IItemList<IAEItemStack> itemMonitorCache = this.itemMonitor.getStorageList();
-            List<IAEFluidStack> toSend = new ArrayList<>();
+            List<IAEFluidStack> toSend = new ObjectArrayList<>();
             for (final IAEFluidStack is : monitorCache) {
                 final IAEFluidStack send = is.copy();
                 IAEItemStack fluidDrop = itemMonitorCache.findPrecise(ItemFluidDrop.newAeStack(is));

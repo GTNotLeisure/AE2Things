@@ -1,7 +1,6 @@
 package com.asdflj.ae2thing.nei;
 
 import java.io.IOException;
-import java.util.LinkedList;
 import java.util.List;
 
 import net.minecraft.client.gui.inventory.GuiContainer;
@@ -20,6 +19,7 @@ import appeng.util.Platform;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.api.IOverlayHandler;
 import codechicken.nei.recipe.IRecipeHandler;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class CraftingTransferHandler implements IOverlayHandler {
 
@@ -49,7 +49,7 @@ public class CraftingTransferHandler implements IOverlayHandler {
                         Slot slot = (Slot) o;
                         if (slot.getSlotIndex() == col + row * 3) {
                             final NBTTagList tags = new NBTTagList();
-                            final List<ItemStack> list = new LinkedList<>();
+                            final List<ItemStack> list = new ObjectArrayList<>();
                             // prefer pure crystals.
                             for (int x = 0; x < positionedStack.items.length; x++) {
                                 if (Platform.isRecipePrioritized(positionedStack.items[x])) {

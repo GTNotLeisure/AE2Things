@@ -1,8 +1,5 @@
 package com.asdflj.ae2thing.api.adapter.pattern;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 
@@ -14,11 +11,13 @@ import com.asdflj.ae2thing.util.GTNLUtil;
 
 import appeng.api.parts.IPatternTerminalEx;
 import appeng.container.implementations.ContainerPatternTermEx;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class AEPatternTerminalExTransferHandler implements IRecipeHandler {
 
     @Override
-    public void transferPack(Container container, List<OrderStack<?>> inputs, List<OrderStack<?>> outputs,
+    public void transferPack(Container container, ObjectList<OrderStack<?>> inputs, ObjectList<OrderStack<?>> outputs,
         String identifier, IPatternTerminalAdapter adapter, CPacketTransferRecipe message) {
         ContainerPatternTermEx c = (ContainerPatternTermEx) container;
         IInventory inputSlot = adapter.getInventoryByName(c, Constants.CRAFTING);
@@ -47,7 +46,8 @@ public class AEPatternTerminalExTransferHandler implements IRecipeHandler {
     }
 
     private void transferPage(ContainerPatternTermEx c, IInventory inputSlot, IInventory outputSlot,
-        IPatternTerminalAdapter adapter, List<OrderStack<?>> inputs, List<OrderStack<?>> outputs, int pages) {
+        IPatternTerminalAdapter adapter, ObjectList<OrderStack<?>> inputs, ObjectList<OrderStack<?>> outputs,
+        int pages) {
         int page = 0;
         boolean inverted = false;
         if (c.getPatternTerminal() instanceof IPatternTerminalEx ex) {
@@ -76,8 +76,8 @@ public class AEPatternTerminalExTransferHandler implements IRecipeHandler {
         }
     }
 
-    private static List<OrderStack<?>> rebase(List<OrderStack<?>> stacks, int offset, int size) {
-        final List<OrderStack<?>> result = new ArrayList<>(stacks.size());
+    private static ObjectList<OrderStack<?>> rebase(ObjectList<OrderStack<?>> stacks, int offset, int size) {
+        final ObjectList<OrderStack<?>> result = new ObjectArrayList<>(stacks.size());
         for (OrderStack<?> stack : stacks) {
             if (stack == null) continue;
             final int local = stack.getIndex();

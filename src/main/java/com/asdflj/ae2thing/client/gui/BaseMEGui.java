@@ -2,7 +2,6 @@ package com.asdflj.ae2thing.client.gui;
 
 import static com.asdflj.ae2thing.client.render.RenderHelper.drawPinnedSlots;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -32,12 +31,13 @@ import appeng.core.AEConfig;
 import appeng.core.CommonHelper;
 import codechicken.nei.LayoutManager;
 import codechicken.nei.util.TextHistory;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public abstract class BaseMEGui extends AEBaseGui implements IGuiSelection {
 
     protected IConfigManager configSrc;
     protected TextHistory history;
-    protected final List<VirtualMEMonitorableSlot> meSlots = new ArrayList<>();
+    protected final List<VirtualMEMonitorableSlot> meSlots = new ObjectArrayList<>();
 
     public BaseMEGui(Container container) {
         super(container);
@@ -85,7 +85,7 @@ public abstract class BaseMEGui extends AEBaseGui implements IGuiSelection {
     private void drawVirtualSlotTooltip(int mouseX, int mouseY) {
         VirtualMESlot slot = this.getVirtualMESlotUnderMouse();
         if (slot == null) return;
-        List<String> lines = new ArrayList<>();
+        List<String> lines = new ObjectArrayList<>();
         slot.addTooltip(lines);
         if (!lines.isEmpty()) {
             this.drawHoveringText(lines, mouseX, mouseY, this.fontRendererObj);
@@ -113,7 +113,7 @@ public abstract class BaseMEGui extends AEBaseGui implements IGuiSelection {
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         String[] var4 = null;
-        final List<String> history = new ArrayList<>(searchHistory);
+        final List<String> history = new ObjectArrayList<>(searchHistory);
         Collections.reverse(history);
 
         if (history.size() > maxRows) {

@@ -3,7 +3,6 @@ package com.asdflj.ae2thing.common.parts.universal;
 import static appeng.util.item.AEItemStackType.ITEM_STACK_TYPE;
 
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -47,6 +46,7 @@ import it.unimi.dsi.fastutil.objects.Object2LongMap;
 import it.unimi.dsi.fastutil.objects.Object2LongOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 public class PartUniversalExportBus extends PartBaseExportBus<IAEItemStack> implements IPrimaryGuiIconProvider {
 
@@ -191,7 +191,7 @@ public class PartUniversalExportBus extends PartBaseExportBus<IAEItemStack> impl
                         (FuzzyMode) this.getConfigManager()
                             .getSetting(Settings.FUZZY_MODE)));
         } else {
-            sources = Collections.singletonList(config);
+            sources = ObjectLists.singleton(config);
         }
 
         long moved = 0;

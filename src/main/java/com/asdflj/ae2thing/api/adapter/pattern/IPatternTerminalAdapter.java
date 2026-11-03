@@ -1,8 +1,5 @@
 package com.asdflj.ae2thing.api.adapter.pattern;
 
-import java.util.HashMap;
-import java.util.List;
-
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -19,10 +16,12 @@ import appeng.core.AELog;
 import appeng.helpers.IContainerCraftingPacket;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.item.AEFluidStack;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public interface IPatternTerminalAdapter {
 
-    HashMap<Class<? extends Container>, HashMap<String, IRecipeHandler>> map = new HashMap<>();
+    Object2ObjectOpenHashMap<Class<? extends Container>, Object2ObjectOpenHashMap<String, IRecipeHandler>> map = new Object2ObjectOpenHashMap<>();
 
     default boolean supportFluid() {
         return false;
@@ -30,7 +29,7 @@ public interface IPatternTerminalAdapter {
 
     Class<? extends Container> getContainer();
 
-    default void transferPack(List<OrderStack<?>> packs, IInventory inv) {
+    default void transferPack(ObjectList<OrderStack<?>> packs, IInventory inv) {
         for (OrderStack<?> stack : packs) {
             if (stack != null) {
                 int index = stack.getIndex();
@@ -48,7 +47,7 @@ public interface IPatternTerminalAdapter {
         }
     }
 
-    default void transferPackAE(List<OrderStack<?>> packs, IAEStackInventory inv) {
+    default void transferPackAE(ObjectList<OrderStack<?>> packs, IAEStackInventory inv) {
         if (inv == null) return;
         for (OrderStack<?> stack : packs) {
             if (stack == null) continue;
@@ -83,7 +82,7 @@ public interface IPatternTerminalAdapter {
         return Constants.OUTPUT;
     }
 
-    default void transfer(Container container, List<OrderStack<?>> inputs, List<OrderStack<?>> outputs,
+    default void transfer(Container container, ObjectList<OrderStack<?>> inputs, ObjectList<OrderStack<?>> outputs,
         String identifier, CPacketTransferRecipe message) {
         IRecipeHandler handler = getIdentifiers().get(identifier);
         if (handler == null) return;
@@ -96,8 +95,9 @@ public interface IPatternTerminalAdapter {
         return this;
     }
 
-    default HashMap<String, IRecipeHandler> getIdentifiers() {
-        HashMap<String, IRecipeHandler> m = map.getOrDefault(getContainer(), new HashMap<>());
+    default Object2ObjectOpenHashMap<String, IRecipeHandler> getIdentifiers() {
+        Object2ObjectOpenHashMap<String, IRecipeHandler> m = map
+            .getOrDefault(getContainer(), new Object2ObjectOpenHashMap<>());
         map.put(getContainer(), m);
         return m;
     }

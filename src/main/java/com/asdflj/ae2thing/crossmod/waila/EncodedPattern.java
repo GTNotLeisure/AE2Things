@@ -1,7 +1,6 @@
 package com.asdflj.ae2thing.crossmod.waila;
 
 import java.text.NumberFormat;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -26,6 +25,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.core.localization.GuiText;
 import appeng.helpers.PatternHelper;
 import appeng.items.misc.ItemEncodedPattern;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class EncodedPattern extends mcp.mobius.waila.handlers.nei.TooltipHandlerWaila {
 
@@ -67,8 +67,8 @@ public class EncodedPattern extends mcp.mobius.waila.handlers.nei.TooltipHandler
             }
 
             boolean recipeIsBroken = details == null;
-            final List<String> in = new ArrayList<>();
-            final List<String> out = new ArrayList<>();
+            final List<String> in = new ObjectArrayList<>();
+            final List<String> out = new ObjectArrayList<>();
 
             final String substitutionLabel = EnumChatFormatting.YELLOW + GuiText.Substitute.getLocal()
                 + " "
@@ -116,7 +116,7 @@ public class EncodedPattern extends mcp.mobius.waila.handlers.nei.TooltipHandler
         final ItemStack unknownItem = new ItemStack(Blocks.fire);
         boolean recipeIsBroken = false;
         boolean first = true;
-        List<IAEItemStack> sortedItems = new ArrayList<>(items.length);
+        List<IAEItemStack> sortedItems = new ObjectArrayList<>(items.length);
         for (IAEItemStack item : items) {
             sortedItems.add(item);
         }

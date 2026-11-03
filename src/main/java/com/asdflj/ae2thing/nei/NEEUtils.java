@@ -1,11 +1,6 @@
 package com.asdflj.ae2thing.nei;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import net.minecraft.item.ItemStack;
 
@@ -16,12 +11,17 @@ import com.github.vfyjxf.nee.utils.ItemUtils;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.IRecipeHandler;
 import codechicken.nei.recipe.TemplateRecipeHandler;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public final class NEEUtils {
 
     public static final String NULL_IDENTIFIER = "null";
 
-    private static final Set<String> SKIPPED_PROCESSORS = Set.of("GregTech5", "GregTech6");
+    private static final ObjectSet<String> SKIPPED_PROCESSORS = ObjectSet.of("GregTech5", "GregTech6");
 
     private static IRecipeHandler cachedRecipe;
     private static int cachedIndex = -1;
@@ -38,8 +38,8 @@ public final class NEEUtils {
         return NULL_IDENTIFIER;
     }
 
-    public static Set<String> allIdentifiers() {
-        final Set<String> identifiers = new HashSet<>();
+    public static ObjectSet<String> allIdentifiers() {
+        final ObjectSet<String> identifiers = new ObjectOpenHashSet<>();
         try {
             for (IRecipeProcessor processor : RecipeProcessor.recipeProcessors) {
                 identifiers.addAll(processor.getAllOverlayIdentifier());
@@ -66,10 +66,10 @@ public final class NEEUtils {
                 if (SKIPPED_PROCESSORS.contains(processor.getRecipeProcessorId())) continue;
                 if (!processor.getAllOverlayIdentifier()
                     .contains(identifier)) continue;
-                final List<PositionedStack> inputs = new ArrayList<>(
+                final ObjectList<PositionedStack> inputs = new ObjectArrayList<>(
                     processor.getRecipeInput(recipe, recipeIndex, identifier));
                 if (inputs.isEmpty()) continue;
-                final List<PositionedStack> outputs = new ArrayList<>(
+                final ObjectList<PositionedStack> outputs = new ObjectArrayList<>(
                     processor.getRecipeOutput(recipe, recipeIndex, identifier));
                 if (outputs.isEmpty()) continue;
                 return new Extraction(true, inputs, outputs, processor.mergeStacks(recipe, recipeIndex, identifier));
@@ -114,13 +114,13 @@ public final class NEEUtils {
         }
     }
 
-    public record Extraction(boolean matched, List<PositionedStack> inputs, List<PositionedStack> outputs,
+    public record Extraction(boolean matched, ObjectList<PositionedStack> inputs, ObjectList<PositionedStack> outputs,
         boolean mergeStacks) {
 
         private static final Extraction MISS = new Extraction(
             false,
-            Collections.emptyList(),
-            Collections.emptyList(),
+            ObjectLists.emptyList(),
+            ObjectLists.emptyList(),
             true);
 
         public boolean unMatched() {

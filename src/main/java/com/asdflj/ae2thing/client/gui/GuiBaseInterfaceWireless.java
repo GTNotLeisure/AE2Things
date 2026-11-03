@@ -3,19 +3,15 @@ package com.asdflj.ae2thing.client.gui;
 import static appeng.util.item.AEFluidStackType.FLUID_STACK_TYPE;
 
 import java.text.BreakIterator;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.TreeSet;
 import java.util.function.Predicate;
 
 import net.minecraft.client.Minecraft;
@@ -101,6 +97,10 @@ import appeng.util.item.AEItemStackType;
 import codechicken.nei.LayoutManager;
 import cpw.mods.fml.common.Loader;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.Object2ObjectRBTreeMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
+import it.unimi.dsi.fastutil.objects.ObjectRBTreeSet;
 
 public class GuiBaseInterfaceWireless extends BaseMEGui
     implements IDropToFillTextField, IInterfaceTerminalPostUpdate, IGuiSub {
@@ -213,7 +213,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui
 
         terminalStyleBox = new GuiImgButton(0, 0, Settings.TERMINAL_STYLE, null);
 
-        this.extraOptionsText = new ArrayList<>(4);
+        this.extraOptionsText = new ObjectArrayList<>(4);
         extraOptionsText.add(ButtonToolTips.HighlightInterface.getLocal());
         extraOptionsText.add(ButtonToolTips.HighlightInterfaceDesc.getLocal());
         extraOptionsText.add(ButtonToolTips.RenameInterface.getLocal());
@@ -233,7 +233,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui
     }
 
     private static List<String> buildInterfaceTerminalVisibilityTooltip(final GuiImgButton button) {
-        final List<String> tooltip = new ArrayList<>(2);
+        final List<String> tooltip = new ObjectArrayList<>(2);
         tooltip.add(ButtonToolTips.InterfaceTerminalVisibility.getLocal());
 
         final Enum<?> current = button.getCurrentValue();
@@ -638,7 +638,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui
     }
 
     public List<String> breakText(String text, int maxWidth) {
-        if (text == null || text.isEmpty()) return Collections.emptyList();
+        if (text == null || text.isEmpty()) return ObjectLists.emptyList();
 
         final String cacheKey = maxWidth + "\u0000" + text;
         final List<String> cached = this.breakTextCache.get(cacheKey);
@@ -653,7 +653,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui
     }
 
     private List<String> computeBreakText(String text, int maxWidth) {
-        List<String> lines = new ArrayList<>();
+        List<String> lines = new ObjectArrayList<>();
 
         var lang = mc.getLanguageManager()
             .getCurrentLanguage();
@@ -842,7 +842,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui
             drawSectionIcon(sectionIcon, iconX, iconY);
 
             if (relMouseX >= iconX && relMouseX < iconX + 10 && relMouseY >= iconY && relMouseY < iconY + 10) {
-                List<String> tooltip = new ArrayList<>();
+                List<String> tooltip = new ObjectArrayList<>();
                 tooltip.add(sectionIcon.getDisplayName());
 
                 int priority = section.entries.getFirst().priority;
@@ -934,7 +934,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui
                 } else if (ctrlHeld) {
                     pendingEntryButtonTooltip = Arrays.asList(entry.doubleButton.getMessage().split("\\n"));
                 } else if (shiftHeld) {
-                    pendingEntryButtonTooltip = Collections.singletonList(ButtonToolTips.RenameInterface.getLocal());
+                    pendingEntryButtonTooltip = ObjectLists.singleton(ButtonToolTips.RenameInterface.getLocal());
                 } else {
                     pendingEntryButtonTooltip = extraOptionsText;
                 }
@@ -1543,27 +1543,28 @@ public class GuiBaseInterfaceWireless extends BaseMEGui
      */
     class InterfaceWirelessList {
 
-        private final Map<Long, InterfaceWirelessEntry> list = new HashMap<>();
+        private final Map<Long, InterfaceWirelessEntry> list = new Object2ObjectOpenHashMap<>();
         private Map<String, InterfaceWirelessSection> sections;
-        private final List<InterfaceWirelessSection> visibleSections = new ArrayList<>();
+        private final List<InterfaceWirelessSection> visibleSections = new ObjectArrayList<>();
         private boolean isDirty;
         private int height;
         private InterfaceWirelessEntry hoveredEntry;
 
         InterfaceWirelessList(Comparator<String> comparator) {
-            this.sections = comparator == null ? new TreeMap<>() : new TreeMap<>(comparator);
+            this.sections = comparator == null ? new Object2ObjectRBTreeMap<>()
+                : new Object2ObjectRBTreeMap<>(comparator);
             this.isDirty = true;
         }
 
         void changeSectionComparator(Comparator<String> comparator) {
-            if (!(this.sections instanceof TreeMap<String, InterfaceWirelessSection>current)) {
+            if (!(this.sections instanceof Object2ObjectRBTreeMap<String, InterfaceWirelessSection>current)) {
                 return;
             }
             if (Objects.equals(comparator, current.comparator())) {
                 return;
             }
-            final Map<String, InterfaceWirelessSection> reordered = comparator == null ? new TreeMap<>()
-                : new TreeMap<>(comparator);
+            final Map<String, InterfaceWirelessSection> reordered = comparator == null ? new Object2ObjectRBTreeMap<>()
+                : new Object2ObjectRBTreeMap<>(comparator);
             reordered.putAll(this.sections);
             this.sections = reordered;
         }
@@ -1738,8 +1739,8 @@ public class GuiBaseInterfaceWireless extends BaseMEGui
 
         String key;
         String name;
-        List<InterfaceWirelessEntry> entries = new ArrayList<>();
-        Set<InterfaceWirelessEntry> visibleEntries = new TreeSet<>(Comparator.comparing(e -> e.sortKey));
+        List<InterfaceWirelessEntry> entries = new ObjectArrayList<>();
+        Set<InterfaceWirelessEntry> visibleEntries = new ObjectRBTreeSet<>(Comparator.comparing(e -> e.sortKey));
         int height;
         private boolean isDirty = true;
         boolean visible = false;
@@ -2187,7 +2188,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui
                 // highlight the interface containing the patterns and not any output p2p interfaces
                 BlockPosHighlighter.highlightBlocks(
                     mc.thePlayer,
-                    Collections.singletonList(new NamedDimensionalCoord(x, y, z, dim, dispName)),
+                    ObjectLists.singleton(new NamedDimensionalCoord(x, y, z, dim, dispName)),
                     PlayerMessages.InterfaceHighlighted.getUnlocalized(),
                     PlayerMessages.InterfaceInOtherDim.getUnlocalized());
 

@@ -2,7 +2,6 @@ package com.asdflj.ae2thing.common.parts.universal;
 
 import static appeng.util.item.AEItemStackType.ITEM_STACK_TYPE;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
@@ -44,6 +43,7 @@ import appeng.util.inv.ItemSlot;
 import appeng.util.item.AEItemStack;
 import appeng.util.prioitylist.OreFilteredList;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 public class PartUniversalImportBus extends PartBaseImportBus<IAEItemStack> implements IPrimaryGuiIconProvider {
 
@@ -129,7 +129,7 @@ public class PartUniversalImportBus extends PartBaseImportBus<IAEItemStack> impl
             .getSetting(Settings.FUZZY_MODE);
         final IInventoryDestination destination = this.createDestination(network);
 
-        final List<IAEStack<?>> targets = filters == null ? Collections.singletonList(null) : filters;
+        final List<IAEStack<?>> targets = filters == null ? ObjectLists.singleton(null) : filters;
         for (IAEStack<?> filter : targets) {
             final ItemStack filterStack = filter instanceof IAEItemStack ais ? ais.getItemStack() : null;
             while (budget > 0) {
@@ -236,7 +236,7 @@ public class PartUniversalImportBus extends PartBaseImportBus<IAEItemStack> impl
                     self.xCoord,
                     self.yCoord,
                     self.zCoord,
-                    Collections.singletonList(lost.getItemStack()));
+                    ObjectLists.singleton(lost.getItemStack()));
             }
         }
         return removed.stackSize - left.getStackSize();

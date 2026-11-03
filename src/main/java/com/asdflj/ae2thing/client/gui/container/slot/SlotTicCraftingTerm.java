@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.gui.container.slot;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,6 +19,7 @@ import appeng.helpers.IContainerCraftingPacket;
 import appeng.helpers.InventoryAction;
 import appeng.util.Platform;
 import appeng.util.inv.AdaptorPlayerHand;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class SlotTicCraftingTerm extends SlotCraftingTerm {
 
@@ -44,7 +44,7 @@ public class SlotTicCraftingTerm extends SlotCraftingTerm {
                 if (TicUtil.isTool(this.craftInv.getStackInSlot(x))) {
                     ItemStack tool = this.craftInv.getStackInSlot(x);
 
-                    List<ItemStack> items = new ArrayList<>();
+                    List<ItemStack> items = new ObjectArrayList<>();
                     for (int i = 0; i < 9; i++) {
                         if (this.craftInv.getStackInSlot(i) != null && x != i) {
                             items.add(this.craftInv.getStackInSlot(i));

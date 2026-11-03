@@ -1,8 +1,5 @@
 package com.asdflj.ae2thing.nei.object;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import javax.annotation.Nullable;
 
 import net.minecraft.init.Items;
@@ -15,6 +12,8 @@ import net.minecraftforge.oredict.OreDictionary;
 import com.glodblock.github.util.Util;
 
 import codechicken.nei.PositionedStack;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class OrderStack<T> {
 
@@ -126,7 +125,7 @@ public class OrderStack<T> {
                 if (realStack == null) return null;
                 final OrderStack<ItemStack> stack = new OrderStack<>(realStack, index);
                 if (info.hasKey(REPLACEMENTS)) {
-                    final List<ItemStack> replacements = new ArrayList<>();
+                    final ObjectList<ItemStack> replacements = new ObjectArrayList<>();
                     final NBTTagList list = info.getTagList(REPLACEMENTS, 10);
                     for (int x = 0; x < list.tagCount(); x++) {
                         final ItemStack replacement = Util.loadItemStackFromNBT(list.getCompoundTagAt(x));

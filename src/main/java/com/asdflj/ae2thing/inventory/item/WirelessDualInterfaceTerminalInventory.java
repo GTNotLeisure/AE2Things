@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.inventory.item;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -55,6 +54,7 @@ import appeng.util.ConfigManager;
 import appeng.util.Platform;
 import appeng.util.TerminalSettings;
 import appeng.util.item.AEItemStackType;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 
 public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
@@ -265,8 +265,8 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
 
     @Override
     public void sortCraftingItems() {
-        List<IAEStack<?>> items = new ArrayList<>();
-        List<IAEStack<?>> fluids = new ArrayList<>();
+        List<IAEStack<?>> items = new ObjectArrayList<>();
+        List<IAEStack<?>> fluids = new ObjectArrayList<>();
         for (int i = 0; i < this.craftingEx.getSizeInventory(); i++) {
             final IAEStack<?> stack = this.craftingEx.getAEStackInSlot(i);
             if (stack == null) continue;
@@ -276,7 +276,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
                 items.add(stack);
             }
         }
-        final List<IAEStack<?>> ordered = new ArrayList<>(items.size() + fluids.size());
+        final List<IAEStack<?>> ordered = new ObjectArrayList<>(items.size() + fluids.size());
         if (this.prioritize) {
             ordered.addAll(fluids);
         }

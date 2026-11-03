@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.util.enhancedsearch;
 
-import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.item.ItemStack;
@@ -11,6 +10,7 @@ import codechicken.nei.recipe.RecipeCatalysts;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLists;
 
 @SideOnly(Side.CLIENT)
 public final class EnhancedSearch {
@@ -19,9 +19,9 @@ public final class EnhancedSearch {
         List<String> nameHints, List<String> tokens) {
 
         public Query {
-            poolIds = poolIds == null ? Collections.emptyList() : poolIds;
-            nameHints = nameHints == null ? Collections.emptyList() : nameHints;
-            tokens = tokens == null ? Collections.emptyList() : tokens;
+            poolIds = poolIds == null ? ObjectLists.emptyList() : poolIds;
+            nameHints = nameHints == null ? ObjectLists.emptyList() : nameHints;
+            tokens = tokens == null ? ObjectLists.emptyList() : tokens;
         }
 
         public static Query inactive() {

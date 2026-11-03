@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.render;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -16,12 +15,13 @@ import org.lwjgl.opengl.GL11;
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.WorldCoord;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 // taken from McJty's McJtyLib
 // taken from ae2
 public class BlockPosHighlighter {
 
-    private static final List<DimensionalCoord> highlightedBlocks = new ArrayList<>();
+    private static final List<DimensionalCoord> highlightedBlocks = new ObjectArrayList<>();
     private static long expireHighlightTime;
     private static final int MIN_TIME = 3000;
     private static final int MAX_TIME = MIN_TIME * 10;

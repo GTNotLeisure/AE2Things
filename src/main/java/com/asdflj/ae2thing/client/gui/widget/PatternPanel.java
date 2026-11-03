@@ -5,7 +5,6 @@ import static com.asdflj.ae2thing.api.Constants.MODE_PROCESSING;
 import static net.minecraft.client.gui.GuiScreen.isCtrlKeyDown;
 import static net.minecraft.client.gui.GuiScreen.isShiftKeyDown;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -57,6 +56,7 @@ import appeng.core.sync.packets.PacketMonitorableAction;
 import appeng.helpers.InventoryAction;
 import appeng.helpers.MonitorableAction;
 import codechicken.nei.NEIClientUtils;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class PatternPanel implements IAEBasePanel {
 
@@ -94,8 +94,8 @@ public class PatternPanel implements IAEBasePanel {
     private static final int MODE_TAB_X = 39;
     private static final int MODE_TAB_Y = 93;
     private static final int MODE_TAB_SIZE = 22;
-    private final List<PanelSection> sections = new ArrayList<>();
-    private final List<SlotLayout> slotLayouts = new ArrayList<>();
+    private final List<PanelSection> sections = new ObjectArrayList<>();
+    private final List<SlotLayout> slotLayouts = new ObjectArrayList<>();
     private int absX;
     private int absY;
     private int lastPageCount = -1;
@@ -126,7 +126,7 @@ public class PatternPanel implements IAEBasePanel {
     }
 
     public List<IDraggable.Rectangle> getVisualRegions() {
-        List<IDraggable.Rectangle> regions = new ArrayList<>(this.sections.size() + 1);
+        List<IDraggable.Rectangle> regions = new ObjectArrayList<>(this.sections.size() + 1);
         for (PanelSection section : this.sections) {
             regions.add(new IDraggable.Rectangle(section.x, section.y, section.width, section.height));
         }

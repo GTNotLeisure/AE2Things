@@ -2,7 +2,6 @@ package com.asdflj.ae2thing.nei;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -17,10 +16,11 @@ import appeng.util.Platform;
 import codechicken.nei.NEIClientUtils;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.StackInfo;
+import it.unimi.dsi.fastutil.objects.ObjectSet;
 
 public final class NEIStackSelector {
 
-    private static final Set<String> CRAFTING_TABLE_IDENTIFIERS = Set.of("crafting", "crafting2x2");
+    private static final ObjectSet<String> CRAFTING_TABLE_IDENTIFIERS = ObjectSet.of("crafting", "crafting2x2");
 
     private static final String GT_TOOL_CLASS = "gregtech.api.items.MetaGeneratedTool";
 
@@ -69,18 +69,18 @@ public final class NEIStackSelector {
                     }
                 }
                 if (!preferred && !NEIClientUtils.shiftKey()) {
-                    ItemStack circuit = null;
+                    ItemStack board = null;
                     for (ItemStack candidate : positionedStack.getFilteredPermutations()) {
-                        if (GTUtil.isIntegratedCircuit(candidate)) {
-                            circuit = candidate;
+                        if (GTUtil.isUniversalCircuitBoard(candidate)) {
+                            board = candidate;
                             break;
                         }
                     }
-                    if (circuit == null && GTUtil.isIntegratedCircuit(positionedStack.item)) {
-                        circuit = positionedStack.item;
+                    if (board == null && GTUtil.isUniversalCircuitBoard(positionedStack.item)) {
+                        board = positionedStack.item;
                     }
-                    if (circuit != null && (craftingTable || !isBlacklisted(circuit, identifier))) {
-                        chosen = copyWithSize(circuit, size);
+                    if (board != null && (craftingTable || !isBlacklisted(board, identifier))) {
+                        chosen = copyWithSize(board, size);
                     }
                 }
             }

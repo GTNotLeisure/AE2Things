@@ -1,12 +1,12 @@
 package com.asdflj.ae2thing.util;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import appeng.api.util.DimensionalCoord;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class StorageProvider {
 
@@ -80,7 +80,7 @@ public class StorageProvider {
     }
 
     public static List<StorageProvider> readAsListFromNBT(final NBTTagCompound tag) {
-        List<StorageProvider> list = new ArrayList<>();
+        List<StorageProvider> list = new ObjectArrayList<>();
         int i = 0;
         while (tag.hasKey("pos#" + i)) {
             NBTTagCompound data = tag.getCompoundTag("pos#" + i);

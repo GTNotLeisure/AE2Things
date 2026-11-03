@@ -1,7 +1,5 @@
 package com.asdflj.ae2thing.api.adapter.pattern;
 
-import java.util.List;
-
 import net.minecraft.inventory.Container;
 import net.minecraft.inventory.IInventory;
 
@@ -11,11 +9,12 @@ import com.asdflj.ae2thing.nei.object.OrderStack;
 import com.asdflj.ae2thing.network.CPacketTransferRecipe;
 
 import appeng.container.implementations.ContainerPatternTerm;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public class AEPatternTerminalTransferHandler implements IRecipeHandler {
 
     @Override
-    public void transferPack(Container container, List<OrderStack<?>> inputs, List<OrderStack<?>> outputs,
+    public void transferPack(Container container, ObjectList<OrderStack<?>> inputs, ObjectList<OrderStack<?>> outputs,
         String identifier, IPatternTerminalAdapter adapter, CPacketTransferRecipe message) {
         ContainerPatternTerm c = (ContainerPatternTerm) container;
         c.getPatternTerminal()

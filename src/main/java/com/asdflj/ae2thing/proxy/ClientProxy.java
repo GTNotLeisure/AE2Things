@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.proxy;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -59,11 +58,12 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import cpw.mods.fml.common.network.FMLNetworkEvent;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class ClientProxy extends CommonProxy {
 
     private static GuiOverlayButton overlayButton = null;
-    public static List<MouseWheelHandler> mouseHandlers = new ArrayList<>();
+    public static List<MouseWheelHandler> mouseHandlers = new ObjectArrayList<>();
     private static GuiBaseInterfaceWireless.InterfaceWirelessEntryWrapper entryWrapper = null;
 
     @Override

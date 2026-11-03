@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.util;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.nbt.NBTTagCompound;
@@ -8,6 +7,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import com.asdflj.ae2thing.api.Constants;
 
 import appeng.api.storage.data.IAEStack;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class CPUCraftingPreview {
 
@@ -28,7 +28,7 @@ public class CPUCraftingPreview {
         data.setString(Constants.NAME, this.name);
         data.setLong(Constants.REMAINING_ITEM_COUNT, this.remainingItemCount);
         data.setLong(Constants.CPU_ELAPSED_TIME, this.elapsedTime);
-        final List<IAEStack<?>> items = new ArrayList<>();
+        final List<IAEStack<?>> items = new ObjectArrayList<>();
         for (IAEStack<?> aes : this.itemList) if (aes != null) items.add(aes);
         data.setInteger(Constants.SIZE, items.size());
         for (int i = 0; i < items.size(); i++) {
@@ -44,7 +44,7 @@ public class CPUCraftingPreview {
         long remainingItemCount = data.getLong(Constants.REMAINING_ITEM_COUNT);
         long elapsedTime = data.getLong(Constants.CPU_ELAPSED_TIME);
         int size = data.getInteger(Constants.SIZE);
-        List<IAEStack<?>> itemList = new ArrayList<>();
+        List<IAEStack<?>> itemList = new ObjectArrayList<>();
         for (int i = 0; i < size; i++) {
             NBTTagCompound tag = data.getCompoundTag("#" + i);
             IAEStack<?> aes = IAEStack.fromNBTGeneric(tag);

@@ -2,9 +2,7 @@ package com.asdflj.ae2thing.loader.recipe;
 
 import static com.asdflj.ae2thing.api.WirelessObject.hasInfinityBoosterCard;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -21,11 +19,13 @@ import com.asdflj.ae2thing.api.Constants;
 
 import appeng.util.Platform;
 import cpw.mods.fml.common.registry.GameRegistry;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 public class WirelessTerminalQuantumBridgeRecipe extends ShapelessRecipes {
 
-    public static List<ItemStack> CARDS = new ArrayList<>();
-    private static final Set<Class<? extends Item>> terminalClass = new HashSet<>();
+    public static List<ItemStack> CARDS = new ObjectArrayList<>();
+    private static final Set<Class<? extends Item>> terminalClass = new ObjectOpenHashSet<>();
     private final ItemStack installedTerm;
 
     public boolean isQuantumBridgeCard(ItemStack is) {

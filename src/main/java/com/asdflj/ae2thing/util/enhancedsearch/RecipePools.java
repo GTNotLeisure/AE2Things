@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.util.enhancedsearch;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -8,12 +7,13 @@ import net.minecraft.item.ItemStack;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 
 @SideOnly(Side.CLIENT)
 public interface RecipePools {
 
     default Set<Object> availableMaps(ItemStack rep) {
-        return Collections.emptySet();
+        return ObjectSets.emptySet();
     }
 
     default boolean hasCategory(ItemStack rep) {

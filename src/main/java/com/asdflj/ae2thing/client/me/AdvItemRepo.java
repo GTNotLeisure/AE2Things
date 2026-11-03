@@ -1,8 +1,6 @@
 package com.asdflj.ae2thing.client.me;
 
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.BlockingQueue;
@@ -29,6 +27,8 @@ import appeng.client.gui.widgets.IScrollSource;
 import appeng.client.gui.widgets.ISortSource;
 import appeng.client.me.ItemRepo;
 import appeng.me.cache.ItemFlowGridCache.FlowRate;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 
 public class AdvItemRepo extends ItemRepo implements Runnable {
 
@@ -46,7 +46,7 @@ public class AdvItemRepo extends ItemRepo implements Runnable {
     protected final IItemList<IAEStack<?>> list = Ae2ReflectClient.getList(this);
 
     protected AdvItemRepo repo;
-    protected final Set<IAEStack<?>> cache = Collections.synchronizedSet(new HashSet<>());
+    protected final Set<IAEStack<?>> cache = ObjectSets.synchronize(new ObjectOpenHashSet<>());
     protected IGuiMonitor gui;
     private final Lock lock = new ReentrantLock();
     private final AtomicBoolean updateQueued = new AtomicBoolean();

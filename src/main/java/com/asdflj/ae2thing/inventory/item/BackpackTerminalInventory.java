@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.inventory.item;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -39,6 +38,7 @@ import appeng.util.ConfigManager;
 import appeng.util.IterationCounter;
 import appeng.util.Platform;
 import appeng.util.TerminalSettings;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
 
 public class BackpackTerminalInventory extends MEMonitorHandler<IAEItemStack> implements ITerminalHost,
@@ -193,7 +193,7 @@ public class BackpackTerminalInventory extends MEMonitorHandler<IAEItemStack> im
     }
 
     private List<IAEStack<?>> calculateChanges(IItemList<IAEItemStack> previous, IItemList<IAEItemStack> current) {
-        List<IAEStack<?>> changes = new ArrayList<>();
+        List<IAEStack<?>> changes = new ObjectArrayList<>();
         for (IAEItemStack currentStack : current) {
             IAEItemStack previousStack = previous.findPrecise(currentStack);
             long previousSize = previousStack == null ? 0 : previousStack.getStackSize();

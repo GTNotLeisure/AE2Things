@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.network;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
@@ -23,6 +22,7 @@ import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
 import io.netty.handler.codec.DecoderException;
 import io.netty.handler.codec.EncoderException;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class CPacketFindCellItem implements IMessage {
 
@@ -60,7 +60,7 @@ public class CPacketFindCellItem implements IMessage {
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             if (message.request != null && player.openContainer instanceof AEBaseContainer container
                 && container.getActionSource() instanceof PlayerSource ps) {
-                List<StorageProvider> posList = new ArrayList<>();
+                List<StorageProvider> posList = new ObjectArrayList<>();
                 IGrid iGrid = null;
                 try {
                     iGrid = ps.via.getActionableNode()

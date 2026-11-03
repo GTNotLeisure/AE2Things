@@ -1,16 +1,16 @@
 package com.asdflj.ae2thing.client.gui.widget;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.BooleanSupplier;
 
 import appeng.client.gui.slots.VirtualMESlot;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 /** Small geometry and z-order tree for the floating dual-terminal panels. */
 public final class DualTerminalComponentTree {
 
-    private final List<Panel> panels = new ArrayList<>();
+    private final List<Panel> panels = new ObjectArrayList<>();
 
     public Panel addPanel(IAEBasePanel delegate) {
         Panel panel = new Panel(delegate);
@@ -19,7 +19,7 @@ public final class DualTerminalComponentTree {
     }
 
     public List<IAEBasePanel> getPanels() {
-        List<IAEBasePanel> result = new ArrayList<>(this.panels.size());
+        List<IAEBasePanel> result = new ObjectArrayList<>(this.panels.size());
         for (Panel panel : this.panels) {
             result.add(panel.delegate);
         }
@@ -96,7 +96,7 @@ public final class DualTerminalComponentTree {
     public static final class Panel {
 
         private final IAEBasePanel delegate;
-        private final List<Component> children = new ArrayList<>();
+        private final List<Component> children = new ObjectArrayList<>();
         private boolean rootBlocksNEI = true;
         private boolean rootDraggable = true;
 
@@ -193,8 +193,8 @@ public final class DualTerminalComponentTree {
         private final Component parent;
         private BooleanSupplier visible;
         private BooleanSupplier focused;
-        private final List<Component> children = new ArrayList<>();
-        private final List<VirtualMESlot> slots = new ArrayList<>();
+        private final List<Component> children = new ObjectArrayList<>();
+        private final List<VirtualMESlot> slots = new ObjectArrayList<>();
         private boolean blocksNEI = true;
         private boolean draggable = true;
         private int zIndex;

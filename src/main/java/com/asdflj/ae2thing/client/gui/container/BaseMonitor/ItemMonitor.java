@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.gui.container.BaseMonitor;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.entity.player.EntityPlayer;
@@ -24,6 +23,7 @@ import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IItemList;
 import appeng.me.cache.CraftingGridCache;
 import appeng.util.Platform;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class ItemMonitor
     implements IMEMonitorHandlerReceiver<IAEItemStack>, IProcessItemList, ICraftingPostPatternChangeListener {
@@ -99,7 +99,7 @@ public class ItemMonitor
         if (monitorCache == null) {
             monitorCache = this.itemMonitor.getStorageList();
         }
-        List<IAEItemStack> toSend = new ArrayList<>();
+        List<IAEItemStack> toSend = new ObjectArrayList<>();
         for (final IAEItemStack is : this.items) {
             IAEItemStack send = monitorCache.findPrecise(is);
             if (send != null) {
@@ -190,7 +190,7 @@ public class ItemMonitor
             final IItemList<IAEItemStack> monitorCache = this.itemMonitor instanceof RefreshableStorageMonitor refreshable
                 ? refreshable.refreshExternalChanges(null, true)
                 : this.itemMonitor.getStorageList();
-            List<IAEItemStack> toSend = new ArrayList<>();
+            List<IAEItemStack> toSend = new ObjectArrayList<>();
             for (final IAEItemStack is : monitorCache) {
                 fluidHandler(is.copy());
                 toSend.add(is);

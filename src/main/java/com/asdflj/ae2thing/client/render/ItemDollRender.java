@@ -1,7 +1,5 @@
 package com.asdflj.ae2thing.client.render;
 
-import java.util.HashMap;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -18,6 +16,7 @@ import com.asdflj.ae2thing.common.block.BaseDollBlockContainer;
 import com.asdflj.ae2thing.common.tile.TileDoll;
 
 import cpw.mods.fml.client.registry.ClientRegistry;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public class ItemDollRender implements IItemRenderer {
 
@@ -45,7 +44,7 @@ public class ItemDollRender implements IItemRenderer {
     }
 
     public static IModelCustom modelDoll = AdvancedModelLoader.loadModel(AE2Thing.resource("models/doll.obj"));
-    public static HashMap<String, Resource> resources = new HashMap<>();
+    public static Object2ObjectOpenHashMap<String, Resource> resources = new Object2ObjectOpenHashMap<>();
     private final String name;
 
     public ItemDollRender(BaseDollBlockContainer blockContainer) {

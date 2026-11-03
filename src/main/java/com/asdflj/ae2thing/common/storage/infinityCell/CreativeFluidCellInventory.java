@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.common.storage.infinityCell;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.inventory.IInventory;
@@ -23,6 +22,7 @@ import appeng.api.storage.data.IAEStackType;
 import appeng.api.storage.data.IItemList;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.item.AEFluidStackType;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class CreativeFluidCellInventory implements ITFluidCellInventory {
 
@@ -138,7 +138,7 @@ public class CreativeFluidCellInventory implements ITFluidCellInventory {
 
     @Override
     public List<IAEFluidStack> getContents() {
-        List<IAEFluidStack> ret = new ArrayList<>();
+        List<IAEFluidStack> ret = new ObjectArrayList<>();
         for (IAEFluidStack fluid : this.getCellFluids()) {
             ret.add(fluid);
         }

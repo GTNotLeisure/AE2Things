@@ -1,7 +1,5 @@
 package com.asdflj.ae2thing.client.textures;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -13,6 +11,8 @@ import com.asdflj.ae2thing.util.NameConst;
 
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public enum BlockTexture {
 
@@ -31,7 +31,7 @@ public enum BlockTexture {
 
     private final String name;
     public net.minecraft.util.IIcon IIcon;
-    public static final HashMap<String, IconWrapper> textureMap = new HashMap<>();
+    public static final Object2ObjectOpenHashMap<String, IconWrapper> textureMap = new Object2ObjectOpenHashMap<>();
 
     BlockTexture(final String name) {
         this.name = name;
@@ -43,8 +43,8 @@ public enum BlockTexture {
 
     public static class IconWrapper {
 
-        private final List<IIcon> on = new ArrayList<>();
-        private final List<IIcon> off = new ArrayList<>();
+        private final List<IIcon> on = new ObjectArrayList<>();
+        private final List<IIcon> off = new ObjectArrayList<>();
 
         public List<IIcon> get() {
             return get(true);

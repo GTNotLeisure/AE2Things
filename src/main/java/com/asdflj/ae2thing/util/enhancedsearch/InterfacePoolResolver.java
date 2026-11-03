@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.util.enhancedsearch;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
@@ -12,6 +11,7 @@ import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectSets;
 
 @SideOnly(Side.CLIENT)
 public final class InterfacePoolResolver {
@@ -29,7 +29,7 @@ public final class InterfacePoolResolver {
         }
     }
 
-    private static final PoolInfo NO_POOL = new PoolInfo(Collections.emptySet(), false);
+    private static final PoolInfo NO_POOL = new PoolInfo(ObjectSets.emptySet(), false);
     private static final Long2ObjectMap<PoolInfo> CACHE = new Long2ObjectOpenHashMap<>();
 
     private InterfacePoolResolver() {}

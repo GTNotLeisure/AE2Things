@@ -5,10 +5,8 @@ import static codechicken.lib.gui.GuiDraw.fontRenderer;
 import static codechicken.lib.gui.GuiDraw.getTipLineId;
 
 import java.awt.Dimension;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Set;
@@ -36,13 +34,15 @@ import appeng.api.storage.data.IItemList;
 import appeng.util.IterationCounter;
 import appeng.util.item.AEItemStack;
 import codechicken.lib.gui.GuiDraw;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import mcp.mobius.waila.handlers.nei.TooltipHandlerWaila;
 
 public class CellContentHandler extends TooltipHandlerWaila {
 
-    public static HashSet<Class<? extends Item>> blackList = new HashSet<>();
-    private static final List<IAEStack<?>> cellContent = new ArrayList<>();
-    private static final List<IAEItemStack> upgradeCard = new ArrayList<>();
+    public static ObjectOpenHashSet<Class<? extends Item>> blackList = new ObjectOpenHashSet<>();
+    private static final List<IAEStack<?>> cellContent = new ObjectArrayList<>();
+    private static final List<IAEItemStack> upgradeCard = new ObjectArrayList<>();
     private static final int maxStacksPerRow = 5;
     private static final GuiDraw.ITooltipLineHandler cellItemStackHandler = new GuiDraw.ITooltipLineHandler() {
 
@@ -90,7 +90,7 @@ public class CellContentHandler extends TooltipHandlerWaila {
                 cellContent.clear();
                 upgradeCard.clear();
                 Set<IMEInventoryHandler<?>> seenHandlers = Collections.newSetFromMap(new IdentityHashMap<>());
-                List<IAEStack<?>> contents = new ArrayList<>();
+                List<IAEStack<?>> contents = new ObjectArrayList<>();
                 for (IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
                     IMEInventoryHandler<?> handler = AEApi.instance()
                         .registries()
@@ -140,7 +140,7 @@ public class CellContentHandler extends TooltipHandlerWaila {
             (IItemList) handler.getStackType()
                 .createList(),
             IterationCounter.fetchNewId());
-        List<IAEStack<?>> stacks = new ArrayList<>();
+        List<IAEStack<?>> stacks = new ObjectArrayList<>();
         for (Object stack : list) {
             if (stack instanceof IAEStack<?>aeStack) {
                 stacks.add(aeStack);

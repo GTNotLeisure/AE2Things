@@ -1,9 +1,6 @@
 package com.asdflj.ae2thing.nei;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,6 +23,9 @@ import codechicken.nei.api.IConfigureNEI;
 import codechicken.nei.config.Option;
 import codechicken.nei.event.NEIConfigsLoadedEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 @SuppressWarnings("unused")
 public class NEI_TH_Config implements IConfigureNEI {
@@ -36,7 +36,7 @@ public class NEI_TH_Config implements IConfigureNEI {
     @Override
     public void loadConfig() {
         API.registerNEIGuiHandler(new AE2TH_NEIGuiHandler());
-        List<String> recipes = new ArrayList<>();
+        List<String> recipes = new ObjectArrayList<>();
         recipes.add("crafting");
         recipes.add("crafting2x2");
         for (String identifier : recipes) {
@@ -124,7 +124,7 @@ public class NEI_TH_Config implements IConfigureNEI {
     }
 
     public static Set<String> getConfigList(String identifier) {
-        final Set<String> values = new LinkedHashSet<>();
+        final Set<String> values = new ObjectLinkedOpenHashSet<>();
         final String raw = tag.getTag(identifier)
             .getValue("");
         for (String part : raw.split(",")) {
@@ -150,9 +150,9 @@ public class NEI_TH_Config implements IConfigureNEI {
             return;
         }
 
-        Set<String> defaultIdentifiers = new HashSet<>(
+        Set<String> defaultIdentifiers = new ObjectOpenHashSet<>(
             Arrays.asList("crafting", "crafting2x2", "brewing", "smelting", "fuel", null));
-        Set<String> identifiers = new HashSet<>(defaultIdentifiers);
+        Set<String> identifiers = new ObjectOpenHashSet<>(defaultIdentifiers);
         identifiers.addAll(NEEUtils.allIdentifiers());
 
         for (String identifier : identifiers) {

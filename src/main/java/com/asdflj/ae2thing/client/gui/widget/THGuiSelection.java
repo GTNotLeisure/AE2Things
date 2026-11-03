@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.gui.widget;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -22,6 +21,7 @@ import com.asdflj.ae2thing.util.Info;
 import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.api.util.AEColor;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class THGuiSelection extends BaseGuiButton implements IScrollable {
 
@@ -52,7 +52,7 @@ public class THGuiSelection extends BaseGuiButton implements IScrollable {
         if (this.display && info != null && this.visible) {
             List<String> list = Arrays.stream(AEColor.values())
                 .map(AEColor::toString)
-                .collect(Collectors.toList());
+                .collect(Collectors.toCollection(ObjectArrayList::new));
             drawHistorySelection(
                 this.component.getX() + this.component.getRender()
                     .getStringWidth(I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_COLOR) + ": "),
@@ -103,7 +103,7 @@ public class THGuiSelection extends BaseGuiButton implements IScrollable {
         GL11.glDisable(GL11.GL_LIGHTING);
         GL11.glDisable(GL11.GL_DEPTH_TEST);
         String[] var4 = null;
-        final List<String> history = new ArrayList<>(searchHistory);
+        final List<String> history = new ObjectArrayList<>(searchHistory);
         Collections.reverse(history);
 
         if (history.size() > maxRows) {
