@@ -1,7 +1,6 @@
 package com.asdflj.ae2thing.coremod.mixin.ae;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -27,41 +26,32 @@ import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IDisplayRepo;
 import appeng.api.storage.data.IItemList;
 import appeng.client.me.ItemRepo;
+import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 @Mixin(ItemRepo.class)
 public abstract class MixinItemRepo implements IDisplayRepo, IDisplayRepoExtend {
 
     @Redirect(
-        method = { "updateView", "lambda$getFilter$*" },
+        method = "lambda$getFilter$7",
         at = @At(value = "INVOKE", target = "Lappeng/api/storage/data/IAEStack;getModId()Ljava/lang/String;"),
         remap = false)
-    private String ae2thing$getModId(IAEStack<?> stack) {
+    private static String ae2thing$getModId(IAEStack<?> stack) {
         return CoreModHooksClient.getModId(stack);
     }
 
     @Redirect(
-        method = { "updateView", "lambda$getFilter$*" },
+        method = "lambda$getFilter$9",
         at = @At(value = "INVOKE", target = "Lappeng/api/storage/data/IAEStack;getDisplayName()Ljava/lang/String;"),
         remap = false)
-    private String ae2thing$getDisplayName(IAEStack<?> stack) {
+    private static String ae2thing$getDisplayName(IAEStack<?> stack) {
         return CoreModHooksClient.getItemDisplayName(stack);
     }
 
     @Redirect(
-        method = { "updateView", "lambda$getFilter$*" },
-        at = @At(
-            value = "INVOKE",
-            target = "Lappeng/util/Platform;getItemDisplayName(Ljava/lang/Object;)Ljava/lang/String;"),
-        remap = false)
-    private String ae2thing$getItemDisplayName(Object stack) {
-        return CoreModHooksClient.getItemDisplayName(stack);
-    }
-
-    @Redirect(
-        method = { "updateView", "lambda$getFilter$*" },
+        method = { "lambda$getFilter$6", "lambda$getFilter$9" },
         at = @At(value = "INVOKE", target = "Lappeng/util/Platform;getTooltip(Ljava/lang/Object;)Ljava/util/List;"),
         remap = false)
-    private List<String> ae2thing$getTooltip(Object stack) {
+    private static List<String> ae2thing$getTooltip(Object stack) {
         return CoreModHooksClient.getTooltip(stack);
     }
 
@@ -131,11 +121,7 @@ public abstract class MixinItemRepo implements IDisplayRepo, IDisplayRepoExtend 
     }
 
     private void viewFilter() {
-        List<IAEStack<?>> list = this.view.stream()
-            .filter(Objects::nonNull)
-            .toList();
-        this.view.clear();
-        this.view.addAll(list);
+        this.view.removeIf(Objects::isNull);
     }
 
     @Inject(method = "updateView", at = @At(value = "TAIL"), remap = false)
@@ -163,7 +149,7 @@ public abstract class MixinItemRepo implements IDisplayRepo, IDisplayRepoExtend 
             }
             IAEItemStack is = pinItems.get(i);
             IAEStack<?> item = this.list.findPrecise(is);
-            Set<IAEStack<?>> itemSet = new HashSet<>(this.view);
+            Set<IAEStack<?>> itemSet = new ObjectOpenHashSet<>(this.view);
             if (item != null) {
                 if (!itemSet.contains(item)) {
                     this.view.add(i, item);
