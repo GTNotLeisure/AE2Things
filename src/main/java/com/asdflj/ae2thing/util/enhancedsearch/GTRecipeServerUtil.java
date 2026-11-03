@@ -7,7 +7,7 @@ import net.minecraft.util.ChunkCoordinates;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.asdflj.ae2thing.integration.Mods;
+import com.asdflj.ae2thing.integration.Compat;
 
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
@@ -26,7 +26,7 @@ public final class GTRecipeServerUtil {
     private GTRecipeServerUtil() {}
 
     public static String activeMapId(IInterfaceViewable host) {
-        if (host == null || !Mods.hasGTRecipeMapWorkable()) return null;
+        if (host == null || Compat.hasNotGTRecipeMapWorkable()) return null;
         try {
             return Backend.resolve(host);
         } catch (Throwable ignored) {
@@ -116,8 +116,7 @@ public final class GTRecipeServerUtil {
 
         private static String mapIdOf(RecipeMapWorkable workable) {
             final RecipeMap<?> active = workable.getRecipeMap();
-            return active == null || active.unlocalizedName == null || active.unlocalizedName.isEmpty() ? null
-                : active.unlocalizedName;
+            return active == null || active.unlocalizedName.isEmpty() ? null : active.unlocalizedName;
         }
 
         private static ChunkCoordinates ownerCoords(MTEHatch hatch) {

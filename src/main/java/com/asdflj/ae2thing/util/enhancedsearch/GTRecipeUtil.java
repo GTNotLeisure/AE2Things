@@ -7,6 +7,7 @@ import java.util.Set;
 
 import net.minecraft.item.ItemStack;
 
+import com.asdflj.ae2thing.integration.Compat;
 import com.asdflj.ae2thing.integration.Mods;
 
 import codechicken.nei.recipe.RecipeCatalysts;
@@ -111,7 +112,7 @@ public final class GTRecipeUtil {
 
         @Override
         public Set<Object> availableMaps(ItemStack rep) {
-            if (rep == null || rep.getItem() == null || !Mods.hasGTRecipeMapWorkable()) {
+            if (rep == null || rep.getItem() == null || Compat.hasNotGTRecipeMapWorkable()) {
                 return RecipePools.super.availableMaps(rep);
             }
             try {
@@ -220,10 +221,10 @@ public final class GTRecipeUtil {
         private boolean matchesMap(RecipeMap<?> map, String id) {
             if (map == null || id == null) return false;
             final String mapId = map.unlocalizedName;
-            if (mapId == null || mapId.isEmpty()) return false;
+            if (mapId.isEmpty()) return false;
             if (mapId.equals(id)) return true;
             if (mapId.equals(baseMapId(id))) return true;
-            return matchesTransferRect(Collections.<Object>singleton(map), id);
+            return matchesTransferRect(Collections.singleton(map), id);
         }
 
         private static RecipeCategory categoryById(String id) {

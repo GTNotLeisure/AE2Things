@@ -117,6 +117,16 @@ public final class EnhancedSearch {
         return query;
     }
 
+    public static String validatedQuery(String query) {
+        if (query == null || query.trim()
+            .isEmpty()) return null;
+        try {
+            return parse(query, true).isInvalid() ? null : query;
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
     public static boolean matchesNameHint(String hint, String name, String suffix) {
         if (hint == null) return false;
         final String lowerHint = hint.trim()

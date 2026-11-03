@@ -3,7 +3,9 @@ package com.asdflj.ae2thing.util;
 import static com.asdflj.ae2thing.api.Constants.MessageType.UPDATE_PLAYER_ITEM;
 import static com.asdflj.ae2thing.nei.NEI_TH_Config.getConfigValue;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
@@ -15,6 +17,7 @@ import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.integration.Compat;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.nei.ButtonConstants;
 import com.asdflj.ae2thing.nei.object.OrderStack;
@@ -26,9 +29,16 @@ import codechicken.nei.recipe.IRecipeHandler;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import gregtech.api.enums.ItemList;
+import gregtech.api.interfaces.INonConsumedItemDisplay;
 import gregtech.api.metatileentity.BaseMetaTileEntity;
+import gregtech.api.metatileentity.CommonBaseMetaTileEntity;
 import gregtech.api.metatileentity.implementations.MTEHatch;
+import gregtech.api.recipe.RecipeCategory;
+import gregtech.api.recipe.RecipeMap;
+import gregtech.api.util.GTUtility;
 import gregtech.common.blocks.ItemMachines;
+import gregtech.nei.GTNEIDefaultHandler;
+import it.unimi.dsi.fastutil.objects.ObjectLinkedOpenHashSet;
 
 public class GTUtil {
 
@@ -47,18 +57,17 @@ public class GTUtil {
     }
 
     @SideOnly(Side.CLIENT)
-    public static String getRecipeName(IRecipeHandler recipe, List<OrderStack<?>> in) {
+    public static String getRecipeName(IRecipeHandler recipe, List<OrderStack<?>> in, boolean enhancedSearch) {
         String head = null;
-        boolean enhancedSearchEnabled = getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL_ENHANCED_SEARCH);
         try {
             head = recipe.getOverlayIdentifier();
         } catch (Throwable ignored) {}
         if (head == null || head.trim()
-            .isEmpty() || !enhancedSearchEnabled) head = recipe.getRecipeTabName();
+            .isEmpty() || !enhancedSearch) head = recipe.getRecipeTabName();
         if (head == null) return null;
 
         StringBuilder suggestion = new StringBuilder();
-        if (enhancedSearchEnabled) {
+        if (enhancedSearch) {
             suggestion.append('@')
                 .append(head.trim());
         } else {
@@ -79,11 +88,11 @@ public class GTUtil {
             }
         }
 
-        if (hasZeroSizeInput && Mods.hasGTNonConsumedDisplay()) {
+        if (hasZeroSizeInput && Compat.hasGTNonConsumedDisplay()) {
             boolean appendCircuit = getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL_APPEND_CIRCUIT_DAMAGE);
             boolean appendNonConsumedItems = getConfigValue(
                 ButtonConstants.DUAL_INTERFACE_TERMINAL_APPEND_NON_CONSUMED_ITEMS);
-            for (String token : GTNonConsumedHelper.collectTokens(recipe, in, appendCircuit, appendNonConsumedItems)) {
+            for (String token : collectNCTokens(recipe, in, appendCircuit, appendNonConsumedItems)) {
                 suggestion.append(" ")
                     .append(token);
             }
@@ -118,6 +127,32 @@ public class GTUtil {
             return ItemMachines.getMetaTileEntity(item) instanceof MTEHatch;
         }
         return false;
+    }
+
+    public static boolean isIntegratedCircuit(ItemStack stack) {
+        if (stack == null || stack.getItem() == null) return false;
+        if (!Compat.hasGTIntegratedCircuit()) return false;
+        return GTUtility.isAnyIntegratedCircuit(stack);
+    }
+
+    private static Collection<String> collectNCTokens(IRecipeHandler recipe, List<OrderStack<?>> in,
+        boolean appendCircuit, boolean appendNonConsumedItems) {
+        Set<String> tokens = new ObjectLinkedOpenHashSet<>();
+        if (!(recipe instanceof GTNEIDefaultHandler)) return tokens;
+
+        RecipeCategory category = RecipeCategory.ALL_RECIPE_CATEGORIES.get(recipe.getOverlayIdentifier());
+        RecipeMap<?> map = category != null ? category.recipeMap : null;
+
+        for (OrderStack<?> order : in) {
+            if (!(order.getStack() instanceof ItemStack stack) || stack.stackSize != 0) continue;
+
+            if (appendCircuit && isIntegratedCircuit(stack) && stack.getItemDamage() > 0) {
+                tokens.add(String.valueOf(stack.getItemDamage()));
+            } else if (appendNonConsumedItems && INonConsumedItemDisplay.isDisplayableItem(map, stack)) {
+                tokens.add(CommonBaseMetaTileEntity.getShortItemDisplayName(stack));
+            }
+        }
+        return tokens;
     }
 
 }

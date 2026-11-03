@@ -2,7 +2,7 @@ package com.asdflj.ae2thing.util;
 
 import java.lang.reflect.Field;
 
-import com.asdflj.ae2thing.integration.Mods;
+import com.asdflj.ae2thing.integration.Compat;
 
 import appeng.api.config.ActionItems;
 import appeng.api.config.Settings;
@@ -17,7 +17,7 @@ public class ModAndClassUtil {
 
     @SuppressWarnings("all")
     public static void init() {
-        isTypeFilter = Mods.hasAe2TypeFilter();
+        isTypeFilter = Compat.hasAe2TypeFilter();
         try {
             Field d = Settings.class.getDeclaredField("CRAFTING_STATUS");
             if (d == null) isCraftStatus = false;

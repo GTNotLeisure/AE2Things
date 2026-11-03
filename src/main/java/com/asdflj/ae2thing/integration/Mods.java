@@ -96,53 +96,11 @@ public enum Mods implements IMod, ITargetMod {
             return false;
         }
 
-        try {
-            Class.forName("gregtech.api.recipe.RecipeMap");
-            return true;
-        } catch (ClassNotFoundException ignored) {
-            return false;
-        }
+        return Compat.hasGTRecipeMap();
     }
 
     public static boolean isLegacyGt5Loaded() {
         return isGt5Loaded() && !isGt5UnofficialLoaded();
     }
 
-    public static boolean hasAe2TypeFilter() {
-        try {
-            Class.forName("appeng.core.features.registries.ItemDisplayRegistry");
-            return true;
-        } catch (ClassNotFoundException ignored) {
-            return false;
-        }
-    }
-
-    private static Boolean gtNonConsumedDisplay;
-
-    public static boolean hasGTNonConsumedDisplay() {
-        if (gtNonConsumedDisplay == null) {
-            try {
-                Class.forName("gregtech.api.interfaces.INonConsumedItemDisplay");
-                gtNonConsumedDisplay = true;
-            } catch (ClassNotFoundException e) {
-                gtNonConsumedDisplay = false;
-            }
-        }
-        return gtNonConsumedDisplay;
-    }
-
-    private static Boolean gtAvailableRecipeMaps;
-
-    public static boolean hasGTRecipeMapWorkable() {
-        if (gtAvailableRecipeMaps == null) {
-            try {
-                Class.forName("gregtech.api.interfaces.tileentity.RecipeMapWorkable")
-                    .getMethod("getAvailableRecipeMaps");
-                gtAvailableRecipeMaps = true;
-            } catch (ClassNotFoundException | NoSuchMethodException e) {
-                gtAvailableRecipeMaps = false;
-            }
-        }
-        return gtAvailableRecipeMaps;
-    }
 }

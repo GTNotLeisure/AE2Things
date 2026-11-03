@@ -11,6 +11,7 @@ import net.minecraftforge.oredict.OreDictionary;
 
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.nei.object.OrderStack;
+import com.asdflj.ae2thing.util.GTUtil;
 
 import appeng.util.Platform;
 import codechicken.nei.NEIClientUtils;
@@ -57,12 +58,29 @@ public final class NEIStackSelector {
             final ItemStack preferMod = preferModItem(permutations);
             if (preferMod != null) chosen = copyWithSize(preferMod, size);
 
+            boolean preferred = preferMod != null;
             if (permutations != null) {
                 for (ItemStack candidate : permutations) {
                     if (candidate == null || candidate.getItem() == null) continue;
                     if (Platform.isRecipePrioritized(candidate) || isPreferItem(candidate, identifier)) {
                         chosen = copyWithSize(candidate, size);
+                        preferred = true;
                         break;
+                    }
+                }
+                if (!preferred && !NEIClientUtils.shiftKey()) {
+                    ItemStack circuit = null;
+                    for (ItemStack candidate : positionedStack.getFilteredPermutations()) {
+                        if (GTUtil.isIntegratedCircuit(candidate)) {
+                            circuit = candidate;
+                            break;
+                        }
+                    }
+                    if (circuit == null && GTUtil.isIntegratedCircuit(positionedStack.item)) {
+                        circuit = positionedStack.item;
+                    }
+                    if (circuit != null && (craftingTable || !isBlacklisted(circuit, identifier))) {
+                        chosen = copyWithSize(circuit, size);
                     }
                 }
             }

@@ -207,13 +207,18 @@ public class PatternTerminalRecipeTransferHandler implements IOverlayHandler {
                 suggestion = Platform.getItemDisplayName(molecular.get());
             }
         } else {
+            final boolean enhancedSearch = getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL_ENHANCED_SEARCH);
             if (Mods.isGt5Loaded() && recipe instanceof GTNEIDefaultHandler) {
-                suggestion = GTUtil.getRecipeName(recipe, in);
+                suggestion = GTUtil.getRecipeName(recipe, in, enhancedSearch);
+                if (enhancedSearch) {
+                    suggestion = EnhancedSearch.validatedQuery(suggestion);
+                }
             }
-            if (getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL_ENHANCED_SEARCH)) {
+            if (enhancedSearch && (suggestion == null || suggestion.isEmpty())) {
                 suggestion = EnhancedSearch.poolQuery(recipe);
             }
-            if (suggestion == null && recipe.getRecipeTabName() != null) suggestion = recipe.getRecipeTabName();
+            final String tabName = EnhancedSearch.recipeTabName(recipe);
+            if ((suggestion == null || suggestion.isEmpty()) && tabName != null) suggestion = tabName;
         }
         if (getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL)) {
             gui.setSearchFieldText(suggestion);
