@@ -145,6 +145,7 @@ public class PatternTerminalRecipeTransferHandler implements IOverlayHandler {
             ObjectList<OrderStack<?>> out = NEIRecipeUtil
                 .getPackageOutputs(recipe, recipeIndex, !NEIRecipeUtil.notUseOther(recipe));
             final String realIdentifier = NEEUtils.realIdentifierOf(recipe);
+            final boolean mergeStacks = mergeAllowed(recipe, recipeIndex, realIdentifier);
             setSuggestion(craft, recipe, gui, in);
             if (Mods.PROGRAMMABLE_HATCHES.isModLoaded() && !craft) {
                 in = PHUtil.transfer(in);
@@ -154,6 +155,10 @@ public class PatternTerminalRecipeTransferHandler implements IOverlayHandler {
                 getConfigValue(ButtonConstants.DUAL_INTERFACE_TERMINAL_INCLUDE_NON_CONSUMED),
                 recipe,
                 recipeIndex);
+            if (mergeStacks && !craft && gui.container.combine) {
+                in = NEIUtils.compress(in);
+                out = NEIUtils.compress(out);
+            }
 
             boolean autoEncode = false;
             NBTTagCompound target = null;
@@ -183,7 +188,7 @@ public class PatternTerminalRecipeTransferHandler implements IOverlayHandler {
                     autoEncode,
                     target,
                     targetSlot).withMultiplier(craft ? DEFAULT_MULTIPLIER : multiplier)
-                        .withRealRecipe(realIdentifier, mergeAllowed(recipe, recipeIndex, realIdentifier)));
+                        .withRealRecipe(realIdentifier, mergeStacks));
 
             if (!in.isEmpty() || !out.isEmpty()) {
                 return multiplier;

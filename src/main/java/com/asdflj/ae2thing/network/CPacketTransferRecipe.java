@@ -15,6 +15,8 @@ import cpw.mods.fml.common.network.simpleimpl.IMessage;
 import cpw.mods.fml.common.network.simpleimpl.IMessageHandler;
 import cpw.mods.fml.common.network.simpleimpl.MessageContext;
 import io.netty.buffer.ByteBuf;
+import it.unimi.dsi.fastutil.ints.IntRBTreeSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
@@ -24,7 +26,6 @@ public class CPacketTransferRecipe implements IMessage {
     private ObjectList<OrderStack<?>> outputs;
     private String identifier;
     public boolean isCraft;
-    private static final int MAX_INDEX = 32;
     public boolean shift;
     public boolean autoEncode;
     @Nullable
@@ -110,19 +111,9 @@ public class CPacketTransferRecipe implements IMessage {
     public void fromBytes(ByteBuf buf) {
         isCraft = buf.readBoolean();
         shift = buf.readBoolean();
-        inputs = new ObjectArrayList<>();
-        outputs = new ObjectArrayList<>();
         NBTTagCompound nbt_m = ByteBufUtils.readTag(buf);
-        NBTTagCompound nbt_i = nbt_m.getCompoundTag("i");
-        NBTTagCompound nbt_o = nbt_m.getCompoundTag("o");
-        for (int i = 0; i < MAX_INDEX; i++) {
-            OrderStack<?> tmp = OrderStack.readFromNBT(nbt_i, null, i);
-            if (tmp != null) inputs.add(tmp);
-        }
-        for (int i = 0; i < MAX_INDEX; i++) {
-            OrderStack<?> tmp = OrderStack.readFromNBT(nbt_o, null, i);
-            if (tmp != null) outputs.add(tmp);
-        }
+        inputs = readStacks(nbt_m.getCompoundTag("i"));
+        outputs = readStacks(nbt_m.getCompoundTag("o"));
         identifier = ByteBufUtils.readUTF8String(buf);
         autoEncode = buf.readBoolean();
         if (buf.readBoolean()) {
@@ -132,6 +123,23 @@ public class CPacketTransferRecipe implements IMessage {
         multiplier = buf.readInt();
         realIdentifier = ByteBufUtils.readUTF8String(buf);
         mergeStacks = buf.readBoolean();
+    }
+
+    private static ObjectList<OrderStack<?>> readStacks(NBTTagCompound tag) {
+        final IntSet indices = new IntRBTreeSet();
+        for (String key : tag.func_150296_c()) {
+            if (!key.endsWith(":")) continue;
+            try {
+                final int index = Integer.parseInt(key.substring(0, key.length() - 1));
+                if (index >= 0) indices.add(index);
+            } catch (NumberFormatException ignored) {}
+        }
+        final ObjectList<OrderStack<?>> out = new ObjectArrayList<>(indices.size());
+        for (final int index : indices.toIntArray()) {
+            final OrderStack<?> stack = OrderStack.readFromNBT(tag, null, index);
+            if (stack != null) out.add(stack);
+        }
+        return out;
     }
 
     public static class Handler implements IMessageHandler<CPacketTransferRecipe, IMessage> {
