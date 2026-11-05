@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.asdflj.ae2thing.inventory.item.IItemInventory;
+import com.asdflj.ae2thing.util.Util;
 
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerOpenContext;
@@ -29,11 +30,11 @@ public abstract class ItemGuiFactory<T> implements IGuiFactory {
     @Nullable
     @Override
     public Object createServerGui(EntityPlayer player, World world, int x, int y, int z, ForgeDirection face) {
-        ItemStack item = getItem(player, x);
-        if (item == null || !(item.getItem() instanceof IItemInventory)) {
+        ItemStack item = Util.getPlayerInvStack(player, x);
+        if (item == null || !(item.getItem() instanceof IItemInventory iInv)) {
             return null;
         }
-        T inv = getInventory(((IItemInventory) item.getItem()).getInventory(item, world, x, y, z, player));
+        T inv = getInventory(iInv.getInventoryAt(item, world, x, y, z, player));
         if (inv == null) {
             return null;
         }
@@ -50,25 +51,17 @@ public abstract class ItemGuiFactory<T> implements IGuiFactory {
         return gui;
     }
 
-    private ItemStack getItem(EntityPlayer player, int x) {
-        if (x == -1) {
-            return player.getCurrentEquippedItem();
-        } else {
-            return player.inventory.getStackInSlot(x);
-        }
-    }
-
     @Nullable
     protected abstract Object createServerGui(EntityPlayer player, T inv);
 
     @Nullable
     @Override
     public Object createClientGui(EntityPlayer player, World world, int x, int y, int z, ForgeDirection face) {
-        ItemStack item = getItem(player, x);
-        if (item == null || !(item.getItem() instanceof IItemInventory)) {
+        ItemStack item = Util.getGuiStack(player, x);
+        if (item == null || !(item.getItem() instanceof IItemInventory iInv)) {
             return null;
         }
-        T inv = getInventory(((IItemInventory) item.getItem()).getInventory(item, world, x, y, z, player));
+        T inv = getInventory(iInv.getInventoryAt(item, world, x, y, z, player));
         if (inv == null && Minecraft.getMinecraft().currentScreen != null) {
             player.closeScreen();
         }

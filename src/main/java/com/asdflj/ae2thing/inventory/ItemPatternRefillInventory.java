@@ -4,6 +4,9 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import com.asdflj.ae2thing.util.NHUtil;
+import com.asdflj.ae2thing.util.Util;
+
 import appeng.api.AEApi;
 import appeng.core.AELog;
 import appeng.tile.inventory.AppEngInternalInventory;
@@ -23,7 +26,7 @@ public class ItemPatternRefillInventory extends AppEngInternalInventory {
         this.is = is;
         this.player = player;
         this.slot = slot;
-        this.readFromNBT(Platform.openNbtData(this.is), this.name);
+        this.readFromNBT(NHUtil.getNBTData(this.is), this.name);
     }
 
     @Override
@@ -58,8 +61,8 @@ public class ItemPatternRefillInventory extends AppEngInternalInventory {
 
     @Override
     public void markDirty() {
-        this.writeToNBT(Platform.openNbtData(is), this.name);
-        if (Platform.isServer()) this.player.inventory.setInventorySlotContents(slot, this.is);
+        this.writeToNBT(NHUtil.getNBTData(is), this.name);
+        if (Platform.isServer()) Util.setPlayerInvStack(player, slot, this.is);
     }
 
     @Override

@@ -27,6 +27,7 @@ import com.asdflj.ae2thing.network.SPacketFindCellItem;
 import com.asdflj.ae2thing.network.SPacketFlowRates;
 import com.asdflj.ae2thing.network.SPacketInterfaceRecipeMapUpdate;
 import com.asdflj.ae2thing.network.SPacketInterfaceSuffixUpdate;
+import com.asdflj.ae2thing.network.SPacketItemGuiHint;
 import com.asdflj.ae2thing.network.SPacketMEFluidInvUpdate;
 import com.asdflj.ae2thing.network.SPacketMEItemInvUpdate;
 import com.asdflj.ae2thing.network.SPacketNBTDataUpdate;
@@ -50,7 +51,7 @@ public class ChannelLoader implements Runnable {
         SPacketFindCellItem.class, SPacketFlowRates.class, SPacketMEFluidInvUpdate.class, SPacketMEItemInvUpdate.class,
         SPacketNBTDataUpdate.class, SPacketStringUpdate.class, SPacketSwitchBack.class, SPacketTypeFilter.class,
         SPacketInterfaceSuffixUpdate.class, CPacketUniversalStorageBusAction.class,
-        SPacketInterfaceRecipeMapUpdate.class, CPacketInterfaceRecipeMapRequest.class };
+        SPacketInterfaceRecipeMapUpdate.class, CPacketInterfaceRecipeMapRequest.class, SPacketItemGuiHint.class };
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })

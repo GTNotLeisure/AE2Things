@@ -11,7 +11,9 @@ import net.minecraftforge.common.util.ForgeDirection;
 import com.asdflj.ae2thing.common.Config;
 import com.asdflj.ae2thing.common.item.ItemWirelessConnectorTerminal;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
+import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.inventory.item.WirelessTerminal;
+import com.asdflj.ae2thing.util.Util;
 import com.gtnewhorizon.gtnhlib.item.ItemStackNBT;
 
 import appeng.api.AEApi;
@@ -92,8 +94,20 @@ public class WirelessObject implements IActionHost {
         return gridNode;
     }
 
-    public int getSlot() {
+    public int getX() {
         return x;
+    }
+
+    public int getSlot() {
+        return PlayerInvType.slotOf(x);
+    }
+
+    public ItemStack getStack() {
+        return Util.getPlayerInvStack(this.player, x);
+    }
+
+    public void setStack(ItemStack stack) {
+        Util.setPlayerInvStack(this.player, x, stack);
     }
 
     public IGrid getGrid() {
@@ -177,7 +191,7 @@ public class WirelessObject implements IActionHost {
         }
         double result = energySource.extractAEPower(amt, mode, usePowerMultiplier);
         if (result == 0) closeGui();
-        this.player.inventory.setInventorySlotContents(getSlot(), getItemStack());
+        this.setStack(getItemStack());
         ticks = 0;
         return ticks;
     }

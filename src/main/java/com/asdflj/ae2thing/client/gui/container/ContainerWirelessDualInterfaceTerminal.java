@@ -37,6 +37,7 @@ import com.asdflj.ae2thing.client.gui.container.widget.PatternContainer;
 import com.asdflj.ae2thing.common.item.ItemPatternModifier;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.IPatternTerminal;
+import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.inventory.item.INetworkTerminal;
 import com.asdflj.ae2thing.inventory.item.PatternModifierInventory;
 import com.asdflj.ae2thing.inventory.item.WirelessDualInterfaceTerminalInventory;
@@ -197,7 +198,9 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
 
     private void lockSlot() {
         if (this.it instanceof WirelessTerminal wirelessTerminal) {
-            this.lockPlayerInventorySlot(wirelessTerminal.getInventorySlot());
+            final int x = wirelessTerminal.getX();
+            if (PlayerInvType.typeOf(x) != PlayerInvType.PLAYER_INV) return;
+            this.lockPlayerInventorySlot(PlayerInvType.slotOf(x));
         }
     }
 

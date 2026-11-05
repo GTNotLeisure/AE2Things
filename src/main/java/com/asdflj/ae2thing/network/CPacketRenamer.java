@@ -14,7 +14,6 @@ import com.asdflj.ae2thing.inventory.gui.GuiType;
 import com.asdflj.ae2thing.inventory.item.IClickableInTerminal;
 import com.asdflj.ae2thing.inventory.item.WirelessTerminal;
 import com.asdflj.ae2thing.util.Ae2Reflect;
-import com.asdflj.ae2thing.util.BlockPos;
 import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.util.IInterfaceViewable;
@@ -45,6 +44,7 @@ public class CPacketRenamer implements IMessage {
         SET_TEXT,
     }
 
+    @SuppressWarnings("unused")
     public CPacketRenamer() {}
 
     public CPacketRenamer(String text) {
@@ -156,12 +156,8 @@ public class CPacketRenamer implements IMessage {
                         clickableInterface.setClickedInterface(renamingTarget);
 
                         if (con.getTarget() instanceof WirelessTerminal terminal) {
-                            InventoryHandler.openGui(
-                                player,
-                                player.worldObj,
-                                new BlockPos(terminal.getInventorySlot(), 0, 0),
-                                message.side,
-                                GuiType.RENAMER);
+                            InventoryHandler
+                                .openItemGui(player, player.worldObj, terminal.getX(), message.side, GuiType.RENAMER);
                             if (player.openContainer instanceof ContainerRenamer renamer) {
                                 renamer.setRenamingTarget(renamingTarget);
                             }

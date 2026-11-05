@@ -5,6 +5,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
+import java.util.function.IntFunction;
 
 import javax.annotation.Nonnull;
 
@@ -12,6 +13,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.inventory.IInventory;
+import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentTranslation;
@@ -24,12 +27,18 @@ import net.minecraftforge.fluids.IFluidContainerItem;
 
 import org.lwjgl.input.Mouse;
 
+import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.client.gui.IGuiMonitorTerminal;
+import com.asdflj.ae2thing.common.Config;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemPatternModifier;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
+import com.asdflj.ae2thing.integration.Mods;
+import com.asdflj.ae2thing.integration.snl.YogIntegration;
+import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
+import com.asdflj.ae2thing.network.SPacketItemGuiHint;
 import com.glodblock.github.client.gui.FCGuiTextField;
 import com.glodblock.github.common.item.ItemFluidDrop;
 import com.glodblock.github.common.item.ItemFluidPacket;
@@ -67,7 +76,10 @@ import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
+import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
+import it.unimi.dsi.fastutil.ints.IntObjectPair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import it.unimi.dsi.fastutil.objects.ObjectIntPair;
 
 public class Util {
 
@@ -174,36 +186,25 @@ public class Util {
     private static int randTickSeed = 0;
 
     public static int findBackPackTerminal(EntityPlayer player, ItemStack is) {
-        int fallback = -1;
-        for (int x = 0; x < player.inventory.mainInventory.length; x++) {
-            ItemStack item = player.inventory.mainInventory[x];
-            if (item == null || item.getItem() == null) continue;
-            if (!(item.getItem() instanceof ItemBackpackTerminal)) continue;
-            if (is != null && Platform.isSameItemPrecise(item, is)) return x;
-            if (fallback == -1) fallback = x;
-        }
-        return fallback;
+        IntObjectPair<ItemStack> found = scanItem(player, PlayerInvType.PLAYER_INV, is, ItemBackpackTerminal.class);
+        return found != null ? found.leftInt() : PlayerInvType.NO_SLOT;
     }
 
-    public static int findDualInterfaceTerminal(EntityPlayer player, ItemStack is) {
-        int fallback = -1;
-        for (int x = 0; x < player.inventory.mainInventory.length; x++) {
-            final ItemStack item = player.inventory.mainInventory[x];
-            if (item == null || item.getItem() == null) continue;
-            if (!(item.getItem() instanceof ItemWirelessDualInterfaceTerminal)) continue;
-            if (is != null && Platform.isSameItemPrecise(item, is)) return x;
-            if (fallback == -1) fallback = x;
-        }
-        return fallback;
+    public static int findDualInterfaceTerminal(EntityPlayerMP player, ItemStack is) {
+        IntObjectPair<ItemStack> found = scanItem(
+            player,
+            PlayerInvType.PLAYER_INV,
+            is,
+            ItemWirelessDualInterfaceTerminal.class);
+        if (found != null) return found.leftInt();
+        if (!Mods.BAUBLES.isModLoaded() || !Config.dualTerminalCanStoredInBaubles) return PlayerInvType.NO_SLOT;
+        found = scanItem(player, PlayerInvType.PLAYER_BAUBLES, is, ItemWirelessDualInterfaceTerminal.class);
+        return found != null ? found.leftInt() : PlayerInvType.NO_SLOT;
     }
 
     public static int findPatternModifier(EntityPlayer player) {
-        for (int x = 0; x < player.inventory.mainInventory.length; x++) {
-            ItemStack item = player.inventory.mainInventory[x];
-            if (item == null || item.getItem() == null) continue;
-            if (item.getItem() instanceof ItemPatternModifier) return x;
-        }
-        return -1;
+        IntObjectPair<ItemStack> found = scanItem(player, PlayerInvType.PLAYER_INV, null, ItemPatternModifier.class);
+        return found != null ? found.leftInt() : PlayerInvType.NO_SLOT;
     }
 
     public static IGrid getWirelessGrid(EntityPlayer player) {
@@ -410,6 +411,97 @@ public class Util {
             return getDisplayRepo(gui, (Class<? extends AEBaseGui>) clazz.getSuperclass());
         } catch (Exception ignored) {}
         return null;
+    }
+
+    public static ItemStack getPlayerInvStack(EntityPlayer player, int x) {
+        if (player == null) return null;
+        if (x == PlayerInvType.NO_SLOT) return player.inventory.getCurrentItem();
+        ObjectIntPair<PlayerInvType> decoded = PlayerInvType.decode(x);
+        int slot = decoded.rightInt();
+        if (slot < 0) return null;
+        if (decoded.left() == PlayerInvType.PLAYER_BAUBLES) {
+            if (!Mods.BAUBLES.isModLoaded()) return null;
+            IInventory inv = BaublesUtil.getBaublesInv(player);
+            return inv != null && slot < inv.getSizeInventory() ? inv.getStackInSlot(slot) : null;
+        }
+        if (decoded.left() == PlayerInvType.YOG_STORAGE) {
+            return YogIntegration.isAvailable() ? YogIntegration.getStoredStack(player, slot) : null;
+        }
+        return slot < player.inventory.mainInventory.length ? player.inventory.getStackInSlot(slot) : null;
+    }
+
+    public static void setPlayerInvStack(EntityPlayer player, int x, ItemStack stack) {
+        if (player == null) return;
+        if (x == PlayerInvType.NO_SLOT) {
+            player.inventory.setInventorySlotContents(player.inventory.currentItem, stack);
+            return;
+        }
+        ObjectIntPair<PlayerInvType> decoded = PlayerInvType.decode(x);
+        int slot = decoded.rightInt();
+        if (slot < 0) return;
+        if (decoded.left() == PlayerInvType.PLAYER_BAUBLES) {
+            if (!Mods.BAUBLES.isModLoaded()) return;
+            IInventory inv = BaublesUtil.getBaublesInv(player);
+            if (inv == null || slot >= inv.getSizeInventory()) return;
+            inv.setInventorySlotContents(slot, stack);
+            inv.markDirty();
+            return;
+        }
+        if (decoded.left() == PlayerInvType.YOG_STORAGE) {
+            if (!YogIntegration.isAvailable()) return;
+            if (!YogIntegration.setStoredStack(player, slot, stack)) {
+                AELog.warn(
+                    "Yog storage slot %s no longer holds the terminal that is being saved, skipping NBT write-back",
+                    slot);
+            }
+            return;
+        }
+        if (slot < player.inventory.mainInventory.length) {
+            player.inventory.setInventorySlotContents(slot, stack);
+        }
+    }
+
+    public static ItemStack getGuiStack(EntityPlayer player, int x) {
+        if (Platform.isClient() && PlayerInvType.typeOf(x) != PlayerInvType.PLAYER_INV) {
+            final ItemStack hinted = ItemGuiHintCache.get(x);
+            if (hinted != null) return hinted;
+        }
+        return getPlayerInvStack(player, x);
+    }
+
+    public static void hintGuiStack(EntityPlayerMP player, int x) {
+        if (player == null || PlayerInvType.typeOf(x) == PlayerInvType.PLAYER_INV) return;
+        final ItemStack stack = getPlayerInvStack(player, x);
+        if (stack != null) AE2Thing.proxy.netHandler.sendTo(new SPacketItemGuiHint(x, stack), player);
+    }
+
+    private static IntObjectPair<ItemStack> scanItem(EntityPlayer player, PlayerInvType type, ItemStack stack,
+        Class<? extends Item> target) {
+        if (type == PlayerInvType.PLAYER_BAUBLES && !Mods.BAUBLES.isModLoaded()) return null;
+        int size = player.inventory.mainInventory.length;
+        IntFunction<ItemStack> accessor = i -> player.inventory.getStackInSlot(i);
+        if (type == PlayerInvType.PLAYER_BAUBLES) {
+            final IInventory baubles = BaublesUtil.getBaublesInv(player);
+            if (baubles == null) return null;
+            size = baubles.getSizeInventory();
+            accessor = baubles::getStackInSlot;
+        }
+
+        int fallbackSlot = PlayerInvType.NO_SLOT;
+        ItemStack fallback = null;
+        for (int i = 0; i < size; i++) {
+            ItemStack item = accessor.apply(i);
+            if (item == null || !(target.isInstance(item.getItem()))) continue;
+            if (stack != null && Platform.isSameItemPrecise(item, stack)) {
+                return new IntObjectImmutablePair<>(PlayerInvType.encode(i, type), item);
+            }
+            if (fallback == null) {
+                fallbackSlot = i;
+                fallback = item;
+            }
+        }
+        return fallback == null ? null
+            : new IntObjectImmutablePair<>(PlayerInvType.encode(fallbackSlot, type), fallback);
     }
 
     public static class DimensionalCoordSide extends DimensionalCoord {

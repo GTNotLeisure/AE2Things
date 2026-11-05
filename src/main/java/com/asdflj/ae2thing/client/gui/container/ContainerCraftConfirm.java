@@ -72,7 +72,7 @@ public class ContainerCraftConfirm extends appeng.container.implementations.Cont
         final ContainerOpenContext ctx = this.getOpenContext();
         if (ctx != null && ctx.getTile() != null) return new BlockPos(ctx.getTile());
         final IActionHost ah = this.getActionHost();
-        if (ah instanceof WirelessTerminal wt) return new BlockPos(wt.getInventorySlot(), 0, 0);
+        if (ah instanceof WirelessTerminal wt) return new BlockPos(wt.getX(), 0, 0);
         return new BlockPos(0, 0, 0);
     }
 
@@ -103,11 +103,11 @@ public class ContainerCraftConfirm extends appeng.container.implementations.Cont
                     this.getOpenContext()
                         .getSide()),
                 originalGui);
-        } else if (ah instanceof WirelessTerminal) {
-            InventoryHandler.openGui(
+        } else if (ah instanceof WirelessTerminal wt) {
+            InventoryHandler.openItemGui(
                 this.getInventoryPlayer().player,
                 getWorld(),
-                new BlockPos(((WirelessTerminal) ah).getInventorySlot(), 0, 0),
+                wt.getX(),
                 Objects.requireNonNull(
                     this.getOpenContext()
                         .getSide()),

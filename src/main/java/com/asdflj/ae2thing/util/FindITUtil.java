@@ -1,5 +1,6 @@
 package com.asdflj.ae2thing.util;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -91,7 +92,7 @@ public class FindITUtil implements Runnable {
             return;
         }
         if (c.getTarget() instanceof TileEntity t) {
-            java.util.HashSet<Slot> slots = getSlots(c, t);
+            HashSet<Slot> slots = getSlots(c, t);
             if (slots.isEmpty()) return;
             slotHighlighter.highlightSlots(
                 guiContainer,
@@ -100,8 +101,8 @@ public class FindITUtil implements Runnable {
         }
     }
 
-    private @NotNull java.util.HashSet<Slot> getSlots(AEBaseContainer c, TileEntity t) {
-        java.util.HashSet<Slot> slots = new java.util.HashSet<>();
+    private @NotNull HashSet<Slot> getSlots(AEBaseContainer c, TileEntity t) {
+        HashSet<Slot> slots = new HashSet<>();
         for (StorageProvider storageProvider : storageProviderList) {
             if (storageProvider.getCoord()
                 .equals(new DimensionalCoord(t))) {

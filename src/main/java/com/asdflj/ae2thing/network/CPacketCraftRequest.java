@@ -155,9 +155,12 @@ public class CPacketCraftRequest implements IMessage {
                             InventoryHandler.openGui(player, te.getWorldObj(), new BlockPos(te),
                                 Objects.requireNonNull(context.getSide()), GuiType.CRAFTING_CONFIRM);
                         } else {
-                            InventoryHandler.openGui(player, player.getEntityWorld(),
-                                new BlockPos(((WirelessTerminal) c.getTarget()).getInventorySlot(), 0, 0),
-                                Objects.requireNonNull(context.getSide()), GuiType.CRAFTING_CONFIRM_ITEM);
+                            InventoryHandler.openItemGui(
+                                player,
+                                player.getEntityWorld(),
+                                ((WirelessTerminal) c.getTarget()).getX(),
+                                Objects.requireNonNull(context.getSide()),
+                                GuiType.CRAFTING_CONFIRM_ITEM);
                         }
 
                         if (player.openContainer instanceof final ContainerCraftConfirm containerConfirm) {

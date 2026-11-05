@@ -14,6 +14,8 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.api.WirelessObject;
 import com.asdflj.ae2thing.inventory.AEStackItemInventory;
@@ -22,6 +24,7 @@ import com.asdflj.ae2thing.inventory.ItemPatternRefillInventory;
 import com.asdflj.ae2thing.inventory.ItemPatternsInventory;
 import com.asdflj.ae2thing.inventory.SlotBackedAEStackInventory;
 import com.asdflj.ae2thing.util.GTNLUtil;
+import com.asdflj.ae2thing.util.NHUtil;
 import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.config.Settings;
@@ -29,11 +32,13 @@ import appeng.api.config.SortDir;
 import appeng.api.config.SortOrder;
 import appeng.api.config.ViewItems;
 import appeng.api.implementations.ICraftingPatternItem;
+import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.networking.energy.IEnergySource;
 import appeng.api.networking.security.BaseActionSource;
+import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.parts.IInterfaceTerminal;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.ITerminalTypeFilterProvider;
@@ -51,8 +56,8 @@ import appeng.tile.inventory.IAEAppEngInventory;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.tile.inventory.InvOperation;
 import appeng.util.ConfigManager;
-import appeng.util.Platform;
 import appeng.util.TerminalSettings;
+import appeng.util.item.AEFluidStackType;
 import appeng.util.item.AEItemStackType;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
@@ -87,13 +92,13 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
 
     public WirelessDualInterfaceTerminalInventory(WirelessObject obj) {
         super(obj);
-        pattern = new ItemPatternsInventory(obj.getItemStack(), this, obj.getPlayer(), obj.getSlot());
+        pattern = new ItemPatternsInventory(obj.getItemStack(), this, obj.getPlayer(), obj.getX());
         crafting = new ItemBiggerAppEngInventory(
             obj.getItemStack(),
             Constants.CRAFTING,
             9,
             obj.getPlayer(),
-            obj.getSlot(),
+            obj.getX(),
             this);
         final int patternSlots = GTNLUtil.patternSlotCount();
         craftingEx = new AEStackItemInventory(
@@ -101,14 +106,14 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
             Constants.CRAFTING_EX,
             patternSlots,
             obj.getPlayer(),
-            obj.getSlot(),
+            obj.getX(),
             StorageName.CRAFTING_INPUT);
         outputEx = new AEStackItemInventory(
             obj.getItemStack(),
             Constants.OUTPUT_EX,
             patternSlots,
             obj.getPlayer(),
-            obj.getSlot(),
+            obj.getX(),
             StorageName.CRAFTING_OUTPUT);
         this.craftingView = new SlotBackedAEStackInventory(this.crafting, StorageName.CRAFTING_INPUT);
         upgrades = new ItemPatternRefillInventory(
@@ -117,12 +122,12 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
             1,
             1,
             obj.getPlayer(),
-            obj.getSlot());
+            obj.getX());
         this.readFromNBT();
     }
 
     private void readFromNBT() {
-        NBTTagCompound data = Platform.openNbtData(this.obj.getItemStack());
+        NBTTagCompound data = NHUtil.getNBTData(this.obj.getItemStack());
         this.setSubstitution(data.getBoolean("substitute"));
         this.setCombineMode(data.getBoolean("combine"));
         this.setBeSubstitute(data.getBoolean("beSubstitute"));
@@ -139,17 +144,15 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
 
     @Override
     public IConfigManager getConfigManager() {
-        final ConfigManager out = new ConfigManager((manager, settingName, newValue) -> {
-            final NBTTagCompound data = Platform.openNbtData(this.getItemStack());
+        final ConfigManager out = new ConfigManager((manager, _, _) -> {
+            final NBTTagCompound data = NHUtil.getNBTData(this.getItemStack());
             manager.writeToNBT(data);
             saveSettings();
         });
         out.registerSetting(Settings.SORT_BY, SortOrder.NAME);
         out.registerSetting(Settings.VIEW_MODE, ViewItems.ALL);
         out.registerSetting(Settings.SORT_DIRECTION, SortDir.ASCENDING);
-        out.readFromNBT(
-            (NBTTagCompound) Platform.openNbtData(this.getItemStack())
-                .copy());
+        out.readFromNBT(NHUtil.getNBTDataReadOnly(this.getItemStack()));
         return out;
     }
 
@@ -295,7 +298,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
     }
 
     public NBTTagCompound getPanelPositions() {
-        NBTTagCompound data = Platform.openNbtData(this.nbtSource());
+        NBTTagCompound data = NHUtil.getNBTData(this.nbtSource());
         if (!data.hasKey(PANEL_POSITIONS_TAG)) {
             return new NBTTagCompound();
         }
@@ -312,7 +315,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
         ItemStack cached = this.getItemStack();
         EntityPlayer player = this.obj.getPlayer();
         if (player != null) {
-            ItemStack live = player.inventory.getStackInSlot(this.obj.getSlot());
+            ItemStack live = this.obj.getStack();
             if (live != null && live.getItem() == cached.getItem()) return live;
         }
         return cached;
@@ -325,7 +328,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
         copyPanelPosition(positions, stored, "patternY");
         copyPanelPosition(positions, stored, "itemX");
         copyPanelPosition(positions, stored, "itemY");
-        NBTTagCompound data = Platform.openNbtData(this.nbtSource());
+        NBTTagCompound data = NHUtil.getNBTData(this.nbtSource());
         data.setTag(PANEL_POSITIONS_TAG, stored);
         this.saveSettings();
     }
@@ -337,7 +340,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
     }
 
     private static int clampPanelPosition(int value) {
-        return Math.max(MIN_PANEL_POSITION, Math.min(MAX_PANEL_POSITION, value));
+        return Math.clamp(value, MIN_PANEL_POSITION, MAX_PANEL_POSITION);
     }
 
     @Override
@@ -385,8 +388,12 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
     }
 
     @Override
-    public IMEMonitor<?> getMEMonitor(IAEStackType<?> type) {
-        return type == AEItemStackType.ITEM_STACK_TYPE ? this.getItemInventory() : this.getFluidInventory();
+    public IMEMonitor<?> getMEMonitor(@NotNull IAEStackType<?> type) {
+        if (type == AEItemStackType.ITEM_STACK_TYPE) return this.getItemInventory();
+        if (type == AEFluidStackType.FLUID_STACK_TYPE) return this.getFluidInventory();
+        final IGrid grid = this.getGrid();
+        final IStorageGrid storage = grid == null ? null : grid.getCache(IStorageGrid.class);
+        return storage == null ? null : storage.getMEMonitor(type);
     }
 
     @Override
@@ -545,7 +552,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
     }
 
     private void writeToNBT() {
-        NBTTagCompound data = Platform.openNbtData(this.getItemStack());
+        NBTTagCompound data = NHUtil.getNBTData(this.getItemStack());
         data.setBoolean("craftingMode", this.craftingMode);
         data.setBoolean("substitute", this.substitute);
         data.setBoolean("combine", this.combine);
@@ -585,6 +592,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
         return true;
     }
 
+    @NotNull
     @Override
     public Reference2BooleanMap<IAEStackType<?>> getTypeFilter(EntityPlayer player) {
         return this.terminalSettings.getFilters(player)

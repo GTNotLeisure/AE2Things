@@ -218,3 +218,14 @@ ae2thing.interface_terminal.search.current=§7Current query: §f%1$s
 ae2thing.interface_terminal.search.pool=§7Resolved recipe pool: §b%1$s
 ae2thing.interface_terminal.search.mode_mismatch=§7Also §e%1$s§7 interface(s) could switch their machine to this pool, but it is currently set to another mode and was hidden
 ae2thing.interface_terminal.search.disabled=§cEnhanced search is off: enable it in the NEI options, otherwise a query starting with @ does nothing
+
+ae2thing.config.general=General
+ae2thing.config.general.cellLink=Enable link cell
+ae2thing.config.general.magnetRange=Backpack terminal magnet range
+ae2thing.config.general.updateViewThread=Terminal updateView thread
+ae2thing.config.general.wirelessConnectorTerminalInfinityConnectionRange=Wireless connector terminal infinite range
+ae2thing.config.general.exIOPortTransferContentsRate=Ex IO Port transfer rate
+ae2thing.config.general.backpackTerminalAddTicSupport=Let backpack terminal forge TiC tools
+ae2thing.config.general.craftingHistorySize=Crafting history size
+ae2thing.config.dualInterfaceTerminal=2-in-1 Terminal
+ae2thing.config.dualInterfaceTerminal.canStoredInBaubles=Allow the 2-in-1 terminal to be stored in baubles slots

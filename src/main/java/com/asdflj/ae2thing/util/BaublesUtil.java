@@ -20,6 +20,8 @@ public class BaublesUtil {
     }
 
     public static void syncBaubles(EntityPlayer player, int slot) {
+        final IInventory inv = PlayerHandler.getPlayerBaubles(player);
+        if (inv == null || slot < 0 || slot >= inv.getSizeInventory()) return;
         Side side = FMLCommonHandler.instance()
             .getEffectiveSide();
         if (side == Side.SERVER) {

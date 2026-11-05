@@ -71,6 +71,7 @@ public class CPacketInventoryActionExtend implements IMessage {
     @SuppressWarnings("unused")
     public CPacketInventoryActionExtend() {}
 
+    @SuppressWarnings("unused")
     public CPacketInventoryActionExtend(final InventoryActionExtend action, final int slot, final int id) {
         this(action, slot, id, null);
     }
@@ -178,9 +179,13 @@ public class CPacketInventoryActionExtend implements IMessage {
                             InventoryHandler
                                 .openGui(sender, te.getWorldObj(), pos, side, GuiType.PATTERN_NAME_SET);
                         } else if (target instanceof WirelessTerminal wirelessTerminal) {
-                            pos = new BlockPos(wirelessTerminal.getInventorySlot(), 0, 0);
-                            InventoryHandler
-                                .openGui(sender, sender.getEntityWorld(), pos, side, GuiType.PATTERN_NAME_SET_ITEM);
+                            pos = new BlockPos(wirelessTerminal.getX(), 0, 0);
+                            InventoryHandler.openItemGui(
+                                sender,
+                                sender.getEntityWorld(),
+                                wirelessTerminal.getX(),
+                                side,
+                                GuiType.PATTERN_NAME_SET_ITEM);
                         } else {
                             return null;
                         }

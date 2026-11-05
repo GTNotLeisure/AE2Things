@@ -211,3 +211,14 @@ ae2thing.interface_terminal.search.current=§7当前查询：§f%1$s
 ae2thing.interface_terminal.search.pool=§7实际查询的配方池：§b%1$s
 ae2thing.interface_terminal.search.mode_mismatch=§7另有 §e%1$s§7 个接口的机器能切换到该配方池，但当前模式不是它，已隐藏
 ae2thing.interface_terminal.search.disabled=§c强化搜索未开启：请先在 NEI 选项里打开「强化搜索」，@ 开头的查询才会生效
+
+ae2thing.config.general=通用
+ae2thing.config.general.cellLink=启用链接元件
+ae2thing.config.general.magnetRange=背包终端磁力范围
+ae2thing.config.general.updateViewThread=终端视图更新使用独立线程
+ae2thing.config.general.wirelessConnectorTerminalInfinityConnectionRange=无线连接终端无限连接距离
+ae2thing.config.general.exIOPortTransferContentsRate=扩展 IO 端口传输速率
+ae2thing.config.general.backpackTerminalAddTicSupport=允许背包终端加工匠魂工具
+ae2thing.config.general.craftingHistorySize=合成历史记录条数
+ae2thing.config.dualInterfaceTerminal=二合一终端
+ae2thing.config.dualInterfaceTerminal.canStoredInBaubles=允许把二合一终端放进饰品栏槽位

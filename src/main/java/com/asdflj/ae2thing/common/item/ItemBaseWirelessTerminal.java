@@ -31,6 +31,8 @@ import baubles.api.IBauble;
 
 public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal implements IItemInventory, IBauble {
 
+    private static final String[] NO_BAUBLE_TYPES = new String[0];
+
     public ItemBaseWirelessTerminal() {
         super();
         this.setFeature(EnumSet.of(AEFeature.WirelessAccessTerminal, AEFeature.PoweredTools));
@@ -38,6 +40,15 @@ public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal impl
 
     public ItemStack stack() {
         return new ItemStack(this, 1);
+    }
+
+    protected boolean canBePlacedInBaubles(final ItemStack is) {
+        return false;
+    }
+
+    @Override
+    public String[] getBaubleTypes(final ItemStack is) {
+        return this.canBePlacedInBaubles(is) ? super.getBaubleTypes(is) : NO_BAUBLE_TYPES;
     }
 
     @Override

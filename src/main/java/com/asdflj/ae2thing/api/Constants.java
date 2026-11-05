@@ -53,6 +53,7 @@ public interface Constants {
     int MODE_PROCESSING = 0;
     String INFINITY_BOOSTER_CARD = "infinityBoosterCard";
     String INFINITY_ENERGY_CARD = "InfinityEnergyCard";
+    String DUAL_INTERFACE_TERMINAL = "dualInterfaceTerminal";
 
     enum MessageType {
 

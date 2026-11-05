@@ -12,26 +12,35 @@ import java.util.List;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.WirelessObject;
+import com.asdflj.ae2thing.common.Config;
 import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
+import com.asdflj.ae2thing.integration.snl.YogIntegration;
+import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
+import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.inventory.item.IItemInventory;
 import com.asdflj.ae2thing.inventory.item.WirelessDualInterfaceTerminalInventory;
 import com.asdflj.ae2thing.loader.IRegister;
 import com.asdflj.ae2thing.util.NameConst;
+import com.asdflj.ae2thing.util.Util;
+import com.science.gtnl.api.IYogTerminal;
 
 import appeng.api.AEApi;
 import appeng.core.features.AEFeature;
 import appeng.core.localization.PlayerMessages;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.common.registry.GameRegistry;
 
+@Optional.Interface(modid = "sciencenotleisure", iface = "com.science.gtnl.api.IYogTerminal")
 public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
-    implements IItemInventory, IRegister<ItemWirelessDualInterfaceTerminal> {
+    implements IItemInventory, IRegister<ItemWirelessDualInterfaceTerminal>, IYogTerminal {
 
     public ItemWirelessDualInterfaceTerminal() {
         AEApi.instance()
@@ -52,6 +61,11 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
 
     @Override
     public Object getInventory(ItemStack stack, World world, int x, int y, int z, EntityPlayer player) {
+        return getInventoryAt(stack, world, x, y, z, player);
+    }
+
+    @Override
+    public Object getInventoryAt(ItemStack stack, World world, int x, int y, int z, EntityPlayer player) {
         try {
             return new WirelessObject(stack, world, x, y, z, player)
                 .getInventory(WirelessDualInterfaceTerminalInventory.class);
@@ -91,4 +105,28 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
         return this;
     }
 
+    @Override
+    protected boolean canBePlacedInBaubles(ItemStack stack) {
+        return Config.dualTerminalCanStoredInBaubles;
+    }
+
+    @Override
+    @Optional.Method(modid = "sciencenotleisure")
+    public boolean canStoreInYog(ItemStack stack) {
+        return Config.dualTerminalCanStoredInBaubles;
+    }
+
+    @Override
+    @Optional.Method(modid = "sciencenotleisure")
+    public boolean openFromSlot(ItemStack stack, EntityPlayer player, int slot) {
+        if (!Config.dualTerminalCanStoredInBaubles) return false;
+        if (!(player instanceof EntityPlayerMP mp) || stack == null) return false;
+        final int index = YogIntegration.isAvailable() ? YogIntegration.indexOf(mp, stack) : -1;
+        if (index < 0) return false;
+        final int x = PlayerInvType.encode(index, PlayerInvType.YOG_STORAGE);
+        final ItemStack stored = Util.getPlayerInvStack(mp, x);
+        if (stored == null || !(stored.getItem() instanceof ItemWirelessDualInterfaceTerminal)) return false;
+        InventoryHandler.openItemGui(mp, mp.worldObj, x, GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL);
+        return true;
+    }
 }

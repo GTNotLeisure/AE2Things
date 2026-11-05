@@ -40,6 +40,7 @@ public class CPacketInventoryAction implements IMessage {
     private IAEStack<?> stack;
     private boolean isEmpty;
 
+    @SuppressWarnings("unused")
     public CPacketInventoryAction() {}
 
     public CPacketInventoryAction(final InventoryAction action, final int slot, final int id) {
@@ -128,10 +129,10 @@ public class CPacketInventoryAction implements IMessage {
                                     Objects.requireNonNull(baseContainer.getOpenContext().getSide()),
                                     GuiType.CRAFTING_AMOUNT);
                             }else{
-                                InventoryHandler.openGui(
+                                InventoryHandler.openItemGui(
                                     sender,
                                     sender.getEntityWorld(),
-                                    new BlockPos(((WirelessTerminal) target).getInventorySlot(),0,0),
+                                    ((WirelessTerminal) target).getX(),
                                     Objects.requireNonNull(baseContainer.getOpenContext().getSide()),
                                     GuiType.CRAFTING_AMOUNT_ITEM);
                             }

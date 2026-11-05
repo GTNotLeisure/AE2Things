@@ -8,10 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
-import com.asdflj.ae2thing.integration.Mods;
-import com.asdflj.ae2thing.util.BaublesUtil;
+import com.asdflj.ae2thing.util.Util;
 
 public abstract class ItemGuiBridge<T> implements IGuiFactory {
 
@@ -27,14 +24,7 @@ public abstract class ItemGuiBridge<T> implements IGuiFactory {
 
     @Override
     public Object createServerGui(EntityPlayer player, World world, int x, int y, int z, ForgeDirection face) {
-        ImmutablePair<GuiBridgeInvType, Integer> result = GuiBridgeInvType.decode(x);
-        ItemStack is = null;
-        if (result.left == GuiBridgeInvType.PLAYER_INV) {
-            is = player.inventory.getStackInSlot(result.right);
-        } else if (Mods.BAUBLES.isModLoaded()) {
-            is = BaublesUtil.getBaublesInv(player)
-                .getStackInSlot(result.right);
-        }
+        ItemStack is = Util.getPlayerInvStack(player, x);
         if (is == null) return null;
         T obj = getInventory(is.getItem());
         if (obj == null) return null;
@@ -44,14 +34,7 @@ public abstract class ItemGuiBridge<T> implements IGuiFactory {
     @Nullable
     @Override
     public Object createClientGui(EntityPlayer player, World world, int x, int y, int z, ForgeDirection face) {
-        ImmutablePair<GuiBridgeInvType, Integer> result = GuiBridgeInvType.decode(x);
-        ItemStack is = null;
-        if (result.left == GuiBridgeInvType.PLAYER_INV) {
-            is = player.inventory.getStackInSlot(result.right);
-        } else if (Mods.BAUBLES.isModLoaded()) {
-            is = BaublesUtil.getBaublesInv(player)
-                .getStackInSlot(result.right);
-        }
+        ItemStack is = Util.getGuiStack(player, x);
         if (is == null) return null;
         T obj = getInventory(is.getItem());
         if (Minecraft.getMinecraft().currentScreen != null) {

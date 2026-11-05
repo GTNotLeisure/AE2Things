@@ -4,6 +4,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.util.Util;
 import com.glodblock.github.common.item.ItemFluidPacket;
 
@@ -70,8 +71,8 @@ public class AEStackItemInventory implements IIAEStackInventory {
             data.getCompoundTag(this.inventoryName)
                 .setInteger(FORMAT_TAG, FORMAT_AE_STACK);
         }
-        if (this.slot != -1) {
-            this.player.inventory.setInventorySlotContents(this.slot, this.owner);
+        if (this.slot != PlayerInvType.NO_SLOT) {
+            Util.setPlayerInvStack(player, this.slot, this.owner);
         } else {
             this.player.inventory.setItemStack(this.owner);
         }

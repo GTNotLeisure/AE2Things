@@ -6,6 +6,7 @@ import net.minecraftforge.common.util.ForgeDirection;
 import org.jetbrains.annotations.Nullable;
 
 import com.asdflj.ae2thing.api.WirelessObject;
+import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
@@ -79,7 +80,11 @@ public abstract class WirelessTerminal
 
     @Override
     public int getInventorySlot() {
-        return obj.getSlot();
+        return PlayerInvType.typeOf(obj.getX()) == PlayerInvType.PLAYER_INV ? obj.getSlot() : -1;
+    }
+
+    public int getX() {
+        return obj.getX();
     }
 
     @Override

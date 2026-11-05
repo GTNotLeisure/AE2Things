@@ -11,10 +11,10 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
-import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
+import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
+import com.asdflj.ae2thing.inventory.item.WirelessTerminal;
 import com.asdflj.ae2thing.util.BlockPos;
 import com.asdflj.ae2thing.util.Util;
 
@@ -79,32 +79,25 @@ public class CPacketSwitchGuis implements IMessage {
             Container cont = player.openContainer;
             World w = player.worldObj;
             if (message.guiType == GuiType.BACKPACK_TERMINAL) {
-                int s = Util.findBackPackTerminal(player, message.is);
-                final ItemStack stack = s >= 0 && s < player.inventory.mainInventory.length
-                    ? player.inventory.mainInventory[s]
-                    : null;
-                if (s != -1 && stack != null && stack.getItem() instanceof ItemBackpackTerminal) {
-                    InventoryHandler.openGui(player, w, new BlockPos(s, 0, 0), ForgeDirection.UNKNOWN, message.guiType);
+                final int found = Util.findBackPackTerminal(player, message.is);
+                if (found != PlayerInvType.NO_SLOT) {
+                    InventoryHandler.openItemGui(player, w, found, message.guiType);
                 }
                 return null;
             } else if (message.guiType == GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL) {
-                int s = Util.findDualInterfaceTerminal(player, message.is);
-                final ItemStack stack = s >= 0 && s < player.inventory.mainInventory.length
-                    ? player.inventory.mainInventory[s]
-                    : null;
-                if (s != -1 && stack != null && stack.getItem() instanceof ItemWirelessDualInterfaceTerminal) {
-                    InventoryHandler.openGui(player, w, new BlockPos(s, 0, 0), ForgeDirection.UNKNOWN, message.guiType);
+                final int found = Util.findDualInterfaceTerminal(player, message.is);
+                if (found != PlayerInvType.NO_SLOT) {
+                    InventoryHandler.openItemGui(player, w, found, message.guiType);
                 }
                 return null;
             } else if (message.guiType == GuiType.TERMINAL_MENU) {
                 InventoryHandler.openGui(player, w, new BlockPos(0, 0, 0), ForgeDirection.UNKNOWN, message.guiType);
                 return null;
             } else if (message.guiType == GuiType.PATTERN_MODIFIER) {
-                int s = Util.findPatternModifier(player);
-                if (s == -1) {
-                    return null;
+                int found = Util.findPatternModifier(player);
+                if (found != PlayerInvType.NO_SLOT) {
+                    InventoryHandler.openItemGui(player, w, found, message.guiType);
                 }
-                InventoryHandler.openGui(player, w, new BlockPos(s, 0, 0), ForgeDirection.UNKNOWN, message.guiType);
                 return null;
             }
             if (cont instanceof AEBaseContainer c) {
@@ -121,12 +114,10 @@ public class CPacketSwitchGuis implements IMessage {
                         Objects.requireNonNull(context.getSide()),
                         message.guiType);
                 } else {
-                    InventoryHandler.openGui(
-                        player,
-                        player.getEntityWorld(),
-                        new BlockPos(((IInventorySlotAware) (c.getTarget())).getInventorySlot(), 0, 0),
-                        Objects.requireNonNull(context.getSide()),
-                        message.guiType);
+                    final Object target = c.getTarget();
+                    final int x = target instanceof WirelessTerminal wt ? wt.getX()
+                        : ((IInventorySlotAware) target).getInventorySlot();
+                    InventoryHandler.openItemGui(player, player.getEntityWorld(), x, message.guiType);
                 }
             }
             return null;

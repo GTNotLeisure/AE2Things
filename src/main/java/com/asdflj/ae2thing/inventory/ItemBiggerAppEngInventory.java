@@ -4,6 +4,10 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
+import com.asdflj.ae2thing.util.NHUtil;
+import com.asdflj.ae2thing.util.Util;
+
 import appeng.core.AELog;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.IAEAppEngInventory;
@@ -31,7 +35,7 @@ public class ItemBiggerAppEngInventory extends AppEngInternalInventory {
         this.player = player;
         this.slot = slot;
         this.terminal = terminal;
-        this.readFromNBT(Platform.openNbtData(is), name);
+        this.readFromNBT(NHUtil.getNBTData(is), name);
         this.setMaxStackSize(maxsize);
     }
 
@@ -70,10 +74,10 @@ public class ItemBiggerAppEngInventory extends AppEngInternalInventory {
 
     @Override
     public void markDirty() {
-        this.writeToNBT(Platform.openNbtData(is), this.name);
+        this.writeToNBT(NHUtil.getNBTData(is), this.name);
         if (Platform.isServer()) {
-            if (slot != -1) {
-                this.player.inventory.setInventorySlotContents(slot, this.is);
+            if (slot != PlayerInvType.NO_SLOT) {
+                Util.setPlayerInvStack(player, slot, this.is);
             } else {
                 this.player.inventory.setItemStack(this.is);
             }

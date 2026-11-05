@@ -3,6 +3,7 @@ package com.asdflj.ae2thing.inventory;
 import javax.annotation.Nullable;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -10,6 +11,7 @@ import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
 import com.asdflj.ae2thing.network.CPacketSwitchGuis;
 import com.asdflj.ae2thing.util.BlockPos;
+import com.asdflj.ae2thing.util.Util;
 
 import appeng.util.Platform;
 import cpw.mods.fml.common.network.IGuiHandler;
@@ -33,6 +35,15 @@ public class InventoryHandler implements IGuiHandler {
 
     public static void switchGui(GuiType guiType) {
         AE2Thing.proxy.netHandler.sendToServer(new CPacketSwitchGuis(guiType));
+    }
+
+    public static void openItemGui(EntityPlayer player, World world, int x, GuiType guiType) {
+        openItemGui(player, world, x, ForgeDirection.UNKNOWN, guiType);
+    }
+
+    public static void openItemGui(EntityPlayer player, World world, int x, ForgeDirection face, GuiType guiType) {
+        if (player instanceof EntityPlayerMP mp) Util.hintGuiStack(mp, x);
+        openGui(player, world, new BlockPos(x, 0, 0), face, guiType);
     }
 
     @Nullable

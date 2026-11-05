@@ -37,6 +37,7 @@ import com.asdflj.ae2thing.loader.ItemAndBlockHolder;
 import com.asdflj.ae2thing.loader.PatternTerminalLoader;
 import com.asdflj.ae2thing.loader.PatternTerminalMouseWheelLoader;
 import com.asdflj.ae2thing.network.wrapper.AE2ThingNetworkWrapper;
+import com.asdflj.ae2thing.util.ItemGuiHintCache;
 import com.asdflj.ae2thing.util.ModAndClassUtil;
 import com.darkona.adventurebackpack.item.ItemAdventureBackpack;
 import com.glodblock.github.common.item.ItemWirelessInterfaceTerminal;
@@ -86,7 +87,11 @@ public class CommonProxy {
 
     @SubscribeEvent
     public void worldLoad(WorldEvent.Load event) {
-        if (Platform.isServer() && event.world.provider.dimensionId == 0) {
+        if (Platform.isClient()) {
+            ItemGuiHintCache.clear();
+            return;
+        }
+        if (event.world.provider.dimensionId == 0) {
             WorldSavedData w = event.world.mapStorage.loadData(StorageManager.class, AE2Thing.MODID);
             if (w == null) {
                 StorageManager s = new StorageManager(AE2Thing.MODID);

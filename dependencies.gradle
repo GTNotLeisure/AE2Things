@@ -47,7 +47,6 @@ dependencies {
         exclude group: "com.github.GTNewHorizons", module: "Applied-Energistics-2-Unofficial"
         exclude group: "com.github.GTNewHorizons", module: "AE2FluidCraft-Rework"
     }
-    runtimeOnlyNonPublishable("com.github.GTNewHorizons:GT5-Unofficial:5.09.54.265:dev")
     compileOnlyApi("com.github.GTNewHorizons:BlockRenderer6343:1.4.25:dev")
     compileOnlyApi("com.github.GTNewHorizons:NewHorizonsCoreMod:2.9.99:dev")
     compileOnlyApi("com.github.GTNewHorizons:nei-custom-diagram:1.8.36:dev") { transitive = false }
@@ -66,8 +65,67 @@ dependencies {
     compileOnlyApi(files("libs/programmablehatches-0.1.3p50-dev.jar"))
     compileOnly(files("libs/sciencenotleisure-0.2.7-rc2.1-dev.jar"))
 
+    /*// region optional runtime dependencies.
+    runtimeOnlyNonPublishable(files("libs/sciencenotleisure-0.2.7-rc2.1-dev.jar", "libs/gtnllib-1.1.1-dev.jar"))
+
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:GT5-Unofficial:5.09.54.265:dev")
+
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:EnderIO:2.10.51:dev")
     runtimeOnlyNonPublishable("com.github.GTNewHorizons:Botania:1.13.42-GTNH:dev")
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:ForestryMC:4.11.40:dev")
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:Avaritia:1.100:dev")
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:BetterBuildersWands:0.13.12-GTNH:dev")
+
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:CropsNH:2.0.140:dev")
+
+    // debugging tools
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:ServerUtilities:2.4.21:dev") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:worldedit-gtnh:v0.0.9:dev") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:WAILAPlugins:0.7.2:dev") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:EnderCore:0.5.15:dev") { transitive = false }
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:Opis:1.4.12-mapless:dev') { transitive = false }
+    // QOL/creature comforts
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:CoreTweaks:0.3.4.7-GTNH:dev') { transitive = false }
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:StorageDrawers:2.2.31-GTNH:dev') { transitive = false }
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:MouseTweaks:2.5.4-GTNH:dev') { transitive = false }
+    // rendering IF structure in NEI
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:StructureLib:1.4.46:dev") { transitive = false }
+    // to check what counts as food
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:AppleCore:3.3.13:dev") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:SpiceOfLife:2.2.12-carrot:dev") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:Nutrition:1.0.1:dev") { transitive = false }
+    // bee comparisons
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:BeeBetterAtBees-GTNH:0.4.8-GTNH:dev") { transitive = false }
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:Binnie:2.6.48:dev') { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:neiaddons:1.18.7:dev") { transitive = false }
+    // for mod specific crops
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:Natura:2.8.24:dev") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:twilightforest:2.7.45:dev") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:ThaumicBases:1.9.22:dev") { transitive = false }
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:DummyCore:1.21.0:dev') { transitive = false }
+    runtimeOnlyNonPublishable(deobfCurse('witchery-69673:2234410')) { transitive = false }
+    runtimeOnlyNonPublishable(rfg.deobf("curse.maven:biomes-o-plenty-220318:2499612")) { transitive = false }
+    runtimeOnlyNonPublishable("ganymedes01.etfuturum:Et-Futurum-Requiem:2.6.12-GTNH") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:harvestcraft:1.3.15-GTNH:dev") { transitive = false }
+    // testing recipes
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:Tainted-Magic:7.7.8-GTNH:dev") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:WitcheryExtras:1.4.20:dev") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:WitchingGadgets:1.8.52-GTNH:dev") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:ThaumicTinkerer:2.12.33:dev") { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:Galaxy-Space-GTNH:1.1.144-GTNH:dev") { transitive = false }
+    // required in order to have pam
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:Chisel:2.17.34-GTNH:dev") { transitive = false }
+    // mod specific crops and soils
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:Galacticraft:3.4.35-GTNH:dev") { transitive = false }
+    // soil debugging
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:Random-Things:2.7.11:dev") { transitive = false }
+    runtimeOnlyNonPublishable(rfg.deobf("curse.maven:ztones-224369:2223720")) { transitive = false }
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:MagicBees:2.10.12-GTNH:dev") { transitive = false }
+    // required in order for ztones to load right due to GT5u
+    runtimeOnlyNonPublishable("com.github.GTNewHorizons:BuildCraft:7.1.64:dev") { transitive = false }
+    // watering can interactions
+    runtimeOnlyNonPublishable('com.github.GTNewHorizons:Backhand:1.8.17:dev') { transitive = false }
+    //endregion*/
 
     // jvmDowngrader
     compileOnly("javax.xml.bind:jaxb-api:2.3.1")
