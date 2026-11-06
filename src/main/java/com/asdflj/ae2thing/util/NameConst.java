@@ -34,7 +34,6 @@ public class NameConst {
     public static final String BLOCK_FLUID_PACKET_ENCODER = "fluid_packet_encoder";
     public static final String BLOCK_INFUSION_INTERFACE = "infusion_interface";
     public static final String BLOCK_EX_IO_PORT = "ex_io_port";
-    public static final String MANA = "botania.mana";
     public static final String TT_KEY = AE2Thing.MODID + ".tooltip.";
     public static final String TT_SHIFT_FOR_MORE = TT_KEY + "shift_for_more";
     public static final String TT_CTRL_FOR_MORE = TT_KEY + "ctrl_for_more";
@@ -71,6 +70,8 @@ public class NameConst {
     public static final String RES_KEY = AE2Thing.MODID + ":";
 
     public static final String GUI_KEY = AE2Thing.MODID + ".gui.";
+    public static final String GUI_MANA_IMPORT = GUI_KEY + ITEM_PART_MANA_IMPORT;
+    public static final String GUI_MANA_EXPORT = GUI_KEY + ITEM_PART_MANA_EXPORT;
     public static final String GUI_CELL_LINK = GUI_KEY + "cell_link";
     public static final String GUI_PATTERN_MODIFIER = GUI_KEY + "pattern_modifier";
     public static final String GUI_PATTERN_MODIFIER_REPLACE = GUI_PATTERN_MODIFIER + ".replace";
@@ -99,8 +100,6 @@ public class NameConst {
     public static final String GUI_WIRELESS_CONNECTOR_TERMINAL_IN_OTHER_DIM = GUI_WIRELESS_CONNECTOR_TERMINAL
         + "in_other_dim";
     public static final String GUI_FLUID_PACKET_ENCODER = GUI_KEY + "fluid_packet_encoder";
-    public static final String GUI_MANA_IMPORT = GUI_KEY + ITEM_PART_MANA_IMPORT;
-    public static final String GUI_MANA_EXPORT = GUI_KEY + ITEM_PART_MANA_EXPORT;
     public static final String GUI_PATTERN_RENAME = GUI_KEY + "pattern_rename";
     public static final String GUI_TERMINAL_MENU = GUI_KEY + "terminal_menu.";
     public static final String GUI_TERMINAL_MENU_PAGE = GUI_TERMINAL_MENU + "page";

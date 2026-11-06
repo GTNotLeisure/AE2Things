@@ -6,7 +6,6 @@ import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.world.WorldEvent;
-import net.minecraftforge.fluids.FluidRegistry;
 import net.p455w0rd.wirelesscraftingterminal.items.ItemWirelessCraftingTerminal;
 
 import com.asdflj.ae2thing.AE2Thing;
@@ -78,11 +77,6 @@ public class CommonProxy {
             .bus()
             .register(this);
         ModAndClassUtil.init();
-        if (Mods.BOTANIA.isModLoaded()) {
-            FluidRegistry.registerFluid(
-                AE2ThingAPI.instance()
-                    .getMana());
-        }
     }
 
     @SubscribeEvent
@@ -170,14 +164,7 @@ public class CommonProxy {
                 .interfaceTerminal()
                 .register(PartThaumatoriumInterface.class);
         }
-        if (Mods.BOTANIA.isModLoaded()) {
-            Upgrades.SPEED.registerItem(ItemAndBlockHolder.MANA_EXPORT_BUS.stack(), 4);
-            Upgrades.SUPERSPEED.registerItem(ItemAndBlockHolder.MANA_EXPORT_BUS.stack(), 4);
-            Upgrades.REDSTONE.registerItem(ItemAndBlockHolder.MANA_EXPORT_BUS.stack(), 1);
-            Upgrades.SPEED.registerItem(ItemAndBlockHolder.MANA_IMPORT_BUS.stack(), 4);
-            Upgrades.SUPERSPEED.registerItem(ItemAndBlockHolder.MANA_IMPORT_BUS.stack(), 4);
-            Upgrades.REDSTONE.registerItem(ItemAndBlockHolder.MANA_IMPORT_BUS.stack(), 1);
-        }
+        if (Mods.BOTANIA.isModLoaded()) {}
         if (!Mods.SNL.isModLoaded()) {
             Upgrades.FUZZY.registerItem(ItemAndBlockHolder.UNIVERSAL_STORAGE_BUS.stack(), 1);
             Upgrades.ORE_FILTER.registerItem(ItemAndBlockHolder.UNIVERSAL_STORAGE_BUS.stack(), 1);

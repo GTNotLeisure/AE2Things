@@ -16,7 +16,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
-import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidStack;
 
 import org.apache.commons.lang3.tuple.MutablePair;
@@ -24,7 +23,6 @@ import org.apache.commons.lang3.tuple.MutablePair;
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.Tags;
 import com.asdflj.ae2thing.common.Config;
-import com.asdflj.ae2thing.common.fluids.Mana;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.common.storage.StorageManager;
@@ -39,7 +37,6 @@ import com.glodblock.github.util.Util;
 
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.me.Grid;
-import appeng.util.ReadableNumberConverter;
 import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -53,7 +50,6 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
     public static final ItemStack GLASS_BOTTLE = new ItemStack(glass_bottle, 1);
 
     public static int maxSelectionRows = 5;
-    private static final Fluid mana = new Mana();
     private static final AE2ThingAPI API = new AE2ThingAPI();
     public static final int CRAFTING_HISTORY_SIZE = Config.craftingHistorySize;
     private static final Set<Class<? extends Item>> backpackItems = new ObjectOpenHashSet<>();
@@ -61,7 +57,6 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
     private static final Object2ObjectOpenHashMap<Class<?>, String> inputFields = new Object2ObjectOpenHashMap<>();
 
     private static ItemStack fluidContainer = BUCKET;
-    public static final ReadableNumberConverter readableNumber = ReadableNumberConverter.INSTANCE;
 
     public static AE2ThingAPI instance() {
         return API;
@@ -226,11 +221,6 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
     @Override
     public String getVersion() {
         return Tags.VERSION;
-    }
-
-    @Override
-    public Fluid getMana() {
-        return mana;
     }
 
     @Override

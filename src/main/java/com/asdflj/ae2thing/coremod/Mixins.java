@@ -22,7 +22,8 @@ public enum Mixins implements IMixins {
             "ae.MixinAEBaseGui",
             "ae.MixinGuiCraftAmount",
             "ae.MixinGuiCraftConfirm",
-            "ae.MixinItemRepo")
+            "ae.MixinItemRepo",
+            "ae.MixinGuiMEMonitorable")
         .addRequiredMod(Mods.AE2)
         .setPhase(Phase.LATE)),
 

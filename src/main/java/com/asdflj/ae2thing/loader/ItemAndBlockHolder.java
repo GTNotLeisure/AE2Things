@@ -16,8 +16,6 @@ import com.asdflj.ae2thing.common.item.ItemCreativeCell;
 import com.asdflj.ae2thing.common.item.ItemCreativeFluidCell;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageCell;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageFluidCell;
-import com.asdflj.ae2thing.common.item.ItemManaExportBus;
-import com.asdflj.ae2thing.common.item.ItemManaImportBus;
 import com.asdflj.ae2thing.common.item.ItemPartInfusionPatternTerminal;
 import com.asdflj.ae2thing.common.item.ItemPartThaumatoriumInterface;
 import com.asdflj.ae2thing.common.item.ItemPartWirelessConnectorTerminal;
@@ -44,8 +42,6 @@ public class ItemAndBlockHolder implements Runnable {
     public static ItemWireCutter WIRE_CUTTER;
     public static BlockInfusionInterface INFUSION_INTERFACE;
     public static ItemPhial PHIAL;
-    public static ItemManaImportBus MANA_IMPORT_BUS;
-    public static ItemManaExportBus MANA_EXPORT_BUS;
     public static ItemUniversalImportBus UNIVERSAL_IMPORT_BUS;
     public static ItemUniversalExportBus UNIVERSAL_EXPORT_BUS;
     public static ItemUniversalStorageBus UNIVERSAL_STORAGE_BUS;
@@ -85,10 +81,6 @@ public class ItemAndBlockHolder implements Runnable {
             INFUSION_INTERFACE = new BlockInfusionInterface().register();
             PHIAL = new ItemPhial().register();
             ESSENTIA_DISCRETIZER = new BlockEssentiaDiscretizer().register();
-        }
-        if (Mods.BOTANIA.isModLoaded()) {
-            MANA_IMPORT_BUS = new ItemManaImportBus().register();
-            MANA_EXPORT_BUS = new ItemManaExportBus().register();
         }
         if (Mods.isLegacyGt5Loaded() || Mods.isGt5UnofficialLoaded()) {
             WIRELESS_DISTRIBUTOR = new BlockWirelessDistributor().register();

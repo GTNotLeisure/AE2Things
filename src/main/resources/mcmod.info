@@ -17,5 +17,22 @@
 		"dependencies": [],
 		"dependants": [],
 		"useDependencyInformation": false
-	}]
+	}, {
+    "modid": "ae2thing_ab",
+    "name": "Applied Botanics",
+    "description": "",
+    "version": "${modVersion}",
+    "mcversion": "${minecraftVersion}",
+    "url": "https://github.com/GTNotLeisure/AE2Things",
+    "updateUrl": "",
+    "authorList": ["vcwdfca"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "parent": "",
+    "requiredMods": [],
+    "dependencies": [],
+    "dependants": [],
+    "useDependencyInformation": false
+  }]
 }

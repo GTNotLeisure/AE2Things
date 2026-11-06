@@ -1,0 +1,26 @@
+ab.mana.name=mana
+ab.mana.unit=pools
+
+# keep the same order as regular storage cells: capacity first
+item.mana_cell_1k.name=1k Mana Storage Cell
+item.mana_cell_4k.name=4k Mana Storage Cell
+item.mana_cell_16k.name=16k Mana Storage Cell
+item.mana_cell_64k.name=64k Mana Storage Cell
+item.mana_cell_256k.name=256k Mana Storage Cell
+item.creative_mana_cell.name=Creative Mana Cell
+item.mana_marker.name=Mana
+ab.mana.marker.tooltip=Used to mark mana in the import/export bus (draggable from NEI)
+
+ab.mana.cell.stored=Stored: %s / %s
+ab.mana.cell.idle=Idle drain: %s AE/t
+ab.mana.cell.creative=Infinite mana
+
+tile.fluix_mana_pool.name=Fluix Mana Pool
+
+item.part_mana_import.name=ME Mana Import Bus
+item.part_mana_export.name=ME Mana Export Bus
+item.mana_cell_housing.name=Mana Cell Housing
+ab.mana.stored=Mana: %s
+ae2thing.gui.part_mana_import=ME Mana Import Bus
+ae2thing.gui.part_mana_export=ME Mana Export Bus
+itemGroup.ae2thing_ab=Applied Botanics

@@ -1,0 +1,26 @@
+ab.mana.name=魔力
+ab.mana.unit=池
+
+# 命名与普通存储元件保持一致：容量在前
+item.mana_cell_1k.name=1k 魔力存储元件
+item.mana_cell_4k.name=4k 魔力存储元件
+item.mana_cell_16k.name=16k 魔力存储元件
+item.mana_cell_64k.name=64k 魔力存储元件
+item.mana_cell_256k.name=256k 魔力存储元件
+item.creative_mana_cell.name=创造魔力元件
+item.mana_marker.name=魔力
+ab.mana.marker.tooltip=用于在输入/输出总线里标记魔力（NEI 里可拖入）
+
+ab.mana.cell.stored=已存储: %s / %s
+ab.mana.cell.idle=空闲耗能: %s AE/t
+ab.mana.cell.creative=无限魔力
+
+tile.fluix_mana_pool.name=福鲁伊克斯魔力池
+
+item.part_mana_import.name=ME魔力输入总线
+item.part_mana_export.name=ME魔力输出总线
+item.mana_cell_housing.name=魔力元件外壳
+ab.mana.stored=魔力: %s
+ae2thing.gui.part_mana_import=ME魔力输入总线
+ae2thing.gui.part_mana_export=ME魔力输出总线
+itemGroup.ae2thing_ab=应用植物学
