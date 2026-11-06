@@ -37,6 +37,7 @@ public class AE2Thing {
     public static AE2Thing INSTANCE;
 
     @SidedProxy(
+        modId = MODID,
         clientSide = "com.asdflj.ae2thing.proxy.ClientProxy",
         serverSide = "com.asdflj.ae2thing.proxy.CommonProxy")
     public static CommonProxy proxy;

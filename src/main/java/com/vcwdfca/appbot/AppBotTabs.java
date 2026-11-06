@@ -7,6 +7,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import com.vcwdfca.appbot.item.ItemManaCell;
+import com.vcwdfca.appbot.proxy.CommonProxy;
 
 public class AppBotTabs extends CreativeTabs {
 
@@ -18,19 +19,19 @@ public class AppBotTabs extends CreativeTabs {
 
     @Override
     public Item getTabIconItem() {
-        if (AppliedBotanics.BLOCK_FLUIX_POOL == null) {
+        if (CommonProxy.BLOCK_FLUIX_POOL == null) {
             return AppliedBotanics.MANA_MARKER;
         }
-        return Item.getItemFromBlock(AppliedBotanics.BLOCK_FLUIX_POOL);
+        return Item.getItemFromBlock(CommonProxy.BLOCK_FLUIX_POOL);
     }
 
     @Override
     @SuppressWarnings({ "unchecked", "rawtypes" })
     public void displayAllReleventItems(List list) {
-        if (AppliedBotanics.BLOCK_FLUIX_POOL == null) {
+        if (CommonProxy.BLOCK_FLUIX_POOL == null) {
             return;
         }
-        list.add(new ItemStack(AppliedBotanics.BLOCK_FLUIX_POOL));
+        list.add(new ItemStack(CommonProxy.BLOCK_FLUIX_POOL));
         list.add(new ItemStack(AppliedBotanics.MANA_MARKER));
         list.add(new ItemStack(AppliedBotanics.MANA_CELL_HOUSING));
         for (ItemManaCell cell : AppliedBotanics.MANA_CELLS) {

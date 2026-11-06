@@ -24,7 +24,10 @@ import cpw.mods.fml.common.registry.GameRegistry;
 
 public class CommonProxy {
 
+    public static BlockFluixPool BLOCK_FLUIX_POOL;
+
     public void preInit() {
+        BLOCK_FLUIX_POOL = new BlockFluixPool();
         GameRegistry.registerTileEntity(TileFluixPool.class, AppliedBotanics.MODID + ":" + BlockFluixPool.NAME);
         AEStackTypeRegistry.register(AEManaStackType.MANA_STACK_TYPE);
         AppliedBotanics.MANA_MARKER.register();

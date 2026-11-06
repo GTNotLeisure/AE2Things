@@ -6,9 +6,9 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.vcwdfca.appbot.AppliedBotanics;
 import com.vcwdfca.appbot.ae.AEManaStack;
 import com.vcwdfca.appbot.ae.AEManaStackType;
+import com.vcwdfca.appbot.proxy.CommonProxy;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
@@ -126,7 +126,7 @@ public class TileFluixPool extends TilePool implements IGridHost, IGridBlock, IA
 
     @Override
     public ItemStack getMachineRepresentation() {
-        return new ItemStack(AppliedBotanics.BLOCK_FLUIX_POOL);
+        return new ItemStack(CommonProxy.BLOCK_FLUIX_POOL);
     }
 
     @SuppressWarnings("unchecked")

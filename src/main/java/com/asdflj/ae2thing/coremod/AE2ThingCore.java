@@ -1,5 +1,6 @@
 package com.asdflj.ae2thing.coremod;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,7 +14,8 @@ import cpw.mods.fml.relauncher.IFMLLoadingPlugin;
 
 @IFMLLoadingPlugin.Name("AE2ThingCore")
 @IFMLLoadingPlugin.MCVersion("1.7.10")
-@IFMLLoadingPlugin.TransformerExclusions({ "com.asdflj.ae2thing.coremod.AE2ThingCore" })
+@IFMLLoadingPlugin.TransformerExclusions({ "com.asdflj.ae2thing.coremod.AE2ThingCore",
+    "com.asdflj.ae2thing.coremod.OptionalModules" })
 public class AE2ThingCore implements IFMLLoadingPlugin, IEarlyMixinLoader {
 
     private static boolean DEV_ENVIRONMENT;
@@ -38,6 +40,8 @@ public class AE2ThingCore implements IFMLLoadingPlugin, IEarlyMixinLoader {
     @Override
     public void injectData(Map<String, Object> data) {
         DEV_ENVIRONMENT = !(boolean) data.get("runtimeDeobfuscationEnabled");
+        final Object location = data.get("mcLocation");
+        OptionalModules.init(location instanceof File ? (File) location : null);
     }
 
     @Nullable
