@@ -8,6 +8,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StatCollector;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.asdflj.ae2thing.common.item.BaseItem;
 import com.gtnewhorizon.gtnhlib.item.ItemStackNBT;
 import com.vcwdfca.appbot.AppBotTabs;
@@ -25,7 +27,6 @@ import appeng.items.contents.CellConfig;
 import appeng.items.contents.CellUpgrades;
 import appeng.tile.inventory.IAEStackInventory;
 import cpw.mods.fml.common.registry.GameRegistry;
-import org.jetbrains.annotations.NotNull;
 
 public class ItemManaCell extends BaseItem implements IStorageCell {
 

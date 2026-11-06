@@ -1,7 +1,5 @@
 package com.vcwdfca.appbot.ae;
 
-import java.io.IOException;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;

@@ -1,7 +1,5 @@
 package com.vcwdfca.appbot.item;
 
-import net.minecraft.item.ItemStack;
-
 import com.asdflj.ae2thing.common.item.BaseItem;
 import com.vcwdfca.appbot.AppBotTabs;
 import com.vcwdfca.appbot.AppliedBotanics;
