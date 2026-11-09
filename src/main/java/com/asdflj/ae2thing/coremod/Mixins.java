@@ -22,9 +22,12 @@ public enum Mixins implements IMixins {
             "ae.MixinAEBaseGui",
             "ae.MixinGuiCraftAmount",
             "ae.MixinGuiCraftConfirm",
-            "ae.MixinItemRepo",
-            "ae.MixinGuiMEMonitorable")
+            "ae.MixinItemRepo")
         .addRequiredMod(Mods.AE2)
+        .setPhase(Phase.LATE)),
+
+    APPBOT_MANA_TOOLTIP(new MixinBuilder().addClientMixins("ae.MixinGuiMEMonitorable")
+        .addRequiredMod(Mods.BOTANIA)
         .setPhase(Phase.LATE)),
 
     AE2_FLUID_CRAFT(new MixinBuilder().addClientMixins("ae2fc.MixinGuiFluidInterface")

@@ -49,12 +49,10 @@ import com.asdflj.ae2thing.common.parts.universal.PartUniversalImportBus;
 import com.asdflj.ae2thing.common.parts.universal.PartUniversalStorageBus;
 import com.asdflj.ae2thing.common.tile.TileFluidPacketEncoder;
 import com.asdflj.ae2thing.common.tile.TileWirelessDistributor;
+import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.ItemCellLinkInventory;
 import com.asdflj.ae2thing.util.BlockPos;
 import com.google.common.collect.ImmutableList;
-import com.vcwdfca.appbot.client.ContainerManaIO;
-import com.vcwdfca.appbot.client.GuiManaIO;
-import com.vcwdfca.appbot.part.SharedManaBus;
 
 import appeng.api.parts.IPart;
 import appeng.api.parts.IPartHost;
@@ -286,18 +284,7 @@ public enum GuiType {
             return new GuiCraftAmount(player.inventory, inv);
         }
     }),
-    MANA_BUS_IO(new PartGuiFactory<>(SharedManaBus.class) {
-
-        @Override
-        protected Object createServerGui(EntityPlayer player, SharedManaBus inv) {
-            return new ContainerManaIO(player.inventory, inv);
-        }
-
-        @Override
-        protected Object createClientGui(EntityPlayer player, SharedManaBus inv) {
-            return new GuiManaIO(player.inventory, inv);
-        }
-    }),
+    MANA_BUS_IO(new OptionalGuiFactory(Mods.BOTANIA::isModLoaded, ManaBusGuiFactory::new)),
     CELL_LINK(new ItemGuiFactory<>(ItemCellLinkInventory.class) {
 
         @Override
@@ -334,7 +321,8 @@ public enum GuiType {
             return new GuiWirelessDistributor(player.inventory, inv);
         }
     }),
-    WCT_CRAFTING_TERMINAL_BRIDGE(new OptionalWCTGuiFactory()),
+    WCT_CRAFTING_TERMINAL_BRIDGE(
+        new OptionalGuiFactory(Mods.WIRELESS_CRAFTING_TERMINAL::isModLoaded, WCTGuiFactory::new)),
     UNIVERSAL_BUS(new PartGuiFactory<>(PartSharedItemBus.class) {
 
         @Override
