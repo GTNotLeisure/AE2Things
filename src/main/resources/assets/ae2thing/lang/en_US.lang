@@ -206,6 +206,10 @@ nei.options.ae2thing.nei_craft_item=Middle click NEI panel to quick order item f
 nei.options.ae2thing.nei_craft_item.true=Yes
 nei.options.ae2thing.nei_craft_item.false=No
 
+nei.options.ae2thing.terminal_auto_craft=NEI auto crafting inside AE2 crafting terminals
+nei.options.ae2thing.terminal_auto_craft.true=Yes
+nei.options.ae2thing.terminal_auto_craft.false=No
+
 ae2thing.interface_terminal.search.hits=§7Enhanced search: §a%1$s§7 interface(s)
 ae2thing.interface_terminal.search.empty=§7Enhanced search: no interface can run this recipe pool and none matches by name
 ae2thing.interface_terminal.search.invalid.category_only=§cUnknown recipe pool: %1$s

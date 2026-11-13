@@ -49,12 +49,18 @@ public enum Mixins implements IMixins {
 
     NEI(new MixinBuilder()
         .addClientMixins(
+            "nei.MixinAutoCraftingManager",
             "nei.MixinGuiContainerManager",
             "nei.MixinGuiOverlayButton",
             "nei.MixinIOverlayHandler",
             "nei.MixinPanelWidget",
+            "nei.MixinRecipeInfo",
             "nei.MixinRecipeItemInputHandler")
         .addRequiredMod(Mods.NOT_ENOUGH_ITEMS)
+        .setPhase(Phase.LATE)),
+
+    NOT_ENOUGH_ENERGISTICS(new MixinBuilder().addClientMixins("nee.MixinNeeCraftingTerminalHandler")
+        .addRequiredMod(Mods.NOT_ENOUGH_ENERGISTICS)
         .setPhase(Phase.LATE)),
 
     WIRELESS_CRAFTING_TERMINAL(new MixinBuilder().addCommonMixins("wct.MixinRandomUtils")
