@@ -199,6 +199,10 @@ nei.options.ae2thing.nei_craft_item=NEI中鼠标中键快速下单终端中的�
 nei.options.ae2thing.nei_craft_item.true=是
 nei.options.ae2thing.nei_craft_item.false=否
 
+nei.options.ae2thing.terminal_auto_craft=在AE2合成终端中使用NEI自动合成
+nei.options.ae2thing.terminal_auto_craft.true=是
+nei.options.ae2thing.terminal_auto_craft.false=否
+
 ae2thing.interface_terminal.search.hits=§7增强搜索：§a%1$s§7 个接口
 ae2thing.interface_terminal.search.empty=§7增强搜索：没有能运行该配方池的接口，也没有名称匹配的接口
 ae2thing.interface_terminal.search.invalid.category_only=§c未知配方池：%1$s
