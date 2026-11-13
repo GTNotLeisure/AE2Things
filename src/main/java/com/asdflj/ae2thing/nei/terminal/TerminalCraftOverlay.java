@@ -3,8 +3,11 @@ package com.asdflj.ae2thing.nei.terminal;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.inventory.GuiContainer;
+import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Container;
+import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 
 import com.asdflj.ae2thing.nei.ButtonConstants;
@@ -150,71 +153,51 @@ public class TerminalCraftOverlay implements IOverlayHandler {
     @Override
     public boolean craft(GuiContainer firstGui, IRecipeHandler recipe, int recipeIndex, int multiplier) {
         try {
-            return craftRecipe(firstGui, recipe, recipeIndex, multiplier);
+            final SlotCraftingTerm output = getOutputSlot(firstGui);
+            if (output == null) return false;
+
+            final Minecraft mc = Minecraft.getMinecraft();
+            final EntityClientPlayerMP player = mc.thePlayer;
+            if (player == null || !storeHeldItem(mc, firstGui)) return false;
+
+            int budget = multiplier <= 0 ? MAX_CRAFTS_PER_REQUEST : Math.min(MAX_CRAFTS_PER_REQUEST, multiplier);
+            boolean crafted = false;
+
+            while (budget > 0 && isScreenAlive(mc, firstGui)) {
+                if (!isGridReady(output, recipe, recipeIndex)) {
+                    this.delegate.overlayRecipe(firstGui, recipe, recipeIndex, false);
+                    if (!awaitServer(mc, firstGui)) break;
+                    if (!isGridReady(output, recipe, recipeIndex)) break;
+                }
+
+                final ItemStack result = output.getStack();
+                if (result == null || result.stackSize <= 0) break;
+
+                final int perCraft = result.stackSize;
+                final int shiftBatch = Math.max(1, result.getMaxStackSize() / perCraft);
+                final int before = countInPlayerInventory(player, result);
+
+                NetworkHandler.instance.sendToServer(
+                    new PacketInventoryAction(
+                        budget >= shiftBatch ? InventoryAction.CRAFT_SHIFT : InventoryAction.CRAFT_ITEM,
+                        output.slotNumber,
+                        0L));
+                if (!awaitServer(mc, firstGui)) break;
+
+                if (!storeHeldItem(mc, firstGui)) break;
+
+                final int produced = countInPlayerInventory(player, result) - before;
+                if (produced <= 0) break;
+
+                crafted = true;
+                budget -= Math.max(1, produced / perCraft);
+            }
+
+            return crafted;
         } catch (Exception | Error e) {
             AELog.error(e, "[AE2Thing]: NEI auto crafting failed for recipe " + recipe.getRecipeName());
             return false;
         }
-    }
-
-    private boolean craftRecipe(GuiContainer firstGui, IRecipeHandler recipe, int recipeIndex, int multiplier) {
-        final SlotCraftingTerm output = getOutputSlot(firstGui);
-        if (output == null) return false;
-
-        final Minecraft mc = Minecraft.getMinecraft();
-        if (mc.thePlayer != null && mc.thePlayer.inventory.getItemStack() != null) {
-            FastTransferManager.dropHeldItem(firstGui);
-            if (!awaitServer(firstGui)) return false;
-        }
-
-        int budget = multiplier <= 0 ? MAX_CRAFTS_PER_REQUEST : Math.min(MAX_CRAFTS_PER_REQUEST, multiplier);
-        boolean crafted = false;
-        boolean filled = false;
-
-        while (budget > 0 && isScreenAlive(firstGui)) {
-            if (!filled) {
-                if (!isGridReady(output, recipe, recipeIndex)) {
-                    this.delegate.overlayRecipe(firstGui, recipe, recipeIndex, false);
-                    if (!awaitServer(firstGui)) break;
-                    if (!isGridReady(output, recipe, recipeIndex)) break;
-                }
-                filled = true;
-            }
-
-            final ItemStack result = output.getStack();
-            if (result == null || result.stackSize <= 0) break;
-
-            final int perCraft = result.stackSize;
-            final int shiftBatch = Math.max(1, result.getMaxStackSize() / perCraft);
-
-            if (budget >= shiftBatch) {
-                final int before = countInPlayerInventory(result);
-                sendAction(InventoryAction.CRAFT_SHIFT, output.slotNumber);
-                if (!awaitServer(firstGui)) break;
-
-                final int produced = countInPlayerInventory(result) - before;
-                if (produced <= 0) break;
-                budget -= Math.max(1, produced / perCraft);
-            } else {
-                if (mc.thePlayer == null || mc.thePlayer.inventory.getItemStack() != null) break;
-
-                sendAction(InventoryAction.CRAFT_ITEM, output.slotNumber);
-                if (!awaitServer(firstGui)) break;
-                if (mc.thePlayer.inventory.getItemStack() == null) break;
-
-                FastTransferManager.dropHeldItem(firstGui);
-                if (!awaitServer(firstGui)) break;
-                budget--;
-            }
-
-            crafted = true;
-        }
-
-        return crafted;
-    }
-
-    private static void sendAction(InventoryAction action, int slot) {
-        NetworkHandler.instance.sendToServer(new PacketInventoryAction(action, slot, 0L));
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
@@ -236,15 +219,47 @@ public class TerminalCraftOverlay implements IOverlayHandler {
         return false;
     }
 
-    private static boolean isScreenAlive(GuiContainer gui) {
-        return Minecraft.getMinecraft().currentScreen == gui;
+    private static boolean isScreenAlive(Minecraft mc, GuiContainer gui) {
+        return mc.currentScreen == gui;
     }
 
-    private static int countInPlayerInventory(ItemStack result) {
-        final Minecraft mc = Minecraft.getMinecraft();
-        if (mc.thePlayer == null || result == null) return 0;
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private static boolean storeHeldItem(Minecraft mc, GuiContainer gui) {
+        EntityClientPlayerMP player = mc.thePlayer;
+        if (player == null) return false;
+        if (player.inventory.getItemStack() == null) return true;
+
+        for (int pass = 0; pass < 2; pass++) {
+            for (Object o : gui.inventorySlots.inventorySlots) {
+                final ItemStack held = player.inventory.getItemStack();
+                if (held == null) return true;
+
+                if (!(o instanceof Slot slot)) continue;
+                if (!(slot.inventory instanceof InventoryPlayer)) continue;
+                if (!slot.isItemValid(held)) continue;
+
+                final ItemStack inSlot = slot.getHasStack() ? slot.getStack() : null;
+                if (pass == 0) {
+                    if (inSlot == null) continue;
+                    if (!held.isItemEqual(inSlot)) continue;
+                    if (!ItemStack.areItemStackTagsEqual(held, inSlot)) continue;
+                    if (inSlot.stackSize >= Math.min(inSlot.getMaxStackSize(), slot.getSlotStackLimit())) continue;
+                } else if (inSlot != null) {
+                    continue;
+                }
+
+                FastTransferManager.clickSlot(gui, slot.slotNumber);
+                if (!awaitServer(mc, gui)) return false;
+            }
+        }
+
+        return player.inventory.getItemStack() == null;
+    }
+
+    private static int countInPlayerInventory(EntityClientPlayerMP player, ItemStack result) {
+        if (player == null || result == null) return 0;
         int count = 0;
-        for (ItemStack stack : mc.thePlayer.inventory.mainInventory) {
+        for (ItemStack stack : player.inventory.mainInventory) {
             if (stack != null && NEIServerUtils.areStacksSameTypeCraftingWithNBT(stack, result)) {
                 count += stack.stackSize;
             }
@@ -253,28 +268,24 @@ public class TerminalCraftOverlay implements IOverlayHandler {
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private static boolean awaitServer(GuiContainer gui) {
+    private static boolean awaitServer(Minecraft mc, GuiContainer gui) {
         final long deadline = System.currentTimeMillis() + SYNC_TIMEOUT_MS;
 
         if (!NEIClientConfig.hasSMPCounterPart()) {
-            if (!sleep(NO_SYNC_DELAY_MS, gui)) return false;
-            return isScreenAlive(gui);
+            if (!sleep(mc, gui, NO_SYNC_DELAY_MS)) return false;
+            return isScreenAlive(mc, gui);
         }
 
         ServerSync.request();
         while (ServerSync.pending()) {
-            if (!isAlive(gui, deadline)) return false;
-            if (!sleep(1L, gui)) return false;
+            if (!isScreenAlive(mc, gui) || System.currentTimeMillis() > deadline) return false;
+            if (!sleep(mc, gui, 1L)) return false;
         }
-        return isScreenAlive(gui);
-    }
-
-    private static boolean isAlive(GuiContainer gui, long deadline) {
-        return isScreenAlive(gui) && System.currentTimeMillis() <= deadline;
+        return isScreenAlive(mc, gui);
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private static boolean sleep(long millis, GuiContainer gui) {
+    private static boolean sleep(Minecraft mc, GuiContainer gui, long millis) {
         try {
             Thread.sleep(millis);
         } catch (InterruptedException e) {
@@ -282,6 +293,6 @@ public class TerminalCraftOverlay implements IOverlayHandler {
                 .interrupt();
             return false;
         }
-        return isScreenAlive(gui);
+        return isScreenAlive(mc, gui);
     }
 }
