@@ -5,8 +5,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
 import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
+import com.asdflj.ae2thing.util.InvUtil;
 import com.asdflj.ae2thing.util.NHUtil;
-import com.asdflj.ae2thing.util.Util;
 
 import appeng.core.AELog;
 import appeng.tile.inventory.AppEngInternalInventory;
@@ -77,7 +77,7 @@ public class ItemBiggerAppEngInventory extends AppEngInternalInventory {
         this.writeToNBT(NHUtil.getNBTData(is), this.name);
         if (Platform.isServer()) {
             if (slot != PlayerInvType.NO_SLOT) {
-                Util.setPlayerInvStack(player, slot, this.is);
+                InvUtil.writeSlotRef(player, slot, this.is);
             } else {
                 this.player.inventory.setItemStack(this.is);
             }

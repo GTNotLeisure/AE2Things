@@ -10,16 +10,16 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import com.asdflj.ae2thing.common.Config;
 import com.asdflj.ae2thing.common.item.ItemWirelessConnectorTerminal;
-import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.inventory.item.WirelessTerminal;
-import com.asdflj.ae2thing.util.Util;
+import com.asdflj.ae2thing.util.InvUtil;
 import com.gtnewhorizon.gtnhlib.item.ItemStackNBT;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
 import appeng.api.config.PowerMultiplier;
 import appeng.api.exceptions.AppEngException;
+import appeng.api.features.IWirelessTermHandler;
 import appeng.api.implementations.tiles.IWirelessAccessPoint;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
@@ -32,9 +32,8 @@ import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEFluidStack;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.util.AECableType;
-import appeng.api.util.WorldCoord;
+import appeng.api.util.DimensionalCoord;
 import appeng.core.localization.PlayerMessages;
-import appeng.items.tools.powered.ToolWirelessTerminal;
 import appeng.tile.networking.TileWireless;
 import appeng.util.Platform;
 
@@ -103,11 +102,11 @@ public class WirelessObject implements IActionHost {
     }
 
     public ItemStack getStack() {
-        return Util.getPlayerInvStack(this.player, x);
+        return InvUtil.readSlotRef(this.player, x);
     }
 
     public void setStack(ItemStack stack) {
-        Util.setPlayerInvStack(this.player, x, stack);
+        InvUtil.writeSlotRef(this.player, x, stack);
     }
 
     public IGrid getGrid() {
@@ -123,32 +122,33 @@ public class WirelessObject implements IActionHost {
     }
 
     public boolean rangeCheck() {
-        if (this.getItemStack() != null && this.getItemStack()
-            .getItem() != null) {
-            Item i = this.getItemStack()
-                .getItem();
-            if (i instanceof ItemWirelessConnectorTerminal) {
-                if (Config.wirelessConnectorTerminalInfinityConnectionRange) return true;
-            } else if (i instanceof ItemWirelessDualInterfaceTerminal && this.hasInfinityBoosterCard()) {
-                return true;
-            }
-        }
-        boolean canConnect = false;
+        if (item == null || item.getItem() == null || gridNode == null || gridNode.getGrid() == null) return false;
+
+        Item i = item.getItem();
+        if (i instanceof ItemWirelessConnectorTerminal && Config.wirelessConnectorTerminalInfinityConnectionRange)
+            return true;
+
+        IWirelessTermHandler handler = AEApi.instance()
+            .registries()
+            .wireless()
+            .getWirelessTerminalHandler(item);
+        if (handler != null && handler.hasInfinityRange(item)) return true;
+
         for (IGridNode node : this.gridNode.getGrid()
             .getMachines(TileWireless.class)) {
-            IWirelessAccessPoint accessPoint = (IWirelessAccessPoint) node.getMachine();
-            if (accessPoint.isActive() && accessPoint.getLocation()
-                .getDimension() == player.dimension) {
-                WorldCoord distance = accessPoint.getLocation()
-                    .subtract((int) player.posX, (int) player.posY, (int) player.posZ);
-                int squaredDistance = distance.x * distance.x + distance.y * distance.y + distance.z * distance.z;
-                if (squaredDistance <= accessPoint.getRange() * accessPoint.getRange()) {
-                    canConnect = true;
-                    break;
-                }
-            }
+            if (!(node.getMachine() instanceof IWirelessAccessPoint accessPoint)) continue;
+            if (!accessPoint.isActive()) continue;
+
+            DimensionalCoord location = accessPoint.getLocation();
+            if (location.getDimension() != player.dimension) continue;
+
+            double dx = location.x - player.posX;
+            double dy = location.y - player.posY;
+            double dz = location.z - player.posZ;
+            double range = accessPoint.getRange();
+            if (dx * dx + dy * dy + dz * dz <= range * range) return true;
         }
-        return canConnect;
+        return false;
     }
 
     public Object getInventory(Class<?> obj)
@@ -161,16 +161,31 @@ public class WirelessObject implements IActionHost {
     }
 
     public IGridNode getWirelessGrid() {
-        if (item.getItem() instanceof ToolWirelessTerminal) {
-            String key = ((ToolWirelessTerminal) item.getItem()).getEncryptionKey(item);
-            IGridHost securityTerminal = (IGridHost) AEApi.instance()
-                .registries()
-                .locatable()
-                .getLocatableBy(Long.parseLong(key));
-            if (securityTerminal == null) return null;
-            return securityTerminal.getGridNode(ForgeDirection.UNKNOWN);
+        if (item == null || item.getItem() == null) return null;
+
+        IWirelessTermHandler handler = AEApi.instance()
+            .registries()
+            .wireless()
+            .getWirelessTerminalHandler(item);
+        if (handler == null) return null;
+
+        String key = handler.getEncryptionKey(item);
+        if (key == null || key.isEmpty()) return null;
+
+        final long parsedKey;
+        try {
+            parsedKey = Long.parseLong(key);
+        } catch (NumberFormatException e) {
+            return null;
         }
-        return null;
+
+        Object locatable = AEApi.instance()
+            .registries()
+            .locatable()
+            .getLocatableBy(parsedKey);
+        if (!(locatable instanceof IGridHost host)) return null;
+
+        return host.getGridNode(ForgeDirection.UNKNOWN);
     }
 
     private void closeGui() {

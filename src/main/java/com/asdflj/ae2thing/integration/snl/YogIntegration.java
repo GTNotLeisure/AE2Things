@@ -51,4 +51,10 @@ public final class YogIntegration {
     public static boolean setStoredStack(EntityPlayer player, int slot, ItemStack stack) {
         return getStoredStack(player, slot) == stack;
     }
+
+    @Optional.Method(modid = MODID)
+    public static int getStoredTerminalCount(EntityPlayer player) {
+        List<ItemStack> stored = storedTerminals(player);
+        return stored == null ? 0 : stored.size();
+    }
 }
