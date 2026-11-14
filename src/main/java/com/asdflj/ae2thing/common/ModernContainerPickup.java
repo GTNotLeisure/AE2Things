@@ -90,7 +90,10 @@ public final class ModernContainerPickup {
         final IAEStack<?> available = Platform
             .poweredExtraction(power, targetMonitor, target.copy(), actionSource, Actionable.SIMULATE);
         final ObjectLongPair<ItemStack> filled = available == null || available.getStackSize() <= 0 ? null
-            : type.fillContainer(container.getItemStack().copy(), available);
+            : type.fillContainer(
+                container.getItemStack()
+                    .copy(),
+                available);
 
         if (filled == null || filled.left() == null || filled.rightLong() <= 0) {
             refund(power, itemMonitor, actionSource, container);
