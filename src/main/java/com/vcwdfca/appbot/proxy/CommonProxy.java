@@ -4,6 +4,8 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.oredict.ShapedOreRecipe;
 
+import com.asdflj.ae2thing.api.container.EmptyContainerProviders;
+import com.asdflj.ae2thing.api.container.IEmptyContainerProvider;
 import com.glodblock.github.loader.ItemAndBlockHolder;
 import com.vcwdfca.appbot.AppliedBotanics;
 import com.vcwdfca.appbot.ae.AEManaStackType;
@@ -20,6 +22,7 @@ import appeng.api.AEApi;
 import appeng.api.config.Upgrades;
 import appeng.api.definitions.IItemDefinition;
 import appeng.api.storage.data.AEStackTypeRegistry;
+import appeng.api.storage.data.IAEStack;
 import cpw.mods.fml.common.registry.GameRegistry;
 
 public class CommonProxy {
@@ -30,6 +33,18 @@ public class CommonProxy {
         BLOCK_FLUIX_POOL = new BlockFluixPool();
         GameRegistry.registerTileEntity(TileFluixPool.class, AppliedBotanics.MODID + ":" + BlockFluixPool.NAME);
         AEStackTypeRegistry.register(AEManaStackType.MANA_STACK_TYPE);
+        EmptyContainerProviders.register(AEManaStackType.MANA_STACK_TYPE, new IEmptyContainerProvider() {
+
+            @Override
+            public ItemStack create(IAEStack<?> target) {
+                return null;
+            }
+
+            @Override
+            public boolean allowNetworkFallback() {
+                return true;
+            }
+        });
         AppliedBotanics.MANA_MARKER.register();
         AppliedBotanics.MANA_CELL_HOUSING.register();
         for (ItemManaCell cell : AppliedBotanics.MANA_CELLS) {

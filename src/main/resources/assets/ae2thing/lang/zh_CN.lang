@@ -220,5 +220,6 @@ ae2thing.config.general.wirelessConnectorTerminalInfinityConnectionRange=无线�
 ae2thing.config.general.exIOPortTransferContentsRate=扩展 IO 端口传输速率
 ae2thing.config.general.backpackTerminalAddTicSupport=允许背包终端加工匠魂工具
 ae2thing.config.general.craftingHistorySize=合成历史记录条数
+ae2thing.config.general.modernInteraction=现代容器左/右键交互（无需按住容器交互键）
 ae2thing.config.dualInterfaceTerminal=二合一终端
 ae2thing.config.dualInterfaceTerminal.canStoredInBaubles=允许把二合一终端放进饰品栏槽位

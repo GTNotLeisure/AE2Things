@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nonnull;
-
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -19,13 +17,15 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
 
-import org.apache.commons.lang3.tuple.MutablePair;
+import org.jetbrains.annotations.NotNull;
 
 import com.asdflj.ae2thing.AE2Thing;
-import com.asdflj.ae2thing.api.AE2ThingAPI;
+import com.asdflj.ae2thing.api.container.EmptyContainerProviders;
 import com.asdflj.ae2thing.client.gui.container.BaseMonitor.FluidMonitor;
 import com.asdflj.ae2thing.client.gui.container.BaseMonitor.ItemMonitor;
+import com.asdflj.ae2thing.common.ModernContainerPickup;
 import com.asdflj.ae2thing.integration.Mods;
+import com.asdflj.ae2thing.inventory.IModernContainerPickup;
 import com.asdflj.ae2thing.inventory.item.INetworkTerminal;
 import com.asdflj.ae2thing.network.SPacketFlowRates;
 import com.asdflj.ae2thing.network.SPacketMEItemInvUpdate;
@@ -80,7 +80,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectLongPair;
 
 public abstract class ContainerMonitor extends BaseNetworkContainer implements IConfigurableObject, IConfigManagerHost,
-    IAEAppEngInventory, IContainerCraftingPacket, ITypeFilterContainer {
+    IAEAppEngInventory, IContainerCraftingPacket, ITypeFilterContainer, IModernContainerPickup {
 
     protected final IItemList<IAEItemStack> items = AEApi.instance()
         .storage()
@@ -228,7 +228,7 @@ public abstract class ContainerMonitor extends BaseNetworkContainer implements I
 
     abstract void setMonitor();
 
-    public void setGui(@Nonnull final IConfigManagerHost gui) {
+    public void setGui(@NotNull final IConfigManagerHost gui) {
         this.gui = gui;
     }
 
@@ -400,6 +400,30 @@ public abstract class ContainerMonitor extends BaseNetworkContainer implements I
             if (type.isContainerItemForType(stack)) return type;
         }
         return null;
+    }
+
+    @Override
+    @SuppressWarnings("rawtypes")
+    public void fillFromNetwork(IAEStack<?> target, boolean moveToPlayer) {
+        if (target == null || Platform.isClient()) return;
+        if (!(this.player instanceof EntityPlayerMP playerMP)) return;
+        final IGrid grid = this.networkNode == null ? null : this.networkNode.getGrid();
+        final IStorageGrid storage = grid == null ? null : grid.getCache(IStorageGrid.class);
+        if (storage == null) return;
+        final IMEMonitor<IAEItemStack> itemMonitor = storage.getItemInventory();
+        final IMEMonitor targetMonitor = storage.getMEMonitor(target.getStackType());
+        if (itemMonitor == null || targetMonitor == null) return;
+        if (!ModernContainerPickup.fillFromNetwork(
+            target,
+            moveToPlayer,
+            playerMP,
+            itemMonitor,
+            targetMonitor,
+            this.getPowerSource(),
+            this.getActionSource())) {
+            return;
+        }
+        this.updateHeld(playerMP);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -647,60 +671,16 @@ public abstract class ContainerMonitor extends BaseNetworkContainer implements I
         if (this.monitor.getMonitor() != null) this.monitor.removeListener();
     }
 
-    private void extractPlayerInventoryItemStack(EntityPlayer player, ItemStack itemStack, int stackSize) {
-        for (int x = 0; x < player.inventory.mainInventory.length; x++) {
-            ItemStack is = player.inventory.mainInventory[x];
-            if (is == null) continue;
-            if (Platform.isSameItemPrecise(is, itemStack)) {
-                ItemStack tmp = is.copy();
-                if (is.stackSize < stackSize) {
-                    stackSize = is.stackSize;
-                }
-                is.stackSize -= stackSize;
-                tmp.stackSize = stackSize;
-                if (is.stackSize == 0) {
-                    player.inventory.setInventorySlotContents(x, null);
-                }
-                player.inventory.setItemStack(tmp);
-                player.inventory.markDirty();
-                return;
-            }
-        }
-    }
-
-    private boolean canFillDefaultContainer(IAEFluidStack ifs) {
-        if (ifs == null) return false;
-        MutablePair<Integer, ItemStack> result = null;
-        ItemStack container = AE2ThingAPI.instance()
-            .getFluidContainer(ifs);
-        if (Util.FluidUtil.isFluidContainer(
-            AE2ThingAPI.instance()
-                .getFluidContainer(ifs))) {
-            result = Util.FluidUtil.fillStack(container, ifs.getFluidStack());
-        }
-        return result != null && result.left != 0;
-    }
-
     public void postChange(IAEFluidStack fluid, EntityPlayer player, int slotIndex, boolean shift) {
         ItemStack targetStack = getTargetStack(player, slotIndex);
         if (targetStack == null) {
-            if (!canFillDefaultContainer(fluid)) return;
-            IAEItemStack extractItem = this.monitor.getMonitor()
-                .extractItems(
-                    AEItemStack.create(
-                        AE2ThingAPI.instance()
-                            .getFluidContainer(fluid)),
-                    Actionable.MODULATE,
-                    this.getActionSource());
-            if (extractItem != null) {
-                player.inventory.setItemStack(extractItem.getItemStack());
-            } else {
-                this.extractPlayerInventoryItemStack(
-                    player,
-                    AE2ThingAPI.instance()
-                        .getFluidContainer(fluid),
-                    1);
-            }
+            if (!ModernContainerPickup.isSupported(fluid)) return;
+            final ItemStack empty = EmptyContainerProviders.create(fluid);
+            if (empty == null) return;
+            final IAEItemStack extractItem = this.monitor.getMonitor()
+                .extractItems(AEItemStack.create(empty), Actionable.MODULATE, this.getActionSource());
+            if (extractItem == null) return;
+            player.inventory.setItemStack(extractItem.getItemStack());
             targetStack = getTargetStack(player, slotIndex);
         }
 
@@ -709,7 +689,7 @@ public abstract class ContainerMonitor extends BaseNetworkContainer implements I
         if (fluid != null
             && ((Mods.HBM_AE_ADDON.isModLoaded() && HBMAeAddonUtil.getItemIsEmptyContainer(targetStack, fluid))
                 || Util.FluidUtil.isEmpty(targetStack))) {
-            // Situation 1.a: Empty fluid container, and nonnull slot
+            // Situation 1.a: Empty fluid container, and notnull slot
             extractFluid(fluid, player, slotIndex, shift);
         } else if ((Util.FluidUtil.isFluidContainer(targetStack) && !Util.FluidUtil.isEmpty(targetStack))
             || (Mods.HBM_AE_ADDON.isModLoaded() && HBMAeAddonUtil.getItemHasFluidType(targetStack))) {

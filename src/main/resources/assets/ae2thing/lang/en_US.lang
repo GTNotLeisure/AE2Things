@@ -227,5 +227,6 @@ ae2thing.config.general.wirelessConnectorTerminalInfinityConnectionRange=Wireles
 ae2thing.config.general.exIOPortTransferContentsRate=Ex IO Port transfer rate
 ae2thing.config.general.backpackTerminalAddTicSupport=Let backpack terminal forge TiC tools
 ae2thing.config.general.craftingHistorySize=Crafting history size
+ae2thing.config.general.modernInteraction=Modern container click interaction (no modifier key)
 ae2thing.config.dualInterfaceTerminal=2-in-1 Terminal
 ae2thing.config.dualInterfaceTerminal.canStoredInBaubles=Allow the 2-in-1 terminal to be stored in baubles slots

@@ -3,11 +3,9 @@ package com.asdflj.ae2thing.api;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraftforge.fluids.FluidStack;
 
 import com.asdflj.ae2thing.common.storage.StorageManager;
 
-import appeng.api.storage.data.IAEFluidStack;
 import appeng.me.Grid;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -47,14 +45,6 @@ public interface IAE2ThingAPI {
 
     @SideOnly(Side.CLIENT)
     void openDualinterfaceTerminal();
-
-    ItemStack getFluidContainer(IAEFluidStack fluid);
-
-    ItemStack getFluidContainer(FluidStack fluid);
-
-    void setDefaultFluidContainer(ItemStack item);
-
-    ItemStack getDefaultFluidContainer();
 
     String getVersion();
 
