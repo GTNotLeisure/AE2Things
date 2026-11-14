@@ -28,8 +28,8 @@ import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.inventory.item.IItemInventory;
 import com.asdflj.ae2thing.inventory.item.WirelessDualInterfaceTerminalInventory;
 import com.asdflj.ae2thing.loader.IRegister;
+import com.asdflj.ae2thing.util.InvUtil;
 import com.asdflj.ae2thing.util.NameConst;
-import com.asdflj.ae2thing.util.Util;
 import com.science.gtnl.api.IYogTerminal;
 
 import appeng.api.AEApi;
@@ -124,7 +124,7 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
         final int index = YogIntegration.isAvailable() ? YogIntegration.indexOf(mp, stack) : -1;
         if (index < 0) return false;
         final int x = PlayerInvType.encode(index, PlayerInvType.YOG_STORAGE);
-        final ItemStack stored = Util.getPlayerInvStack(mp, x);
+        final ItemStack stored = InvUtil.readSlotRef(mp, x);
         if (stored == null || !(stored.getItem() instanceof ItemWirelessDualInterfaceTerminal)) return false;
         InventoryHandler.openItemGui(mp, mp.worldObj, x, GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL);
         return true;

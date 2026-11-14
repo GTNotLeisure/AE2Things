@@ -9,6 +9,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.asdflj.ae2thing.inventory.item.IItemInventory;
+import com.asdflj.ae2thing.util.InvUtil;
 import com.asdflj.ae2thing.util.Util;
 
 import appeng.container.AEBaseContainer;
@@ -30,7 +31,7 @@ public abstract class ItemGuiFactory<T> implements IGuiFactory {
     @Nullable
     @Override
     public Object createServerGui(EntityPlayer player, World world, int x, int y, int z, ForgeDirection face) {
-        ItemStack item = Util.getPlayerInvStack(player, x);
+        ItemStack item = InvUtil.readSlotRef(player, x);
         if (item == null || !(item.getItem() instanceof IItemInventory iInv)) {
             return null;
         }

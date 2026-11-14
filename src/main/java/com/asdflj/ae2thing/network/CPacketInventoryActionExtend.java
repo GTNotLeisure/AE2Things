@@ -4,12 +4,12 @@ import static appeng.api.networking.crafting.CraftingItemList.ACTIVE;
 
 import java.io.IOException;
 import java.util.Comparator;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Objects;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -31,14 +31,17 @@ import com.asdflj.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTe
 import com.asdflj.ae2thing.client.gui.container.IPatternValueContainer;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
+import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.inventory.item.WirelessTerminal;
 import com.asdflj.ae2thing.loader.ItemAndBlockHolder;
 import com.asdflj.ae2thing.util.BlockPos;
 import com.asdflj.ae2thing.util.CPUCraftingPreview;
 import com.asdflj.ae2thing.util.InvUtil;
+import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
+import appeng.api.exceptions.AppEngException;
 import appeng.api.features.IWirelessTermHandler;
 import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.networking.crafting.ICraftingGrid;
@@ -50,6 +53,7 @@ import appeng.api.storage.data.IItemList;
 import appeng.container.AEBaseContainer;
 import appeng.container.ContainerOpenContext;
 import appeng.container.interfaces.IInventorySlotAware;
+import appeng.core.AELog;
 import appeng.core.localization.GuiText;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import cpw.mods.fml.common.network.simpleimpl.IMessage;
@@ -61,6 +65,9 @@ import io.netty.handler.codec.EncoderException;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class CPacketInventoryActionExtend implements IMessage {
+
+    public static final int PICK_INTO_EMPTY_SLOT = 0;
+    public static final int REFILL_HELD_STACK = 1;
 
     private InventoryActionExtend action;
     private int slot;
@@ -121,26 +128,56 @@ public class CPacketInventoryActionExtend implements IMessage {
 
     public static class Handler implements IMessageHandler<CPacketInventoryActionExtend, IMessage> {
 
-        private void extractItemFromME(EntityPlayer player, IAEItemStack requestItem, int slot) {
-            if (requestItem.getStackSize() <= 0) {
-                return;
-            }
-            List<ItemStack> items = InvUtil
-                .matcher(player, stack -> stack != null && stack.getItem() instanceof IWirelessTermHandler);
-            for (ItemStack item : items) {
+        private void extractItemFromME(EntityPlayerMP player, IAEItemStack requestItem, int slot, int limit) {
+            ItemStack expected = requestItem.getItemStack();
+            limit = Math.min(limit, InvUtil.getMainSlotMissingCount(player, expected, slot));
+            if (limit <= 0) return;
+            int remaining = limit;
+
+            for (int sourceSlot : InvUtil.getSlotRefs(
+                player,
+                EnumSet.of(PlayerInvType.PLAYER_INV, PlayerInvType.PLAYER_BAUBLES, PlayerInvType.YOG_STORAGE))) {
+                if (remaining <= 0) break;
+
                 try {
-                    WirelessObject object = new WirelessObject(item, player.worldObj, slot, 0, 0, player);
-                    if (object.rangeCheck() && requestItem.getStackSize() > 0) {
-                        IAEItemStack result = object.getItemInventory()
-                            .extractItems(requestItem, Actionable.MODULATE, object.getSource());
-                        if (result != null) {
-                            requestItem.decStackSize(result.getStackSize());
-                        }
-                        if (requestItem.getStackSize() <= 0) {
-                            break;
-                        }
+                    ItemStack terminal = InvUtil.readSlotRef(player, sourceSlot);
+                    if (terminal == null || terminal.getItem() == null) continue;
+
+                    IWirelessTermHandler handler = AEApi.instance()
+                        .registries()
+                        .wireless()
+                        .getWirelessTerminalHandler(terminal);
+                    if (handler == null) continue;
+
+                    WirelessObject object = new WirelessObject(terminal, player.worldObj, sourceSlot, 0, 0, player);
+                    IAEItemStack request = requestItem.copy();
+                    request.setStackSize(remaining);
+                    IAEItemStack extracted = object.getItemInventory()
+                        .extractItems(request, Actionable.MODULATE, object.getSource());
+                    if (extracted == null || extracted.getStackSize() <= 0) continue;
+
+                    ItemStack received = extracted.getItemStack();
+                    ItemStack destination = player.inventory.getStackInSlot(slot);
+                    if (destination == null) {
+                        player.inventory.setInventorySlotContents(slot, received);
+                    } else {
+                        destination.stackSize += received.stackSize;
                     }
-                } catch (Exception ignored) {}
+
+                    remaining -= received.stackSize;
+                    player.inventory.markDirty();
+                } catch (AppEngException e) {
+                    AELog.debug("[AE2Thing] pick-block: terminal slot %s unavailable: %s", sourceSlot, e.getMessage());
+                } catch (Exception e) {
+                    AELog.warn("[AE2Thing] pick-block: failed at terminal slot %s", sourceSlot);
+                    AELog.error(e);
+                }
+            }
+
+            if (remaining < limit) {
+                player.inventoryContainer.detectAndSendChanges();
+            } else {
+                AELog.debug("AE2Things pick-block: no items extracted into hotbar slot %s", slot);
             }
         }
 
@@ -149,18 +186,36 @@ public class CPacketInventoryActionExtend implements IMessage {
         public IMessage onMessage(CPacketInventoryActionExtend message, MessageContext ctx) {
             final EntityPlayerMP sender = ctx.getServerHandler().playerEntity;
             if (message.action == InventoryActionExtend.REQUEST_ITEM) {
-                if (message.slot < 0 || message.slot >= sender.inventory.mainInventory.length
-                    || !(message.stack instanceof IAEItemStack request)
-                    || sender.inventory.mainInventory[message.slot] != null) {
+                if (!sender.isEntityAlive() || sender.capabilities.isCreativeMode || message.slot < 0 || message.slot >= 9 || message.slot != sender.inventory.currentItem || !(message.stack instanceof IAEItemStack request)) {
                     return null;
                 }
-                request.setStackSize(request.getItemStack().getMaxStackSize());
-                IAEItemStack requestItem = request.copy();
-                extractItemFromME(sender,requestItem,message.slot);
-                request.decStackSize(requestItem.getStackSize());
-                if(request.getStackSize() > 0){
-                    sender.inventory.setInventorySlotContents(message.slot,request.getItemStack());
+                ItemStack requested = request.getItemStack();
+                if (requested == null || requested.getItem() == null) return null;
+
+                ItemStack held = sender.inventory.getStackInSlot(message.slot);
+                final ItemStack target;
+
+                if (message.id == REFILL_HELD_STACK) {
+                    if (held == null || held.stackSize <= 0 || !Util.sameStackType(held, requested)) return null;
+                    target = held.copy();
+                } else if (message.id == PICK_INTO_EMPTY_SLOT) {
+                    if (held != null) return null;
+                    target = requested.copy();
+                } else {
+                    return null;
                 }
+
+                int missing = InvUtil.getMainSlotMissingCount(sender, target, message.slot);
+                if (missing <= 0) return null;
+
+                int moved = InvUtil.refillMainSlotFromInv(sender, target, message.slot);
+                if (moved > 0) {
+                    sender.inventory.markDirty();
+                    sender.inventoryContainer.detectAndSendChanges();
+                    return null;
+                }
+
+                extractItemFromME(sender, request, message.slot, missing);
                 return null;
             }
             if(sender.openContainer instanceof ContainerCraftingTerminal) {

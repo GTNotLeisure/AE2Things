@@ -4,8 +4,8 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import com.asdflj.ae2thing.util.InvUtil;
 import com.asdflj.ae2thing.util.NHUtil;
-import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.AEApi;
 import appeng.core.AELog;
@@ -62,7 +62,7 @@ public class ItemPatternRefillInventory extends AppEngInternalInventory {
     @Override
     public void markDirty() {
         this.writeToNBT(NHUtil.getNBTData(is), this.name);
-        if (Platform.isServer()) Util.setPlayerInvStack(player, slot, this.is);
+        if (Platform.isServer()) InvUtil.writeSlotRef(player, slot, this.is);
     }
 
     @Override

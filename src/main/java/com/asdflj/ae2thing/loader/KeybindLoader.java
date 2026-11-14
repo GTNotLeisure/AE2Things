@@ -3,21 +3,18 @@ package com.asdflj.ae2thing.loader;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.settings.KeyBinding;
-import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.MovingObjectPosition;
-import net.minecraft.util.Vec3;
-import net.minecraft.world.World;
+import net.minecraftforge.common.MinecraftForge;
 
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.InventoryActionExtend;
 import com.asdflj.ae2thing.network.CPacketInventoryActionExtend;
 import com.asdflj.ae2thing.util.BlockPos;
-import com.asdflj.ae2thing.util.Util;
+import com.gtnewhorizon.gtnhlib.event.PickBlockEvent;
 
 import appeng.util.item.AEItemStack;
 import cpw.mods.fml.client.registry.ClientRegistry;
@@ -54,28 +51,16 @@ public class KeybindLoader implements Runnable {
         FMLCommonHandler.instance()
             .bus()
             .register(this);
+
+        MinecraftForge.EVENT_BUS.register(this);
     }
 
     @SubscribeEvent
     public void onKeyInput(InputEvent event) {
-        if (Minecraft.getMinecraft().currentScreen != null) return;
-        EntityClientPlayerMP p = Minecraft.getMinecraft().thePlayer;
-        // middle click
-        if (Mouse.isButtonDown(2) && !p.capabilities.isCreativeMode && p.inventory.getCurrentItem() == null) {
-            // request item
-            ItemStack block = getTargetBlock(p.getEntityWorld(), p);
-            if (block != null) {
-                if (Util.findItemStack(p, block) == -1) {
-                    AE2Thing.proxy.netHandler.sendToServer(
-                        new CPacketInventoryActionExtend(
-                            InventoryActionExtend.REQUEST_ITEM,
-                            p.inventory.currentItem,
-                            0,
-                            AEItemStack.create(block)));
-                }
-            }
-            return;
-        }
+        Minecraft mc = Minecraft.getMinecraft();
+        EntityClientPlayerMP p = mc.thePlayer;
+        if (mc.currentScreen != null || p == null || mc.theWorld == null) return;
+
         if (!(event instanceof InputEvent.KeyInputEvent) && !(event instanceof InputEvent.MouseInputEvent)) return;
         if (p.openContainer == null) {
             return;
@@ -92,18 +77,49 @@ public class KeybindLoader implements Runnable {
             AE2ThingAPI.instance()
                 .openDualinterfaceTerminal();
         }
-
     }
 
-    private static ItemStack getTargetBlock(World world, EntityPlayer player) {
-        Vec3 position = Vec3.createVectorHelper(player.posX, player.posY + player.getEyeHeight(), player.posZ);
-        Vec3 look = player.getLookVec();
-        Vec3 end = position.addVector(look.xCoord * 5.0, look.yCoord * 5.0, look.zCoord * 5.0);
-        MovingObjectPosition hit = world.rayTraceBlocks(position, end);
+    @SubscribeEvent
+    public void onPickBlock(PickBlockEvent event) {
+        Minecraft mc = Minecraft.getMinecraft();
+        EntityClientPlayerMP player = mc.thePlayer;
+        if (player == null || mc.theWorld == null
+            || mc.currentScreen != null
+            || !mc.inGameHasFocus
+            || player.capabilities.isCreativeMode) return;
 
-        if (hit != null && hit.typeOfHit == MovingObjectPosition.MovingObjectType.BLOCK) {
-            return new BlockPos(hit, world).getPickBlock(hit, world, player);
+        ItemStack held = player.inventory.getCurrentItem();
+        final ItemStack target;
+        final int mode;
+        if (held != null && held.stackSize > 0) {
+            target = held.copy();
+            mode = CPacketInventoryActionExtend.REFILL_HELD_STACK;
+        } else {
+            target = getTargetBlock(mc);
+            mode = CPacketInventoryActionExtend.PICK_INTO_EMPTY_SLOT;
         }
-        return null;
+        if (target == null || target.getItem() == null) return;
+
+        ItemStack sample = target.copy();
+        sample.stackSize = 1;
+
+        AE2Thing.proxy.netHandler.sendToServer(
+            new CPacketInventoryActionExtend(
+                InventoryActionExtend.REQUEST_ITEM,
+                player.inventory.currentItem,
+                mode,
+                AEItemStack.create(sample)));
+
+        event.setCanceled(true);
+    }
+
+    private static ItemStack getTargetBlock(Minecraft mc) {
+        MovingObjectPosition hit = mc.objectMouseOver;
+        if (hit == null || hit.typeOfHit != MovingObjectPosition.MovingObjectType.BLOCK) return null;
+        ItemStack picked = new BlockPos(hit, mc.theWorld).getPickBlock(hit, mc.theWorld, mc.thePlayer);
+
+        if (picked == null || picked.getItem() == null || picked.stackSize <= 0) return null;
+
+        return picked;
     }
 }
