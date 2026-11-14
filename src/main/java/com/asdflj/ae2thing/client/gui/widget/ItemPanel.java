@@ -20,12 +20,14 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.GL11;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.client.ModernContainerInteraction;
 import com.asdflj.ae2thing.client.gui.BaseMEGui;
 import com.asdflj.ae2thing.client.gui.IGuiMonitorTerminal;
 import com.asdflj.ae2thing.client.gui.IWidgetGui;
 import com.asdflj.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.client.me.AdvItemRepo;
 import com.asdflj.ae2thing.integration.Mods;
+import com.asdflj.ae2thing.network.CPacketContainerInteraction;
 import com.asdflj.ae2thing.network.CPacketInventoryAction;
 import com.asdflj.ae2thing.util.Ae2ReflectClient;
 import com.asdflj.ae2thing.util.AspectUtil;
@@ -422,6 +424,23 @@ public class ItemPanel
     public boolean handleVirtualSlotClick(VirtualMESlot slot, int mouseButton) {
         if (!(slot instanceof VirtualMEMonitorableSlot)) return false;
         final boolean pickBlock = mouseButton == GuiMEMonitorable.keyBindPickBlockAction;
+
+        if (!pickBlock) {
+            final ItemStack hand = Minecraft.getMinecraft().thePlayer.inventory.getItemStack();
+            final IAEStack<?> hovered = slot.getAEStack();
+            if (ModernContainerInteraction.shouldFillFromNetwork(hovered, hand, mouseButton)) {
+                AE2Thing.proxy.netHandler.sendToServer(new CPacketContainerInteraction(hovered, isShiftKeyDown()));
+                return true;
+            }
+            final MonitorableAction containerAction = ModernContainerInteraction
+                .resolveAction(hovered, hand, mouseButton);
+            if (containerAction != null) {
+                this.inventorySlots.setTargetStack(hovered);
+                NetworkHandler.instance.sendToServer(new PacketMonitorableAction(containerAction, -1));
+                return true;
+            }
+        }
+
         final int ctrlDown = pickBlock ? 0 : mouseButton;
         final int clickMode = pickBlock ? 3 : (isShiftKeyDown() ? 1 : 0);
         return meSlotClick(slot, ctrlDown, clickMode);

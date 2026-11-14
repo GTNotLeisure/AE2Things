@@ -5,6 +5,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.world.World;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.network.CPacketContainerInteraction;
 import com.asdflj.ae2thing.network.CPacketCraftRequest;
 import com.asdflj.ae2thing.network.CPacketFindCellItem;
 import com.asdflj.ae2thing.network.CPacketFluidUpdate;
@@ -51,7 +52,8 @@ public class ChannelLoader implements Runnable {
         SPacketFindCellItem.class, SPacketFlowRates.class, SPacketMEFluidInvUpdate.class, SPacketMEItemInvUpdate.class,
         SPacketNBTDataUpdate.class, SPacketStringUpdate.class, SPacketSwitchBack.class, SPacketTypeFilter.class,
         SPacketInterfaceSuffixUpdate.class, CPacketUniversalStorageBusAction.class,
-        SPacketInterfaceRecipeMapUpdate.class, CPacketInterfaceRecipeMapRequest.class, SPacketItemGuiHint.class };
+        SPacketInterfaceRecipeMapUpdate.class, CPacketInterfaceRecipeMapRequest.class, SPacketItemGuiHint.class,
+        CPacketContainerInteraction.class };
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })

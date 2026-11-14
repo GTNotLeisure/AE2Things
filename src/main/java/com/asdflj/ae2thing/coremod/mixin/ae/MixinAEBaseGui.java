@@ -1,5 +1,7 @@
 package com.asdflj.ae2thing.coremod.mixin.ae;
 
+import java.util.List;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.inventory.Container;
@@ -14,8 +16,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.asdflj.ae2thing.api.TerminalMenu;
+import com.asdflj.ae2thing.client.ModernContainerInteraction;
 import com.asdflj.ae2thing.client.event.AEGuiCloseEvent;
 import com.asdflj.ae2thing.client.gui.GuiWirelessDualInterfaceTerminal;
 
@@ -35,6 +39,14 @@ public abstract class MixinAEBaseGui extends GuiContainer {
 
     @Shadow(remap = false)
     protected abstract GuiScrollbar getScrollBar();
+
+    @Inject(method = "handleItemTooltip", at = @At("HEAD"), cancellable = true, remap = false)
+    private void ae2t$hideEntryTooltip(ItemStack stack, int mouseX, int mouseY, List<String> tooltip,
+        CallbackInfoReturnable<List<String>> cir) {
+        if (!ModernContainerInteraction.hidesEntryTooltip()) return;
+        tooltip.clear();
+        cir.setReturnValue(tooltip);
+    }
 
     @Inject(method = "handleMouseClick", at = @At(value = "HEAD"), cancellable = true)
     protected void handleMouseClick(Slot slot, int slotIdx, int clickedButton, int clickType, CallbackInfo ci) {

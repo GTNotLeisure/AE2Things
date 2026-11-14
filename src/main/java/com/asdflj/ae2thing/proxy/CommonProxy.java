@@ -20,6 +20,8 @@ import com.asdflj.ae2thing.api.adapter.terminal.item.DualInterfaceTerminalHandle
 import com.asdflj.ae2thing.api.adapter.terminal.item.FCBaseTerminalHandler;
 import com.asdflj.ae2thing.api.adapter.terminal.item.UltraTerminalHandler;
 import com.asdflj.ae2thing.api.adapter.terminal.item.WCTWirelessCraftingTerminalHandler;
+import com.asdflj.ae2thing.api.container.EmptyContainerProviders;
+import com.asdflj.ae2thing.api.container.FluidContainerProvider;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemPatternModifier;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
@@ -35,6 +37,7 @@ import com.asdflj.ae2thing.loader.ItemAndBlockHolder;
 import com.asdflj.ae2thing.loader.PatternTerminalLoader;
 import com.asdflj.ae2thing.loader.PatternTerminalMouseWheelLoader;
 import com.asdflj.ae2thing.network.wrapper.AE2ThingNetworkWrapper;
+import com.asdflj.ae2thing.util.AspectUtil;
 import com.asdflj.ae2thing.util.ItemGuiHintCache;
 import com.asdflj.ae2thing.util.ModAndClassUtil;
 import com.darkona.adventurebackpack.item.ItemAdventureBackpack;
@@ -49,6 +52,7 @@ import appeng.api.config.Upgrades;
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.parts.misc.PartStorageBus;
 import appeng.util.Platform;
+import appeng.util.item.AEFluidStackType;
 import cpw.mods.fml.common.FMLCommonHandler;
 import cpw.mods.fml.common.event.FMLInitializationEvent;
 import cpw.mods.fml.common.event.FMLLoadCompleteEvent;
@@ -61,6 +65,7 @@ import de.eydamos.backpack.item.ItemBackpackBase;
 import forestry.storage.items.ItemBackpack;
 import ic2.core.Ic2Items;
 import thaumicenergistics.common.parts.PartEssentiaStorageBus;
+import thaumicenergistics.common.storage.AEEssentiaStackType;
 
 public class CommonProxy {
 
@@ -76,6 +81,12 @@ public class CommonProxy {
             .bus()
             .register(this);
         ModAndClassUtil.init();
+
+        EmptyContainerProviders.register(AEFluidStackType.FLUID_STACK_TYPE, FluidContainerProvider.INSTANCE);
+        if (Mods.THAUMIC_ENERGISTICS.isModLoaded()) {
+            EmptyContainerProviders
+                .register(AEEssentiaStackType.ESSENTIA_STACK_TYPE, _ -> AspectUtil.HELPER.createEmptyPhial());
+        }
     }
 
     @SubscribeEvent
@@ -150,8 +161,7 @@ public class CommonProxy {
             Upgrades.SPEED.registerItem(ItemAndBlockHolder.EX_IO_PORT.stack(), 3);
             Upgrades.SUPERSPEED.registerItem(ItemAndBlockHolder.EX_IO_PORT.stack(), 3);
             if (Mods.IC2.isModLoaded()) {
-                AE2ThingAPI.instance()
-                    .setDefaultFluidContainer(Ic2Items.cell);
+                FluidContainerProvider.INSTANCE.setDefaultContainer(Ic2Items.cell);
             }
             AEApi.instance()
                 .registries()
@@ -162,7 +172,6 @@ public class CommonProxy {
                 .interfaceTerminal()
                 .register(PartThaumatoriumInterface.class);
         }
-        if (Mods.BOTANIA.isModLoaded()) {}
         if (!Mods.SNL.isModLoaded()) {
             Upgrades.FUZZY.registerItem(ItemAndBlockHolder.UNIVERSAL_STORAGE_BUS.stack(), 1);
             Upgrades.ORE_FILTER.registerItem(ItemAndBlockHolder.UNIVERSAL_STORAGE_BUS.stack(), 1);

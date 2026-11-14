@@ -16,6 +16,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.client.ModernContainerInteraction;
 import com.asdflj.ae2thing.client.gui.container.ContainerMonitor;
 import com.asdflj.ae2thing.client.gui.widget.ITypeFilterGui;
 import com.asdflj.ae2thing.client.gui.widget.THGuiTextField;
@@ -24,6 +25,7 @@ import com.asdflj.ae2thing.client.me.AdvItemRepo;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
+import com.asdflj.ae2thing.network.CPacketContainerInteraction;
 import com.asdflj.ae2thing.network.CPacketInventoryAction;
 import com.asdflj.ae2thing.util.Ae2ReflectClient;
 import com.asdflj.ae2thing.util.AspectUtil;
@@ -199,6 +201,23 @@ public abstract class GuiMonitor extends BaseMEGui implements IConfigManagerHost
         // mouseButton is the raw mouse button (0 left, 1 right) or keyBindPickBlockAction for pick-block.
         // Reconstruct the legacy parameters: ctrlDown = mouse button index, clickMode = 0 normal / 1 shift / 3 pick.
         final boolean pickBlock = mouseButton == GuiMEMonitorable.keyBindPickBlockAction;
+
+        if (!pickBlock) {
+            final ItemStack hand = player.inventory.getItemStack();
+            final IAEStack<?> hovered = virtualSlot.getAEStack();
+            if (ModernContainerInteraction.shouldFillFromNetwork(hovered, hand, mouseButton)) {
+                AE2Thing.proxy.netHandler.sendToServer(new CPacketContainerInteraction(hovered, isShiftKeyDown()));
+                return true;
+            }
+            final MonitorableAction containerAction = ModernContainerInteraction
+                .resolveAction(hovered, hand, mouseButton);
+            if (containerAction != null) {
+                ((AEBaseContainer) this.inventorySlots).setTargetStack(hovered);
+                NetworkHandler.instance.sendToServer(new PacketMonitorableAction(containerAction, -1));
+                return true;
+            }
+        }
+
         final int ctrlDown = pickBlock ? 0 : mouseButton;
         final int clickMode = pickBlock ? 3 : (isShiftKeyDown() ? 1 : 0);
 

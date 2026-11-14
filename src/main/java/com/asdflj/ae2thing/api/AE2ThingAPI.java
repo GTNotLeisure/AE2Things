@@ -1,7 +1,5 @@
 package com.asdflj.ae2thing.api;
 
-import static net.minecraft.init.Items.glass_bottle;
-
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Set;
@@ -11,14 +9,10 @@ import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.ChatComponentText;
-import net.minecraftforge.fluids.FluidStack;
-
-import org.apache.commons.lang3.tuple.MutablePair;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.Tags;
@@ -33,9 +27,7 @@ import com.asdflj.ae2thing.network.CPacketSwitchGuis;
 import com.asdflj.ae2thing.util.Ae2Reflect;
 import com.asdflj.ae2thing.util.AspectUtil;
 import com.asdflj.ae2thing.util.NameConst;
-import com.glodblock.github.util.Util;
 
-import appeng.api.storage.data.IAEFluidStack;
 import appeng.me.Grid;
 import cpw.mods.fml.relauncher.FMLInjectionData;
 import cpw.mods.fml.relauncher.Side;
@@ -45,9 +37,7 @@ import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 
 public final class AE2ThingAPI implements IAE2ThingAPI {
 
-    public static final ItemStack BUCKET = new ItemStack(Items.bucket, 1);
     public static final ItemStack PHIAL = createEmptyPhial();
-    public static final ItemStack GLASS_BOTTLE = new ItemStack(glass_bottle, 1);
 
     public static int maxSelectionRows = 5;
     private static final AE2ThingAPI API = new AE2ThingAPI();
@@ -55,8 +45,6 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
     private static final Set<Class<? extends Item>> backpackItems = new ObjectOpenHashSet<>();
     private StorageManager storageManager = null;
     private static final Object2ObjectOpenHashMap<Class<?>, String> inputFields = new Object2ObjectOpenHashMap<>();
-
-    private static ItemStack fluidContainer = BUCKET;
 
     public static AE2ThingAPI instance() {
         return API;
@@ -185,37 +173,6 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
     @Override
     public void openTerminalMenu() {
         AE2Thing.proxy.netHandler.sendToServer(new CPacketSwitchGuis(GuiType.TERMINAL_MENU));
-    }
-
-    @Override
-    public ItemStack getFluidContainer(IAEFluidStack fluid) {
-        return getFluidContainer(fluid.getFluidStack());
-    }
-
-    @Override
-    public ItemStack getFluidContainer(FluidStack fluid) {
-        if (canFillContainer(BUCKET, fluid)) {
-            return BUCKET;
-        } else if (getDefaultFluidContainer() != BUCKET && canFillContainer(getDefaultFluidContainer(), fluid)) {
-            return getDefaultFluidContainer();
-        } else {
-            return GLASS_BOTTLE;
-        }
-    }
-
-    @Override
-    public void setDefaultFluidContainer(ItemStack item) {
-        fluidContainer = item;
-    }
-
-    @Override
-    public ItemStack getDefaultFluidContainer() {
-        return fluidContainer;
-    }
-
-    private boolean canFillContainer(ItemStack is, FluidStack fluidStack) {
-        MutablePair<Integer, ItemStack> result = Util.FluidUtil.fillStack(is, fluidStack);
-        return result != null && result.left != 0;
     }
 
     @Override

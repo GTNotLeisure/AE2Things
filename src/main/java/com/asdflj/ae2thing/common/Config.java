@@ -28,6 +28,7 @@ public class Config {
     public static boolean backpackTerminalAddTicSupport = false;
     public static int craftingHistorySize = 200;
     public static boolean dualTerminalCanStoredInBaubles = false;
+    public static boolean modernInteraction = false;
 
     private static File resolveConfigFile() {
         final File configDir = new File((File) FMLInjectionData.data()[6], "config");
@@ -113,6 +114,19 @@ public class Config {
             false,
             "Let the 2-in-1 terminal be stored in baubles slots",
             DUAL_TERMINAL_LANG_KEY + ".canStoredInBaubles");
+        modernInteraction = Config.getBoolean(
+            "Modern container interaction in terminal",
+            AE2Thing.NAME,
+            false,
+            "Backport of the modern AE2 container interaction. When enabled: "
+                + "left-click on a fluid/essentia/mana entry to fill the container in your hand, "
+                + "shift + left-click to fill the whole held stack of containers, "
+                + "right-click to empty the held container into the network, "
+                + "shift + right-click to empty the whole held stack, "
+                + "and left-click with an empty hand to fill an empty container taken from the network. "
+                + "The container interaction key (default Ctrl) is no longer required. "
+                + "When disabled everything falls back to vanilla AE2 behaviour.",
+            GENERAL_LANG_KEY + ".modernInteraction");
         if (Config.hasChanged()) Config.save();
     }
 
