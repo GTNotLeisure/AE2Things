@@ -54,8 +54,7 @@ public class ItemAndBlockHolder implements Runnable {
         .register();
     public static ItemWirelessConnectorTerminal ITEM_WIRELESS_CONNECTOR_TERMINAL = new ItemWirelessConnectorTerminal()
         .register();
-    public static ItemWirelessDualInterfaceTerminal ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL = new ItemWirelessDualInterfaceTerminal()
-        .register();
+    public static ItemWirelessDualInterfaceTerminal ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL;
     public static ItemPatternModifier ITEM_PATTERN_MODIFIER = new ItemPatternModifier().register();
     public static ItemCreativeFluidCell ITEM_CREATIVE_WATER_CELL = new ItemCreativeFluidCell(
         NameConst.ITEM_CREATIVE_FLUID_CELL_WATER,
@@ -90,6 +89,9 @@ public class ItemAndBlockHolder implements Runnable {
             UNIVERSAL_IMPORT_BUS = new ItemUniversalImportBus().register();
             UNIVERSAL_EXPORT_BUS = new ItemUniversalExportBus().register();
             UNIVERSAL_STORAGE_BUS = new ItemUniversalStorageBus().register();
+        }
+        if (!Mods.GT_NEVER_RESET.isModLoaded()) {
+            ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL = new ItemWirelessDualInterfaceTerminal().register();
         }
     }
 }

@@ -28,6 +28,7 @@ public enum Mods implements IMod, ITargetMod {
     FIND_IT("findit"),
     FORESTRY("Forestry"),
     GREGTECH("gregtech"),
+    GT_NEVER_RESET("gtneverreset"),
     HBM_AE_ADDON("hbmaeaddon"),
     HODGEPODGE("hodgepodge"),
     IC2("IC2"),
