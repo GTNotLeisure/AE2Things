@@ -6,8 +6,8 @@ import java.util.WeakHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.NameConst;
-import com.gtnewhorizon.gtnhlib.item.ItemStackNBT;
 
 public class PatternModifierModeObject {
 
@@ -39,8 +39,7 @@ public class PatternModifierModeObject {
 
     public static void setMode(ItemStack stack, Mode mode) {
         if (stack == null || mode == null) return;
-        ItemStackNBT.of(stack)
-            .setByte(Constants.PATTERN_MODIFIER_MODE, (byte) mode.ordinal());
+        ItemStackNBT.setByte(stack, Constants.PATTERN_MODIFIER_MODE, (byte) mode.ordinal());
     }
 
     public static Mode nextMode(ItemStack stack) {

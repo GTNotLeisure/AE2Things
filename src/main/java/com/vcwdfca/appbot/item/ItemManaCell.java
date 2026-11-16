@@ -11,7 +11,7 @@ import net.minecraft.util.StatCollector;
 import org.jetbrains.annotations.NotNull;
 
 import com.asdflj.ae2thing.common.item.BaseItem;
-import com.gtnewhorizon.gtnhlib.item.ItemStackNBT;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.vcwdfca.appbot.AppBotTabs;
 import com.vcwdfca.appbot.AppliedBotanics;
 import com.vcwdfca.appbot.ae.AEManaStackType;

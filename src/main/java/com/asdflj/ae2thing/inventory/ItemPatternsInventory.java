@@ -5,7 +5,7 @@ import net.minecraft.item.ItemStack;
 
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.util.InvUtil;
-import com.asdflj.ae2thing.util.NHUtil;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.IAEAppEngInventory;
@@ -25,12 +25,12 @@ public class ItemPatternsInventory extends AppEngInternalInventory {
         this.terminal = term;
         this.player = player;
         this.slot = slot;
-        this.readFromNBT(NHUtil.getNBTData(is), Constants.PATTERN);
+        this.readFromNBT(ItemStackNBT.get(is), Constants.PATTERN);
     }
 
     @Override
     public void markDirty() {
-        this.writeToNBT(NHUtil.getNBTData(is), Constants.PATTERN);
+        this.writeToNBT(ItemStackNBT.get(is), Constants.PATTERN);
         if (Platform.isServer()) InvUtil.writeSlotRef(player, slot, this.is);
     }
 

@@ -11,7 +11,7 @@ import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageCell;
 import com.asdflj.ae2thing.common.storage.DataStorage;
 import com.asdflj.ae2thing.common.storage.ITCellInventory;
-import com.gtnewhorizon.gtnhlib.item.ItemStackNBT;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
@@ -28,7 +28,6 @@ import appeng.api.storage.data.IAEStackType;
 import appeng.api.storage.data.IItemList;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.IterationCounter;
-import appeng.util.item.AEItemStack;
 import appeng.util.item.AEItemStackType;
 
 public class InfinityItemStorageCellInventory implements ITCellInventory {
@@ -194,7 +193,8 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
             return null;
         }
 
-        if (input.getStackSize() == 0) {
+        final long in = input.getStackSize();
+        if (in == 0) {
             return null;
         }
 
@@ -225,7 +225,7 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
                 return input;
             }
 
-            if (input.getStackSize() > remainingItemSlots) {
+            if (in > remainingItemSlots) {
                 final IAEItemStack r = input.copy();
                 r.setStackSize(r.getStackSize() - remainingItemSlots);
 
@@ -239,7 +239,7 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
                 return r;
             } else {
                 if (mode == Actionable.MODULATE) {
-                    l.setStackSize(l.getStackSize() + input.getStackSize());
+                    l.setStackSize(l.getStackSize() + in);
                     this.saveChanges(input.copy());
                 }
 
@@ -252,12 +252,12 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
             final long remainingItemCount = this.getRemainingItemCount() - this.getBytesPerType() * 8L;
 
             if (remainingItemCount > 0) {
-                if (input.getStackSize() > remainingItemCount) {
-                    final IAEItemStack toReturn = AEItemStack.create(sharedItemStack);
+                if (in > remainingItemCount) {
+                    final IAEItemStack toReturn = input.copy();
                     toReturn.decStackSize(remainingItemCount);
 
                     if (mode == Actionable.MODULATE) {
-                        final IAEItemStack toWrite = AEItemStack.create(sharedItemStack);
+                        final IAEItemStack toWrite = input.copy();
                         toWrite.setStackSize(remainingItemCount);
                         this.cellItems.add(toWrite);
                         this.saveChanges(toWrite.copy());

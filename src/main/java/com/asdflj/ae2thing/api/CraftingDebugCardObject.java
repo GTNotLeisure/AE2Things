@@ -2,13 +2,13 @@ package com.asdflj.ae2thing.api;
 
 import java.util.List;
 
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentText;
 
 import com.asdflj.ae2thing.AE2Thing;
@@ -17,7 +17,6 @@ import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.me.Grid;
 import appeng.tile.networking.TileController;
-import appeng.util.Platform;
 import appeng.util.ReadableNumberConverter;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
@@ -25,7 +24,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class CraftingDebugCardObject {
 
-    private final NBTTagCompound data;
+    private final ItemStackNBT data;
     private Mode currentMode;
 
     public enum Mode {
@@ -35,7 +34,7 @@ public class CraftingDebugCardObject {
     }
 
     public CraftingDebugCardObject(ItemStack itemStack) {
-        this.data = Platform.openNbtData(itemStack);
+        this.data = ItemStackNBT.of(itemStack);
         int mode = this.data.getByte(Constants.DEBUG_CARD_MODE);
         this.currentMode = mode >= 0 && mode < Mode.values().length ? Mode.values()[mode] : Mode.Everything;
     }
@@ -156,7 +155,7 @@ public class CraftingDebugCardObject {
             msg.add("------------------------------------------------");
         }
         if (!msg.isEmpty()) {
-            msg.add(0, "------------------------------------------------");
+            msg.addFirst("------------------------------------------------");
         }
         return msg;
     }

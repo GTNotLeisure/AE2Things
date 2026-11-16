@@ -4,6 +4,8 @@ import static com.asdflj.ae2thing.api.Constants.TC_CRAFTING;
 
 import java.util.List;
 
+import com.asdflj.ae2thing.util.ItemStackNBT;
+import com.google.common.primitives.Ints;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -52,8 +54,6 @@ import thaumcraft.api.aspects.Aspect;
 import thaumcraft.api.aspects.AspectList;
 import thaumcraft.common.Thaumcraft;
 import thaumcraft.common.lib.research.ScanManager;
-import thaumicenergistics.common.items.ItemCraftingAspect;
-import thaumicenergistics.common.items.ItemEnum;
 
 @Deprecated
 public class ContainerInfusionPatternTerminal extends BasePatternContainerMonitor
@@ -95,11 +95,11 @@ public class ContainerInfusionPatternTerminal extends BasePatternContainerMonito
         super(ip, monitorable);
         this.it = (PartInfusionPatternTerminal) monitorable;
 
-        if (monitorable instanceof IViewCellStorage) {
+        if (monitorable instanceof IViewCellStorage viewCellStorage) {
             for (int y = 0; y < 5; y++) {
                 this.cellView[y] = new SlotRestrictedInput(
                     SlotRestrictedInput.PlacableItemType.VIEW_CELL,
-                    ((IViewCellStorage) monitorable).getViewCellStorage(),
+                    viewCellStorage.getViewCellStorage(),
                     y,
                     206,
                     y * 18 + 8,
@@ -188,11 +188,12 @@ public class ContainerInfusionPatternTerminal extends BasePatternContainerMonito
                     .materials()
                     .blankPattern()
                     .maybeStack(blanksToRefill)
-                    .get());
+                    .orNull());
+            if (request == null) return;
             final IAEItemStack extracted = Platform
                 .poweredExtraction(this.getPowerSource(), this.getMonitor(), request, this.getActionSource());
             if (extracted != null) {
-                if (blanks != null) blanks.stackSize += extracted.getStackSize();
+                if (blanks != null) blanks.stackSize += Ints.saturatedCast(extracted.getStackSize());
                 else {
                     blanks = extracted.getItemStack();
                 }
@@ -206,16 +207,13 @@ public class ContainerInfusionPatternTerminal extends BasePatternContainerMonito
         if (s == this.patternSlotOUT || s == this.craftingSlots[0] && Platform.isServer()) {
             if (s != null && s == this.patternSlotOUT && s.getStack() != null) {
                 ItemStack is = s.getStack();
-                NBTTagCompound data = Platform.openNbtData(is);
-                this.setCrafting(data.getBoolean(TC_CRAFTING));
+                this.setCrafting(ItemStackNBT.getBoolean(is, TC_CRAFTING));
             }
-            for (final Object crafter : this.crafters) {
-                final ICrafting icrafting = (ICrafting) crafter;
+            for (final ICrafting icrafting : this.crafters) {
 
-                for (final Object g : this.inventorySlots) {
+                for (final Slot g : this.inventorySlots) {
                     if (g instanceof OptionalSlotFake || g instanceof SlotFakeCraftingMatrix) {
-                        final Slot sri = (Slot) g;
-                        icrafting.sendSlotContents(this, sri.slotNumber, sri.getStack());
+                        icrafting.sendSlotContents(this, g.slotNumber, g.getStack());
                         if (g instanceof SlotFakeCraftingMatrix && !this.isCraftingMode()) {
                             this.scanSourceItem();
                         }
@@ -262,13 +260,6 @@ public class ContainerInfusionPatternTerminal extends BasePatternContainerMonito
             this.syncPatternState();
         }
         super.detectAndSendChanges();
-    }
-
-    private void updateOrderOfOutputSlots() {
-        for (final Slot s : this.outputSlots) {
-            s.putStack(null);
-        }
-        this.lastScanItem = null;
     }
 
     private void setCraftingMode(boolean craftingRecipe) {
@@ -326,27 +317,6 @@ public class ContainerInfusionPatternTerminal extends BasePatternContainerMonito
                     this.outputSlots[i].putStack(ItemPhial.newStack(aspect, itemAspects.getAmount(aspect)));
                 }
             }
-        }
-    }
-
-    private void newCraftingAspect(Aspect[] sortedAspects, int numOfAspects, AspectList itemAspects) {
-        Aspect aspect;
-        for (int i = 0; i < numOfAspects; ++i) {
-            // Create an itemstack
-            ItemStack aspectItem = ItemEnum.CRAFTING_ASPECT.getStack();
-
-            if (sortedAspects != null) {
-                // Get the aspect
-                aspect = sortedAspects[i];
-
-                // Set the aspect
-                ItemCraftingAspect.setAspect(aspectItem, aspect);
-
-                // Set the size
-                aspectItem.stackSize = itemAspects.getAmount(aspect);
-            }
-            // Put into slot
-            this.outputSlots[i].putStack(aspectItem);
         }
     }
 
@@ -577,12 +547,11 @@ public class ContainerInfusionPatternTerminal extends BasePatternContainerMonito
         this.patternSlotOUT.putStack(output);
     }
 
-    protected ItemStack stampAuthor(ItemStack patternStack) {
+    protected void stampAuthor(ItemStack patternStack) {
         if (patternStack.stackTagCompound == null) {
             patternStack.stackTagCompound = new NBTTagCompound();
         }
         patternStack.stackTagCompound.setString("author", getPlayerInv().player.getCommandSenderName());
-        return patternStack;
     }
 
     public void clear() {

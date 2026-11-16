@@ -2,6 +2,7 @@ package com.asdflj.ae2thing.inventory.item;
 
 import java.util.List;
 
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -36,10 +37,10 @@ import appeng.container.interfaces.IInventorySlotAware;
 import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.ConfigManager;
 import appeng.util.IterationCounter;
-import appeng.util.Platform;
 import appeng.util.TerminalSettings;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
+import org.jetbrains.annotations.NotNull;
 
 public class BackpackTerminalInventory extends MEMonitorHandler<IAEItemStack> implements ITerminalHost,
     IInventorySlotAware, IGuiItemObject, IEnergySource, ITerminalTypeFilterProvider, RefreshableStorageMonitor {
@@ -61,7 +62,7 @@ public class BackpackTerminalInventory extends MEMonitorHandler<IAEItemStack> im
         this.inventorySlot = slot;
         this.player = player;
         this.crafting = new ItemBiggerAppEngInventory(is, Constants.CRAFTING, 9, player, slot);
-        this.terminalSettings.readFromNBT(Platform.openNbtData(this.target));
+        this.terminalSettings.readFromNBT(ItemStackNBT.get(this.target));
     }
 
     @Override
@@ -129,17 +130,15 @@ public class BackpackTerminalInventory extends MEMonitorHandler<IAEItemStack> im
 
     @Override
     public IConfigManager getConfigManager() {
-        final ConfigManager out = new ConfigManager((manager, settingName, newValue) -> {
-            final NBTTagCompound data = Platform.openNbtData(this.target);
+        final ConfigManager out = new ConfigManager((manager, _, _) -> {
+            final NBTTagCompound data = ItemStackNBT.get(this.target);
             manager.writeToNBT(data);
             saveSettings();
         });
         out.registerSetting(Settings.SORT_BY, SortOrder.NAME);
         out.registerSetting(Settings.VIEW_MODE, ViewItems.ALL);
         out.registerSetting(Settings.SORT_DIRECTION, SortDir.ASCENDING);
-        out.readFromNBT(
-            (NBTTagCompound) Platform.openNbtData(this.target)
-                .copy());
+        out.readFromNBT(ItemStackNBT.get(this.target));
         return out;
     }
 
@@ -156,6 +155,7 @@ public class BackpackTerminalInventory extends MEMonitorHandler<IAEItemStack> im
         return usePowerMultiplier.divide(amt);
     }
 
+    @NotNull
     @Override
     public Reference2BooleanMap<IAEStackType<?>> getTypeFilter(EntityPlayer player) {
         return this.terminalSettings.getFilters(player)

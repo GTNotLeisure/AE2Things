@@ -1,10 +1,10 @@
 package com.asdflj.ae2thing.client.gui.container;
 
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.inventory.ItemCellLinkInventory;
@@ -12,7 +12,6 @@ import com.asdflj.ae2thing.inventory.ItemCellLinkInventory;
 import appeng.api.implementations.guiobjects.IGuiItemObject;
 import appeng.container.AEBaseContainer;
 import appeng.container.slot.AppEngSlot;
-import appeng.util.Platform;
 
 public class ContainerCellLink extends AEBaseContainer {
 
@@ -38,7 +37,7 @@ public class ContainerCellLink extends AEBaseContainer {
                             .getItem())))
                 return false;
 
-            NBTTagCompound data = Platform.openNbtData(stack);
+            ItemStackNBT data = ItemStackNBT.of(stack);
             return data.getString(Constants.DISKUUID)
                 .equals(it.getUUID()) || data.getBoolean(Constants.IS_EMPTY)
                 || data.hasNoTags();

@@ -4,6 +4,7 @@ import static com.asdflj.ae2thing.api.Constants.TC_CRAFTING;
 
 import java.util.List;
 
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -23,7 +24,6 @@ import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.tile.inventory.BiggerAppEngInventory;
 import appeng.tile.inventory.IAEAppEngInventory;
 import appeng.tile.inventory.InvOperation;
-import appeng.util.Platform;
 
 @Deprecated
 public class PartInfusionPatternTerminal extends THPart implements IPatternTerminal {
@@ -103,16 +103,13 @@ public class PartInfusionPatternTerminal extends THPart implements IPatternTermi
 
     @Override
     public IInventory getInventoryByName(final String name) {
-        if (name.equals(Constants.CRAFTING)) {
-            return crafting;
-        } else if (name.equals(Constants.OUTPUT)) {
-            return output;
-        } else if (name.equals(Constants.PATTERN)) {
-            return this.pattern;
-        } else if (name.equals(Constants.UPGRADES)) {
-            return this.upgrades;
-        }
-        return null;
+        return switch (name) {
+            case Constants.CRAFTING -> crafting;
+            case Constants.OUTPUT -> output;
+            case Constants.PATTERN -> this.pattern;
+            case Constants.UPGRADES -> this.upgrades;
+            default -> null;
+        };
     }
 
     @Override
@@ -148,8 +145,7 @@ public class PartInfusionPatternTerminal extends THPart implements IPatternTermi
                 final ICraftingPatternDetails details = craftingPatternItem
                     .getPatternForItem(is, this.getHost().getTile().getWorldObj());
                 if (details != null) {
-                    NBTTagCompound data = Platform.openNbtData(is);
-                    this.craftingMode = data.getBoolean(TC_CRAFTING);
+                    this.craftingMode = ItemStackNBT.getBoolean(is, TC_CRAFTING);
                     final IAEItemStack[] inItems = isCraftingRecipe()? details.getOutputs(): details.getInputs();
                     final IAEItemStack[] outItems = isCraftingRecipe()?details.getInputs(): details.getOutputs();
 

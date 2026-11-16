@@ -13,7 +13,7 @@ import com.asdflj.ae2thing.common.item.ItemWirelessConnectorTerminal;
 import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.inventory.item.WirelessTerminal;
 import com.asdflj.ae2thing.util.InvUtil;
-import com.gtnewhorizon.gtnhlib.item.ItemStackNBT;
+import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
@@ -211,30 +211,8 @@ public class WirelessObject implements IActionHost {
         return ticks;
     }
 
-    public static boolean hasInfinityBoosterCard(ItemStack item) {
-        ItemStackNBT tag = ItemStackNBT.of(item);
-        return hasInfinityBoosterCard(tag);
-    }
-
-    private static boolean hasInfinityBoosterCard(ItemStackNBT data) {
-        return data.hasKey(Constants.INFINITY_BOOSTER_CARD) && data.getBoolean(Constants.INFINITY_BOOSTER_CARD);
-    }
-
-    public boolean hasInfinityBoosterCard() {
-        return hasInfinityBoosterCard(item);
-    }
-
-    public static boolean hasEnergyCard(ItemStack is) {
-        ItemStackNBT data = ItemStackNBT.of(is);
-        return hasEnergyCard(data);
-    }
-
-    private static boolean hasEnergyCard(ItemStackNBT data) {
-        return data.hasKey(Constants.INFINITY_ENERGY_CARD) && data.getBoolean(Constants.INFINITY_ENERGY_CARD);
-    }
-
     public boolean hasEnergyCard() {
-        return hasEnergyCard(item);
+        return Util.hasEnergyCard(item);
     }
 
     @Override

@@ -16,9 +16,9 @@ import com.asdflj.ae2thing.common.storage.ITFluidCellInventory;
 import com.asdflj.ae2thing.common.storage.ITFluidCellInventoryHandler;
 import com.asdflj.ae2thing.common.storage.infinityCell.InfinityFluidStorageCellInventory;
 import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.NameConst;
 import com.glodblock.github.api.FluidCraftAPI;
-import com.gtnewhorizon.gtnhlib.item.ItemStackNBT;
 
 import appeng.api.AEApi;
 import appeng.api.config.FuzzyMode;

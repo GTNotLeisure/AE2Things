@@ -1,7 +1,5 @@
 package com.asdflj.ae2thing.common.item;
 
-import static com.asdflj.ae2thing.api.WirelessObject.hasEnergyCard;
-import static com.asdflj.ae2thing.api.WirelessObject.hasInfinityBoosterCard;
 import static com.asdflj.ae2thing.loader.recipe.WirelessTerminalEnergyRecipe.getEnergyCard;
 import static com.asdflj.ae2thing.loader.recipe.WirelessTerminalQuantumBridgeRecipe.getInfinityBoosterCard;
 import static net.minecraft.client.gui.GuiScreen.isCtrlKeyDown;
@@ -30,6 +28,7 @@ import com.asdflj.ae2thing.inventory.item.WirelessDualInterfaceTerminalInventory
 import com.asdflj.ae2thing.loader.IRegister;
 import com.asdflj.ae2thing.util.InvUtil;
 import com.asdflj.ae2thing.util.NameConst;
+import com.asdflj.ae2thing.util.Util;
 import com.science.gtnl.api.IYogTerminal;
 
 import appeng.api.AEApi;
@@ -70,7 +69,7 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
             return new WirelessObject(stack, world, x, y, z, player)
                 .getInventory(WirelessDualInterfaceTerminalInventory.class);
         } catch (Exception e) {
-            player.addChatMessage(PlayerMessages.OutOfRange.get());
+            player.addChatMessage(PlayerMessages.OutOfRange.toChat());
             return null;
         }
     }
@@ -86,10 +85,10 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
         }
         if (isCtrlKeyDown()) {
             toolTip.add(I18n.format(NameConst.TT_WIRELESS_INSTALLED));
-            if (hasInfinityBoosterCard(stack) && getInfinityBoosterCard() != null) {
+            if (Util.hasInfinityBoosterCard(stack) && getInfinityBoosterCard() != null) {
                 toolTip.add("  " + EnumChatFormatting.GOLD + getInfinityBoosterCard().getDisplayName());
             }
-            if (hasEnergyCard(stack) && getEnergyCard() != null) {
+            if (Util.hasEnergyCard(stack) && getEnergyCard() != null) {
                 toolTip.add("  " + EnumChatFormatting.GOLD + getEnergyCard().getDisplayName());
             }
         } else {

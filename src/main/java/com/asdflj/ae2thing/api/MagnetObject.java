@@ -2,19 +2,18 @@ package com.asdflj.ae2thing.api;
 
 import java.util.List;
 
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.AxisAlignedBB;
 import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 
 import com.asdflj.ae2thing.common.Config;
-import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.storage.CellInventory;
 
 import appeng.api.AEApi;
@@ -34,25 +33,15 @@ public class MagnetObject {
     public static String modeKey = Constants.MAGNET_MODE_KEY;
     private static final int range = Config.magnetRange;
 
-    private final NBTTagCompound data;
+    private final ItemStackNBT data;
     private Mode currentMode;
     private IItemList<IAEItemStack> blackList;
     private final ItemStack item;
     private CellInventory inventory;
 
-    public static MagnetObject getMagnet(EntityPlayer player) {
-        for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
-            ItemStack stack = player.inventory.getStackInSlot(i);
-            if (stack != null && stack.getItem() instanceof ItemBackpackTerminal) {
-                return new MagnetObject(stack);
-            }
-        }
-        return null;
-    }
-
     public MagnetObject(ItemStack is) {
         this.item = is;
-        this.data = Platform.openNbtData(is);
+        this.data = ItemStackNBT.of(is);
         int mode = data.getByte(modeKey);
         this.currentMode = mode >= 0 && mode < Mode.values().length ? Mode.values()[mode] : Mode.Off;
     }
@@ -60,12 +49,6 @@ public class MagnetObject {
     private void addBlackItems(IAEItemStack is) {
         this.getBlackList()
             .add(is);
-    }
-
-    public void clearBlackList() {
-        this.blackList = AEApi.instance()
-            .storage()
-            .createPrimitiveItemList();
     }
 
     private IItemList<IAEItemStack> getBlackList() {
@@ -121,7 +104,7 @@ public class MagnetObject {
     }
 
     public void doMagnet(World world, Entity entity) {
-        if (!(entity instanceof EntityPlayer)) return;
+        if (!(entity instanceof EntityPlayer player)) return;
         int range = MagnetObject.range;
 
         List<EntityItem> items = world.getEntitiesWithinAABB(
@@ -145,7 +128,7 @@ public class MagnetObject {
                 entity.posZ - 0.2 + (world.rand.nextDouble() * 0.4));
 
             if (Platform.isServer() && this.isBackpack()) {
-                if (this.injectItems((EntityPlayer) entity, item)) {
+                if (this.injectItems(player, item)) {
                     item.setDead();
                 }
             }
@@ -161,7 +144,6 @@ public class MagnetObject {
                 AxisAlignedBB
                     .getBoundingBox(entity.posX, entity.posY, entity.posZ, entity.posX, entity.posY, entity.posZ)
                     .expand(4, 4, 4));
-            EntityPlayer player = (EntityPlayer) entity;
             for (EntityXPOrb orb : xp) {
                 if (orb.field_70532_c == 0 && orb.isEntityAlive()) {
                     if (MinecraftForge.EVENT_BUS.post(new PlayerPickupXpEvent(player, orb))) continue;
@@ -186,6 +168,7 @@ public class MagnetObject {
         return this.getMode() == Mode.Inv;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean isOff() {
         return this.getMode() == Mode.Off;
     }

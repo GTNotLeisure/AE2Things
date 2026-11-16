@@ -1,23 +1,21 @@
 package com.asdflj.ae2thing.loader.recipe;
 
-import static com.asdflj.ae2thing.api.WirelessObject.hasInfinityBoosterCard;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.crafting.ShapelessRecipes;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.world.World;
 
 import com.asdflj.ae2thing.api.Constants;
+import com.asdflj.ae2thing.util.Util;
 
-import appeng.util.Platform;
 import cpw.mods.fml.common.registry.GameRegistry;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -74,7 +72,7 @@ public class WirelessTerminalQuantumBridgeRecipe extends ShapelessRecipes {
             && terminalClass.contains(
                 term.getItem()
                     .getClass())
-            && !hasInfinityBoosterCard(term)
+            && !Util.hasInfinityBoosterCard(term)
             && isQuantumBridgeCard(infinityBoosterCard);
     }
 
@@ -90,9 +88,7 @@ public class WirelessTerminalQuantumBridgeRecipe extends ShapelessRecipes {
 
     private ItemStack installQuantumBridgeCard(ItemStack is) {
         is = is.copy();
-        NBTTagCompound data = Platform.openNbtData(is);
-        data.setBoolean(Constants.INFINITY_BOOSTER_CARD, true);
-        is.setTagCompound(data);
+        ItemStackNBT.setBoolean(is, Constants.INFINITY_BOOSTER_CARD, true);
         return is;
     }
 

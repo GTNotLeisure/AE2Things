@@ -1,7 +1,6 @@
 package com.asdflj.ae2thing.util;
 
 import java.lang.reflect.Field;
-import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
@@ -40,10 +39,7 @@ import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.network.SPacketItemGuiHint;
 import com.glodblock.github.client.gui.FCGuiTextField;
 import com.glodblock.github.common.item.ItemFluidDrop;
-import com.glodblock.github.common.item.ItemFluidPacket;
-import com.mojang.authlib.GameProfile;
 
-import appeng.api.AEApi;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridHost;
 import appeng.api.networking.IGridNode;
@@ -62,10 +58,8 @@ import appeng.container.implementations.ContainerCraftConfirm;
 import appeng.core.AELog;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketCraftingTreeData;
-import appeng.core.worlddata.WorldData;
 import appeng.crafting.v2.CraftingJobV2;
 import appeng.integration.modules.NEI;
-import appeng.items.tools.powered.ToolWirelessTerminal;
 import appeng.me.cache.CraftingGridCache;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
@@ -73,8 +67,6 @@ import codechicken.nei.recipe.StackInfo;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.registry.GameRegistry;
-import cpw.mods.fml.relauncher.Side;
-import cpw.mods.fml.relauncher.SideOnly;
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import it.unimi.dsi.fastutil.ints.IntObjectPair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -112,6 +104,7 @@ public class Util {
         return AEStackTypeRegistry.getSortedTypes();
     }
 
+    @SuppressWarnings("rawtypes")
     public static boolean replan(EntityPlayer player, appeng.container.implementations.ContainerCraftConfirm c) {
         if (Ae2Reflect.getJob(c) == null) {
             return false;
@@ -159,6 +152,7 @@ public class Util {
         return false;
     }
 
+    @SuppressWarnings("rawtypes")
     public static void sendCraftingTree(EntityPlayer player, ContainerCraftConfirm c) {
         ICraftingJob job = Ae2Reflect.getJob(c);
         if (job instanceof CraftingJobV2 jobV2 && player instanceof EntityPlayerMP playerMP) {
@@ -173,15 +167,6 @@ public class Util {
     public static boolean isSameDimensionalCoord(DimensionalCoord a, DimensionalCoord b) {
         return a != null && b != null && a.x == b.x && a.y == b.y && a.z == b.z && a.getDimension() == b.getDimension();
     }
-
-    public static int getPlayerID(EntityPlayer player) {
-        final GameProfile profile = player.getGameProfile();
-        return WorldData.instance()
-            .playerData()
-            .getPlayerID(profile);
-    }
-
-    private static int randTickSeed = 0;
 
     public static int findBackPackTerminal(EntityPlayer player, ItemStack is) {
         IntObjectPair<ItemStack> found = scanItem(player, PlayerInvType.PLAYER_INV, is, ItemBackpackTerminal.class);
@@ -205,17 +190,6 @@ public class Util {
         return found != null ? found.leftInt() : PlayerInvType.NO_SLOT;
     }
 
-    public static IGrid getWirelessGrid(EntityPlayer player) {
-        for (int x = 0; x < player.inventory.mainInventory.length; x++) {
-            ItemStack item = player.inventory.mainInventory[x];
-            if (item == null || item.getItem() == null) continue;
-            IGridNode node = getWirelessGridNode(item);
-            if (node == null) continue;
-            return node.getGrid();
-        }
-        return null;
-    }
-
     public static String getModId(IAEItemStack item) {
         if (item.getItem() instanceof ItemFluidDrop) {
             FluidStack fs = ItemFluidDrop.getFluidStack(item.getItemStack());
@@ -234,10 +208,6 @@ public class Util {
         }
     }
 
-    public static boolean isFluidPacket(ItemStack stack) {
-        return stack != null && stack.getItem() instanceof ItemFluidPacket;
-    }
-
     @Nonnull
     public static String getDisplayName(IAEItemStack item) {
         FluidStack fs = StackInfo.getFluid(item.getItemStack());
@@ -245,40 +215,6 @@ public class Util {
             return fs.getLocalizedName();
         }
         return Platform.getItemDisplayName(item);
-    }
-
-    public static IGridHost getWirelessGridHost(ItemStack is) {
-        if (is.getItem() instanceof ToolWirelessTerminal) {
-            String key = ((ToolWirelessTerminal) is.getItem()).getEncryptionKey(is);
-            return (IGridHost) AEApi.instance()
-                .registries()
-                .locatable()
-                .getLocatableBy(Long.parseLong(key));
-        }
-        return null;
-    }
-
-    public static IGridNode getWirelessGridNode(ItemStack is) {
-        IGridHost host = getWirelessGridHost(is);
-        if (host == null) return null;
-        return host.getGridNode(ForgeDirection.UNKNOWN);
-    }
-
-    public static int findItemStack(EntityPlayer player, ItemStack itemStack) {
-        for (int x = 0; x < player.inventory.mainInventory.length; x++) {
-            ItemStack item = player.inventory.mainInventory[x];
-            if (item == null) continue;
-            if (Platform.isSameItemPrecise(item, itemStack)) {
-                return x;
-            }
-        }
-        return -1;
-    }
-
-    public static long genSingularityFreq() {
-        long freq = (new Date()).getTime() * 100 + (randTickSeed) % 100;
-        randTickSeed++;
-        return freq;
     }
 
     public static FluidStack getFluidFromItem(ItemStack stack) {
@@ -314,22 +250,6 @@ public class Util {
             }
         }
         return result;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public static int getLimitFPS() {
-        Minecraft mc = Minecraft.getMinecraft();
-        return mc.gameSettings.limitFramerate;
-    }
-
-    @SideOnly(Side.CLIENT)
-    public static int getCurrentFPS() {
-        try {
-            Field field = Minecraft.class.getDeclaredField("debugFPS");
-            field.setAccessible(true);
-            return field.getInt(Minecraft.getMinecraft());
-        } catch (Exception ignored) {}
-        return 0;
     }
 
     public static IDisplayRepo getDisplayRepo(AEBaseGui gui) {
@@ -454,15 +374,24 @@ public class Util {
             : new IntObjectImmutablePair<>(PlayerInvType.encode(fallbackSlot, type), fallback);
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean sameStackType(ItemStack first, ItemStack second) {
         return first != null && second != null
             && first.isItemEqual(second)
             && ItemStack.areItemStackTagsEqual(first, second);
     }
 
+    public static boolean hasInfinityBoosterCard(ItemStack item) {
+        return ItemStackNBT.getBoolean(item, Constants.INFINITY_BOOSTER_CARD);
+    }
+
+    public static boolean hasEnergyCard(ItemStack is) {
+        return ItemStackNBT.getBoolean(is, Constants.INFINITY_ENERGY_CARD);
+    }
+
     public static class DimensionalCoordSide extends DimensionalCoord {
 
-        private ForgeDirection side = ForgeDirection.UNKNOWN;
+        private final ForgeDirection side;
         private final String name;
 
         public DimensionalCoordSide(final int _x, final int _y, final int _z, final int _dim, ForgeDirection side,

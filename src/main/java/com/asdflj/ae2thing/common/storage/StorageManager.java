@@ -15,7 +15,7 @@ import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.common.Config;
 import com.asdflj.ae2thing.common.item.BaseCellItem;
-import com.gtnewhorizon.gtnhlib.item.ItemStackNBT;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 
 import appeng.api.implementations.tiles.IChestOrDrive;
 import appeng.api.networking.IGrid;
@@ -86,8 +86,7 @@ public class StorageManager extends WorldSavedData {
 
     public DataStorage getStorage(ItemStack item) {
         if (item.getItem() instanceof BaseCellItem bci) {
-            ItemStackNBT data = ItemStackNBT.of(item);
-            return this.getStorage(data.getString(Constants.DISKUUID), bci.getStackType());
+            return this.getStorage(ItemStackNBT.getString(item, Constants.DISKUUID), bci.getStackType());
         }
         return null;
     }

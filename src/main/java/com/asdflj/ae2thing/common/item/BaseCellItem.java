@@ -17,8 +17,8 @@ import com.asdflj.ae2thing.inventory.ItemCellLinkInventory;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
 import com.asdflj.ae2thing.inventory.item.IItemInventory;
 import com.asdflj.ae2thing.util.BlockPos;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.NameConst;
-import com.gtnewhorizon.gtnhlib.item.ItemStackNBT;
 
 public abstract class BaseCellItem extends BaseItem implements IItemInventory, IBaseCellItem, IItemInventoryHandler {
 
@@ -30,8 +30,7 @@ public abstract class BaseCellItem extends BaseItem implements IItemInventory, I
     @Override
     public ItemStack onItemRightClick(final ItemStack item, final World w, final EntityPlayer player) {
         if (player.isSneaking()) {
-            ItemStackNBT data = ItemStackNBT.of(item);
-            if (data.getBoolean(Constants.LINKED)) {
+            if (ItemStackNBT.getBoolean(item, Constants.LINKED)) {
                 item.setTagCompound(null);
                 player.inventory.setInventorySlotContents(player.inventory.currentItem, item);
             }

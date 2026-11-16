@@ -2,10 +2,10 @@ package com.asdflj.ae2thing.inventory;
 
 import static com.asdflj.ae2thing.api.Constants.MessageType.UPDATE_PLAYER_CURRENT_ITEM;
 
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.AE2ThingAPI;
@@ -34,8 +34,7 @@ public class ItemCellLinkInventory extends BiggerAppEngInventory implements Base
     }
 
     private void genUUID() {
-        if (Platform.isServer() && Platform.openNbtData(is)
-            .hasNoTags()) {
+        if (Platform.isServer() && ItemStackNBT.hasNoTags(is)) {
             StorageManager m = AE2ThingAPI.instance()
                 .getStorageManager();
             m.getStorage(this.is, this.player);
@@ -76,7 +75,6 @@ public class ItemCellLinkInventory extends BiggerAppEngInventory implements Base
 
     @Override
     public String getUUID() {
-        NBTTagCompound data = Platform.openNbtData(is);
-        return data.getString(Constants.DISKUUID);
+        return ItemStackNBT.getString(is, Constants.DISKUUID);
     }
 }

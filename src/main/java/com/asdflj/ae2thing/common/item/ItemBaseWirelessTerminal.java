@@ -10,7 +10,6 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.event.ForgeEventFactory;
 
-import com.asdflj.ae2thing.api.WirelessObject;
 import com.asdflj.ae2thing.client.gui.GuiWirelessConnectorTerminal;
 import com.asdflj.ae2thing.client.me.WirelessConnectorRepo;
 import com.asdflj.ae2thing.integration.ae2stuff.Ae2StuffIntegration;
@@ -18,6 +17,7 @@ import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
 import com.asdflj.ae2thing.inventory.item.IItemInventory;
 import com.asdflj.ae2thing.util.BlockPos;
+import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.AEApi;
 import appeng.api.features.ILocatable;
@@ -69,13 +69,13 @@ public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal impl
                 .registries()
                 .wireless();
             if (!term.isWirelessTerminal(item)) {
-                player.addChatMessage(PlayerMessages.DeviceNotWirelessTerminal.get());
+                player.addChatMessage(PlayerMessages.DeviceNotWirelessTerminal.toChat());
                 return item;
             }
             final IWirelessTermHandler handler = term.getWirelessTerminalHandler(item);
             final String unparsedKey = handler.getEncryptionKey(item);
             if (unparsedKey.isEmpty()) {
-                player.addChatMessage(PlayerMessages.DeviceNotLinked.get());
+                player.addChatMessage(PlayerMessages.DeviceNotLinked.toChat());
                 return item;
             }
             final long parsedKey = Long.parseLong(unparsedKey);
@@ -84,7 +84,7 @@ public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal impl
                 .locatable()
                 .getLocatableBy(parsedKey);
             if (securityStation == null) {
-                player.addChatMessage(PlayerMessages.StationCanNotBeLocated.get());
+                player.addChatMessage(PlayerMessages.StationCanNotBeLocated.toChat());
                 return item;
             }
             if (handler.hasPower(player, 0.5, item)) {
@@ -95,7 +95,7 @@ public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal impl
                     ForgeDirection.UNKNOWN,
                     this.guiGuiType(item));
             } else {
-                player.addChatMessage(PlayerMessages.DeviceNotPowered.get());
+                player.addChatMessage(PlayerMessages.DeviceNotPowered.toChat());
             }
         }
 
@@ -118,12 +118,12 @@ public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal impl
 
     @Override
     public boolean hasInfinityPower(ItemStack is) {
-        return WirelessObject.hasEnergyCard(is);
+        return Util.hasEnergyCard(is);
     }
 
     @Override
     public boolean hasInfinityRange(ItemStack is) {
-        return WirelessObject.hasInfinityBoosterCard(is);
+        return Util.hasInfinityBoosterCard(is);
     }
 
     protected abstract GuiType guiGuiType(ItemStack item);

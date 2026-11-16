@@ -17,8 +17,8 @@ import com.asdflj.ae2thing.common.storage.ICellInventoryHandler;
 import com.asdflj.ae2thing.common.storage.ITCellInventory;
 import com.asdflj.ae2thing.common.storage.infinityCell.InfinityItemStorageCellInventory;
 import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.NameConst;
-import com.gtnewhorizon.gtnhlib.item.ItemStackNBT;
 
 import appeng.api.AEApi;
 import appeng.api.config.FuzzyMode;

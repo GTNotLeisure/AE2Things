@@ -24,7 +24,7 @@ import com.asdflj.ae2thing.inventory.ItemPatternRefillInventory;
 import com.asdflj.ae2thing.inventory.ItemPatternsInventory;
 import com.asdflj.ae2thing.inventory.SlotBackedAEStackInventory;
 import com.asdflj.ae2thing.util.GTNLUtil;
-import com.asdflj.ae2thing.util.NHUtil;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.config.Settings;
@@ -127,7 +127,8 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
     }
 
     private void readFromNBT() {
-        NBTTagCompound data = NHUtil.getNBTData(this.obj.getItemStack());
+        final ItemStack is = this.obj.getItemStack();
+        final ItemStackNBT data = ItemStackNBT.of(is);
         this.setSubstitution(data.getBoolean("substitute"));
         this.setCombineMode(data.getBoolean("combine"));
         this.setBeSubstitute(data.getBoolean("beSubstitute"));
@@ -135,24 +136,24 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
         this.setInverted(data.getBoolean("inverted"));
         this.setActivePage(data.getInteger("activePage"));
         this.setCraftingRecipe(data.getBoolean("craftingMode"));
-        if (data.hasKey("clickedInterface")) {
-            NBTTagCompound tileMsg = (NBTTagCompound) data.getTag("clickedInterface");
+        NBTTagCompound tileMsg = data.getCompoundTag("clickedInterface");
+        if (tileMsg != null) {
             this.tile = Util.DimensionalCoordSide.readFromNBT(tileMsg);
         }
-        this.terminalSettings.readFromNBT(data);
+        this.terminalSettings.readFromNBT(ItemStackNBT.copy(is));
     }
 
     @Override
     public IConfigManager getConfigManager() {
         final ConfigManager out = new ConfigManager((manager, _, _) -> {
-            final NBTTagCompound data = NHUtil.getNBTData(this.getItemStack());
+            final NBTTagCompound data = ItemStackNBT.get(this.getItemStack());
             manager.writeToNBT(data);
             saveSettings();
         });
         out.registerSetting(Settings.SORT_BY, SortOrder.NAME);
         out.registerSetting(Settings.VIEW_MODE, ViewItems.ALL);
         out.registerSetting(Settings.SORT_DIRECTION, SortDir.ASCENDING);
-        out.readFromNBT(NHUtil.getNBTDataReadOnly(this.getItemStack()));
+        out.readFromNBT(ItemStackNBT.get(this.getItemStack()));
         return out;
     }
 
@@ -298,16 +299,15 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
     }
 
     public NBTTagCompound getPanelPositions() {
-        NBTTagCompound data = NHUtil.getNBTData(this.nbtSource());
-        if (!data.hasKey(PANEL_POSITIONS_TAG)) {
-            return new NBTTagCompound();
+        final ItemStackNBT data = ItemStackNBT.of(this.nbtSource());
+        final NBTTagCompound stored = data.getCompoundTag(PANEL_POSITIONS_TAG);
+        final NBTTagCompound positions = new NBTTagCompound();
+        if (stored != null) {
+            copyPanelPosition(stored, positions, "patternX");
+            copyPanelPosition(stored, positions, "patternY");
+            copyPanelPosition(stored, positions, "itemX");
+            copyPanelPosition(stored, positions, "itemY");
         }
-        NBTTagCompound stored = data.getCompoundTag(PANEL_POSITIONS_TAG);
-        NBTTagCompound positions = new NBTTagCompound();
-        copyPanelPosition(stored, positions, "patternX");
-        copyPanelPosition(stored, positions, "patternY");
-        copyPanelPosition(stored, positions, "itemX");
-        copyPanelPosition(stored, positions, "itemY");
         return positions;
     }
 
@@ -328,7 +328,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
         copyPanelPosition(positions, stored, "patternY");
         copyPanelPosition(positions, stored, "itemX");
         copyPanelPosition(positions, stored, "itemY");
-        NBTTagCompound data = NHUtil.getNBTData(this.nbtSource());
+        ItemStackNBT data = ItemStackNBT.of(this.nbtSource());
         data.setTag(PANEL_POSITIONS_TAG, stored);
         this.saveSettings();
     }
@@ -552,7 +552,8 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
     }
 
     private void writeToNBT() {
-        NBTTagCompound data = NHUtil.getNBTData(this.getItemStack());
+        ItemStack is = this.getItemStack();
+        ItemStackNBT data = ItemStackNBT.of(is);
         data.setBoolean("craftingMode", this.craftingMode);
         data.setBoolean("substitute", this.substitute);
         data.setBoolean("combine", this.combine);
@@ -570,7 +571,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
             tile.writeToNBT(tileMsg);
         }
         data.setTag("clickedInterface", tileMsg);
-        this.terminalSettings.writeToNBT(data);
+        this.terminalSettings.writeToNBT(is);
     }
 
     @Override
