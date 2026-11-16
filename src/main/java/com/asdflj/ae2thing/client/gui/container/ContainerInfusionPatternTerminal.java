@@ -4,8 +4,6 @@ import static com.asdflj.ae2thing.api.Constants.TC_CRAFTING;
 
 import java.util.List;
 
-import com.asdflj.ae2thing.util.ItemStackNBT;
-import com.google.common.primitives.Ints;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.entity.player.InventoryPlayer;
@@ -21,10 +19,11 @@ import com.asdflj.ae2thing.client.gui.container.slot.InfusionTerminalSlotPattern
 import com.asdflj.ae2thing.client.gui.container.widget.IWidgetPatternContainer;
 import com.asdflj.ae2thing.common.item.ItemPhial;
 import com.asdflj.ae2thing.common.parts.PartInfusionPatternTerminal;
-import com.asdflj.ae2thing.inventory.AEStackItemInventory;
 import com.asdflj.ae2thing.inventory.IPatternTerminal;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.glodblock.github.common.item.ItemFluidEncodedPattern;
 import com.glodblock.github.util.Util;
+import com.google.common.primitives.Ints;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
@@ -74,12 +73,13 @@ public class ContainerInfusionPatternTerminal extends BasePatternContainerMonito
 
     @Override
     public void updateVirtualSlot(StorageName name, int slotId, IAEStack<?> aes) {
+        final ItemStack stack = aes == null ? null : aes.getItemStackForNEI();
         switch (name) {
             case CRAFTING_OUTPUT -> {
                 if (slotId < 0 || slotId >= this.output.getSizeInventory()) return;
-                this.output.setInventorySlotContents(slotId, AEStackItemInventory.toItemStack(aes));
+                this.output.setInventorySlotContents(slotId, stack);
             }
-            case CRAFTING_INPUT -> this.crafting.setInventorySlotContents(0, AEStackItemInventory.toItemStack(aes));
+            case CRAFTING_INPUT -> this.crafting.setInventorySlotContents(0, stack);
             default -> {}
         }
     }

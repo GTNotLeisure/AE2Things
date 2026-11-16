@@ -2,7 +2,6 @@ package com.asdflj.ae2thing.api;
 
 import java.util.List;
 
-import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.resources.I18n;
@@ -13,6 +12,7 @@ import net.minecraft.util.ChatComponentText;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.network.SPacketCraftingDebugCardUpdate;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.me.Grid;

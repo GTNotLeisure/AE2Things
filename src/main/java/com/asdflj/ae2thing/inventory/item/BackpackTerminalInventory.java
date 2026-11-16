@@ -2,15 +2,17 @@ package com.asdflj.ae2thing.inventory.item;
 
 import java.util.List;
 
-import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.common.storage.RefreshableStorageMonitor;
 import com.asdflj.ae2thing.inventory.ItemBiggerAppEngInventory;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;
@@ -40,7 +42,6 @@ import appeng.util.IterationCounter;
 import appeng.util.TerminalSettings;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.Reference2BooleanMap;
-import org.jetbrains.annotations.NotNull;
 
 public class BackpackTerminalInventory extends MEMonitorHandler<IAEItemStack> implements ITerminalHost,
     IInventorySlotAware, IGuiItemObject, IEnergySource, ITerminalTypeFilterProvider, RefreshableStorageMonitor {

@@ -7,7 +7,6 @@ import org.jetbrains.annotations.Nullable;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.storage.IMEMonitor;
-import appeng.api.storage.data.IAEStack;
 import thaumcraft.api.aspects.Aspect;
 import thaumicenergistics.common.integration.tc.EssentiaItemContainerHelper;
 import thaumicenergistics.common.storage.AEEssentiaStack;
@@ -36,8 +35,4 @@ public final class AspectUtil {
         return (IMEMonitor<AEEssentiaStack>) storageGrid.getMEMonitor(AEEssentiaStackType.ESSENTIA_STACK_TYPE);
     }
 
-    @Nullable
-    public static IAEStack<?> toAEStack(ItemStack stack) {
-        return AEEssentiaStackType.ESSENTIA_STACK_TYPE.convertStackFromItem(stack);
-    }
 }

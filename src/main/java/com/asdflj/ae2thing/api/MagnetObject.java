@@ -2,7 +2,6 @@ package com.asdflj.ae2thing.api;
 
 import java.util.List;
 
-import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.item.EntityItem;
 import net.minecraft.entity.item.EntityXPOrb;
@@ -15,6 +14,7 @@ import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 
 import com.asdflj.ae2thing.common.Config;
 import com.asdflj.ae2thing.common.storage.CellInventory;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 
 import appeng.api.AEApi;
 import appeng.api.config.Actionable;

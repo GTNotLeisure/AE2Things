@@ -2,7 +2,6 @@ package com.asdflj.ae2thing.inventory;
 
 import static com.asdflj.ae2thing.api.Constants.MessageType.UPDATE_PLAYER_CURRENT_ITEM;
 
-import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -13,6 +12,7 @@ import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.common.storage.StorageManager;
 import com.asdflj.ae2thing.common.storage.infinityCell.BaseInventory;
 import com.asdflj.ae2thing.network.SPacketMEItemInvUpdate;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 
 import appeng.container.interfaces.IInventorySlotAware;
 import appeng.tile.inventory.BiggerAppEngInventory;

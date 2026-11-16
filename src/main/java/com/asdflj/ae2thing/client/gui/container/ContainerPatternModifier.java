@@ -1,41 +1,33 @@
 package com.asdflj.ae2thing.client.gui.container;
 
-import com.asdflj.ae2thing.util.ItemStackNBT;
+import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraftforge.fluids.FluidStack;
+import net.minecraft.util.ChatComponentTranslation;
 
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.client.gui.container.slot.SlotEncodedPatternInput;
-import com.asdflj.ae2thing.inventory.AEStackItemInventory;
 import com.asdflj.ae2thing.inventory.item.PatternModifierInventory;
-import com.glodblock.github.common.item.ItemFluidDrop;
+import com.asdflj.ae2thing.util.ItemStackNBT;
+import com.asdflj.ae2thing.util.Util;
 import com.glodblock.github.common.item.ItemFluidEncodedPattern;
-import com.glodblock.github.common.item.ItemFluidPacket;
-import com.glodblock.github.util.Util;
 
 import appeng.api.AEApi;
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.StorageName;
-import appeng.api.storage.data.IAEFluidStack;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.container.AEBaseContainer;
 import appeng.container.interfaces.IVirtualSlotSource;
-import appeng.container.slot.SlotRestrictedInput;
 import appeng.container.sync.SyncRegistrar;
 import appeng.container.sync.handlers.AEStackInventorySyncHandler;
+import appeng.core.AELog;
 import appeng.tile.inventory.IAEStackInventory;
-import appeng.util.Platform;
-import appeng.util.item.AEFluidStack;
-import appeng.util.item.AEItemStack;
-import codechicken.nei.recipe.StackInfo;
 
 public class ContainerPatternModifier extends AEBaseContainer implements IPatternValueContainer, IVirtualSlotSource {
 
@@ -45,14 +37,14 @@ public class ContainerPatternModifier extends AEBaseContainer implements IPatter
     public void updateVirtualSlot(StorageName name, int slotId, IAEStack<?> aes) {
         if (this.it == null) return;
         final IAEStackInventory inv = this.it.getAEInventoryByName(name);
-        if (inv == null || inv.getSizeInventory() <= 0) return;
+        if (inv == null || slotId < 0 || slotId >= inv.getSizeInventory()) return;
         if (aes == null) {
-            inv.putAEStackInSlot(0, null);
+            inv.putAEStackInSlot(slotId, null);
             return;
         }
         final IAEStack<?> stored = aes.copy();
         stored.setStackSize(1);
-        inv.putAEStackInSlot(0, stored);
+        inv.putAEStackInSlot(slotId, stored);
     }
 
     @Override
@@ -60,7 +52,6 @@ public class ContainerPatternModifier extends AEBaseContainer implements IPatter
         return null;
     }
 
-    private final SlotRestrictedInput[] pattern = new SlotRestrictedInput[36];
     public final AEStackInventorySyncHandler replaceSourceSync;
     public final AEStackInventorySyncHandler replaceTargetSync;
     private static final ItemStack encodePattern = AEApi.instance()
@@ -79,53 +70,49 @@ public class ContainerPatternModifier extends AEBaseContainer implements IPatter
 
     public ContainerPatternModifier(InventoryPlayer ip, ITerminalHost host) {
         super(ip, host);
-        this.it = (PatternModifierInventory) host;
-        if (this.it == null) {
+        if (!(host instanceof PatternModifierInventory patternModifier)) {
+            this.it = null;
             this.patterns = null;
             this.replaceSourceSync = null;
             this.replaceTargetSync = null;
             return;
         }
+        this.it = patternModifier;
         this.patterns = this.it.getInventoryByName(Constants.PATTERN);
         final SyncRegistrar sync = this.syncRegistrar();
         final IAEStackInventory sourceInv = this.it.getAEInventoryByName(StorageName.CRAFTING_INPUT);
         final IAEStackInventory targetInv = this.it.getAEInventoryByName(StorageName.CRAFTING_OUTPUT);
         this.replaceSourceSync = sourceInv == null ? null : sync.aeStackInventory("replaceSource", sourceInv);
         this.replaceTargetSync = targetInv == null ? null : sync.aeStackInventory("replaceTarget", targetInv);
-        for (int i = 0; i < this.patterns.getSizeInventory(); i++) {
-            int x = (i % 9) * 18 + 8;
-            int y = (i / 9) * 18 + 19;
-            this.addSlotToContainer(this.pattern[i] = new SlotEncodedPatternInput(this.patterns, i, x, y, ip));
+        if (this.patterns != null) {
+            for (int i = 0; i < this.patterns.getSizeInventory(); i++) {
+                int x = (i % 9) * 18 + 8;
+                int y = (i / 9) * 18 + 19;
+                this.addSlotToContainer(new SlotEncodedPatternInput(this.patterns, i, x, y, ip));
+            }
         }
         this.lockPlayerInventorySlot(it.getInventorySlot());
         this.bindPlayerInventory(ip, 0, 125);
     }
 
-    public ItemStack getReplaceSource() {
-        return this.getReplaceStack(StorageName.CRAFTING_INPUT);
-    }
-
-    public ItemStack getReplaceTarget() {
-        return this.getReplaceStack(StorageName.CRAFTING_OUTPUT);
-    }
-
-    private ItemStack getReplaceStack(StorageName name) {
+    public IAEStack<?> getReplaceAEStack(StorageName name) {
         if (this.it == null) return null;
         final IAEStackInventory inv = this.it.getAEInventoryByName(name);
-        return inv == null ? null : AEStackItemInventory.toItemStack(inv.getAEStackInSlot(0));
+        return inv == null ? null : inv.getAEStackInSlot(0);
     }
 
     public void clearPattern() {
+        if (this.patterns == null) return;
         int blankPattern = 0;
         for (int i = 0; i < this.patterns.getSizeInventory(); i++) {
-            ItemStack itemStack = this.patterns.getStackInSlot(i);
+            final ItemStack itemStack = this.patterns.getStackInSlot(i);
             if (itemStack != null) {
                 blankPattern++;
                 this.patterns.setInventorySlotContents(i, null);
             }
         }
         if (blankPattern <= 0) return;
-        ItemStack pattern = AEApi.instance()
+        final ItemStack pattern = AEApi.instance()
             .definitions()
             .materials()
             .blankPattern()
@@ -158,122 +145,127 @@ public class ContainerPatternModifier extends AEBaseContainer implements IPatter
     }
 
     public void replacePattern() {
-        final ItemStack source = this.getReplaceSource();
+        if (this.patterns == null) return;
+        final IAEStack<?> source = this.getReplaceAEStack(StorageName.CRAFTING_INPUT);
         if (source == null) return;
-        final ItemStack target = this.getReplaceTarget();
-        try {
-            for (int i = 0; i < patterns.getSizeInventory(); i++) {
-                ItemStack stack = patterns.getStackInSlot(i);
-                if (stack != null && stack.getItem() instanceof ICraftingPatternItem cpi) {
-                    ICraftingPatternDetails details;
-                    if (stack.getItem() instanceof ItemFluidEncodedPattern fluidEncodedPattern) {
-                        details = fluidEncodedPattern
-                            .getPatternForItem(stack, this.getInventoryPlayer().player.worldObj);
-                    } else {
-                        details = cpi.getPatternForItem(stack, this.getInventoryPlayer().player.worldObj);
-                    }
-                    IAEStack<?>[] in = this.replacePattern(details.getAEInputs(), source, target, details);
-                    IAEStack<?>[] out = this.replacePattern(details.getAEOutputs(), source, target, details);
-                    encode(details, in, out, i);
-
+        final IAEStack<?> target = this.getReplaceAEStack(StorageName.CRAFTING_OUTPUT);
+        final EntityPlayer player = this.getPlayerInv().player;
+        int rewritten = 0;
+        int skipped = 0;
+        for (int i = 0; i < patterns.getSizeInventory(); i++) {
+            final ItemStack stack = patterns.getStackInSlot(i);
+            if (stack == null || !(stack.getItem() instanceof ICraftingPatternItem cpi)) continue;
+            try {
+                final ICraftingPatternDetails details = stack.getItem() instanceof ItemFluidEncodedPattern fluidPattern
+                    ? fluidPattern.getPatternForItem(stack, player.worldObj)
+                    : cpi.getPatternForItem(stack, player.worldObj);
+                if (details == null) {
+                    skipped++;
+                    continue;
                 }
+
+                final IAEStack<?>[] inputs = details.getAEInputs();
+                final IAEStack<?>[] outputs = details.getAEOutputs();
+                if (inputs == null || outputs == null) {
+                    skipped++;
+                    continue;
+                }
+
+                final IAEStack<?>[] in = this.replacePattern(inputs, source, target, details);
+                final IAEStack<?>[] out = this.replacePattern(outputs, source, target, details);
+                if (this.encode(details, in, out, i)) {
+                    rewritten++;
+                } else {
+                    skipped++;
+                }
+            } catch (Exception e) {
+                skipped++;
+                AELog.error(e, "[AE2Thing] Failed to rewrite pattern in slot " + i);
             }
-        } catch (Throwable ignored) {}
+        }
+        if (skipped > 0) {
+            player.addChatMessage(new ChatComponentTranslation("ae2thing.chat.pattern_modifier.skipped", skipped));
+        } else if (rewritten == 0) {
+            player.addChatMessage(new ChatComponentTranslation("ae2thing.chat.pattern_modifier.no_match"));
+        }
     }
 
     protected ItemStack stampAuthor(ItemStack patternStack) {
-        if (patternStack.stackTagCompound == null) {
-            patternStack.stackTagCompound = new NBTTagCompound();
-        }
-        patternStack.stackTagCompound.setString("author", this.getPlayerInv().player.getCommandSenderName());
+        ItemStackNBT.setString(patternStack, "author", this.getPlayerInv().player.getCommandSenderName());
         return patternStack;
     }
 
-    private void encode(ICraftingPatternDetails cpi, IAEStack<?>[] in, IAEStack<?>[] out, int slot) {
-        if (encodePattern == null || ultimatePattern == null) return;
-        NBTTagList inList = list2tagList(in);
-        NBTTagList outList = list2tagList(out);
-        NBTTagCompound tag = ItemStackNBT.copy(cpi.getPattern());
-        if (tag == null) tag = new NBTTagCompound();
-        tag.setTag("in", inList);
-        tag.setTag("out", outList);
-        ItemStack cp = (cpi.isCraftable() ? encodePattern : ultimatePattern).copy();
-        cp.setTagCompound(tag);
-        patterns.setInventorySlotContents(slot, stampAuthor(cp));
+    private boolean encode(ICraftingPatternDetails cpi, IAEStack<?>[] in, IAEStack<?>[] out, int slot) {
+        if (encodePattern == null || ultimatePattern == null) {
+            AELog.warn("[AE2Thing] Cannot rewrite pattern in slot %d: pattern item is missing", slot);
+            return false;
+        }
+        final ItemStackNBT source = ItemStackNBT.of(cpi.getPattern());
+        final boolean inputOnly = source.getBoolean("tunnel");
+        if (countNonEmpty(in) == 0 || (!inputOnly && countNonEmpty(out) == 0)) {
+            AELog.warn("[AE2Thing] Skip rewriting pattern in slot %d: it would become an empty pattern", slot);
+            return false;
+        }
+        final ItemStack base = inputOnly && cpi.getPattern() != null ? new ItemStack(
+            cpi.getPattern()
+                .getItem(),
+            1,
+            cpi.getPattern()
+                .getItemDamage())
+            : (cpi.isCraftable() ? encodePattern : ultimatePattern);
+        final ItemStack cp = base.copy();
+        cp.setTagCompound(source.copy());
+        ItemStackNBT.of(cp)
+            .removeTag("Inputs")
+            .removeTag("Outputs")
+            .setTag("in", list2tagList(in))
+            .setTag("out", list2tagList(out));
+        this.patterns.setInventorySlotContents(slot, stampAuthor(cp));
+        return true;
     }
 
     private NBTTagList list2tagList(IAEStack<?>[] list) {
         NBTTagList nbtTagList = new NBTTagList();
-        for (IAEStack<?> is : list) {
-            if (is == null) {
-                nbtTagList.appendTag(new NBTTagCompound());
-            } else {
-                final IAEStack<?> stack = toNativeStack(is);
-                nbtTagList.appendTag(stack == null ? new NBTTagCompound() : stack.toNBTGeneric());
-            }
+        for (final IAEStack<?> is : list) {
+            final IAEStack<?> stack = Util.toPatternStack(is);
+            nbtTagList.appendTag(stack == null ? new NBTTagCompound() : stack.toNBTGeneric());
         }
         return nbtTagList;
     }
 
-    private IAEStack<?> toNativeStack(IAEStack<?> stack) {
-        if (stack instanceof IAEItemStack item && ItemFluidDrop.isFluidStack(item.getItemStack())) {
-            final FluidStack fs = ItemFluidDrop.getFluidStack(item.getItemStack());
-            if (fs != null) {
-                final IAEFluidStack fluid = AEFluidStack.create(fs);
-                fluid.setStackSize(stack.getStackSize());
-                return fluid;
-            }
+    private static int countNonEmpty(IAEStack<?>[] list) {
+        int count = 0;
+        for (final IAEStack<?> stack : list) {
+            if (stack != null) count++;
         }
-        return stack;
+        return count;
     }
 
-    private boolean isSameItem(ItemStack stack1, ItemStack stack2) {
-        if (Util.isFluidPacket(stack1) || Util.isFluidPacket(stack2)) {
-            FluidStack fs1 = StackInfo.getFluid(stack1);
-            FluidStack fs2 = StackInfo.getFluid(stack2);
-            if (fs1 != null && fs2 != null) {
-                return fs1.getFluid()
-                    .equals(fs2.getFluid());
-            }
-            return false;
-
-        } else {
-            return Platform.isSameItemPrecise(stack1, stack2);
-        }
-    }
-
-    private IAEStack<?>[] replacePattern(IAEStack<?>[] list, ItemStack source, ItemStack target,
+    private IAEStack<?>[] replacePattern(IAEStack<?>[] list, IAEStack<?> source, IAEStack<?> target,
         ICraftingPatternDetails details) {
-        IAEStack<?>[] results = new IAEStack<?>[list.length];
+        final IAEStack<?>[] results = new IAEStack<?>[list.length];
         for (int i = 0; i < list.length; i++) {
-            IAEStack<?> aes = list[i];
+            final IAEStack<?> aes = list[i];
             if (aes == null) {
                 results[i] = null;
                 continue;
             }
-            if (isSameItem(aes.getItemStackForNEI(), source)) {
-                if ((details.isCraftable() && target != null
-                    && details.isValidItemForSlot(i, target, this.getPlayerInv().player.worldObj))
-                    || (!details.isCraftable() && target != null)) {
-                    if (Util.isFluidPacket(target)) {
-                        IAEItemStack fluidDrop = ItemFluidDrop.newAeStack(ItemFluidPacket.getFluidStack(target));
-                        if (fluidDrop != null) {
-                            fluidDrop.setStackSize(aes.getStackSize());
-                        }
-                        results[i] = fluidDrop;
-                        continue;
-                    }
-                    IAEItemStack t = AEItemStack.create(target);
-                    t.setStackSize(aes.getStackSize());
-                    results[i] = t;
-                } else if (target == null && !details.isCraftable()) {
-                    results[i] = null;
-                } else {
-                    results[i] = aes;
-                }
-            } else {
+            if (!aes.isSameType(source)) {
                 results[i] = aes;
+                continue;
             }
+            if (target == null) {
+                results[i] = details.isCraftable() ? aes : null;
+                continue;
+            }
+            if (details.isCraftable()
+                && !(target.isItem() && details.isValidItemForSlot(i, target, this.getPlayerInv().player.worldObj))) {
+                results[i] = aes;
+                continue;
+            }
+            final IAEStack<?> replaced = target.copy();
+            replaced.setStackSize(aes.getStackSize());
+            results[i] = replaced;
         }
         return results;
     }

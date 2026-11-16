@@ -4,7 +4,6 @@ import static com.asdflj.ae2thing.api.Constants.TC_CRAFTING;
 
 import java.util.List;
 
-import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -14,6 +13,7 @@ import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.client.textures.BlockTexture;
 import com.asdflj.ae2thing.inventory.IPatternTerminal;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 
 import appeng.api.AEApi;
 import appeng.api.implementations.ICraftingPatternItem;

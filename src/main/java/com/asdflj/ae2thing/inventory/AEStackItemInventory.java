@@ -7,16 +7,12 @@ import net.minecraft.nbt.NBTTagCompound;
 import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.util.InvUtil;
 import com.asdflj.ae2thing.util.Util;
-import com.glodblock.github.common.item.ItemFluidPacket;
 
 import appeng.api.storage.StorageName;
-import appeng.api.storage.data.IAEFluidStack;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.tile.inventory.IIAEStackInventory;
 import appeng.util.Platform;
-import codechicken.nei.item.ItemFluidDisplay;
 
 public class AEStackItemInventory implements IIAEStackInventory {
 
@@ -95,33 +91,5 @@ public class AEStackItemInventory implements IIAEStackInventory {
                 this.aeInventory.putAEStackInSlot(i, stack);
             }
         }
-    }
-
-    public static ItemStack toItemStack(IAEStack<?> stack) {
-        switch (stack) {
-            case null -> {
-                return null;
-            }
-            case IAEFluidStack fluid when fluid.getFluidStack() != null -> {
-                if (Platform.isClient()) {
-                    final ItemStack display = ItemFluidDisplay.createStack(
-                        fluid.getFluidStack()
-                            .getFluid(),
-                        stack.getStackSize());
-                    if (display != null) return display;
-                }
-                return ItemFluidPacket.newStack(fluid);
-            }
-            case IAEItemStack item -> {
-                final int size = (int) Math.min(Integer.MAX_VALUE, stack.getStackSize());
-                final ItemStack is = item.getItemStack()
-                    .copy();
-                is.stackSize = Math.max(size, 1);
-                return is;
-            }
-            default -> {
-            }
-        }
-        return stack.getItemStackForNEI();
     }
 }

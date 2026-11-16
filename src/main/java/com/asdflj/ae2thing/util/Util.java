@@ -293,6 +293,17 @@ public class Util {
         return converted != null ? converted : type.getStackFromContainerItem(is);
     }
 
+    public static IAEStack<?> toPatternStack(IAEStack<?> stack) {
+        if (!(stack instanceof IAEItemStack item)) return stack;
+        final ItemStack is = item.getItemStack();
+        if (is == null || is.getItem() == null) return item;
+        for (final IAEStackType<?> type : Util.getTypes()) {
+            final IAEStack<?> converted = type.convertStackFromItem(is);
+            if (converted != null) return converted;
+        }
+        return item;
+    }
+
     @SuppressWarnings("unchecked")
     private static void setSearchFieldText(AEBaseGui gui, Class<? extends AEBaseGui> clazz, String text) {
         try {

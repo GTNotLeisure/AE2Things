@@ -37,7 +37,8 @@ public final class ItemStackNBT {
 
     public ItemStackNBT setByte(String key, byte value) {
         ensureInitialized();
-        stack.getTagCompound().setByte(key, value);
+        stack.getTagCompound()
+            .setByte(key, value);
         return this;
     }
 
@@ -67,7 +68,8 @@ public final class ItemStackNBT {
 
     public byte getByte(String key) {
         if (stack.hasTagCompound()) {
-            return stack.getTagCompound().getByte(key);
+            return stack.getTagCompound()
+                .getByte(key);
         }
         return 0;
     }
@@ -115,6 +117,17 @@ public final class ItemStackNBT {
             .hasKey(key);
     }
 
+    public ItemStackNBT removeTag(String key) {
+        if (stack.hasTagCompound()) {
+            final NBTTagCompound nbt = stack.getTagCompound();
+            nbt.removeTag(key);
+            if (nbt.hasNoTags()) {
+                stack.setTagCompound(null);
+            }
+        }
+        return this;
+    }
+
     public boolean hasNoTags() {
         return !stack.hasTagCompound() || stack.getTagCompound()
             .hasNoTags();
@@ -148,7 +161,8 @@ public final class ItemStackNBT {
 
     public static void setBoolean(ItemStack stack, String key, boolean value) {
         ensureInitialized(stack);
-        stack.getTagCompound().setBoolean(key, value);
+        stack.getTagCompound()
+            .setBoolean(key, value);
     }
 
     // endregion
@@ -175,7 +189,8 @@ public final class ItemStackNBT {
 
     public static boolean hasNoTags(ItemStack stack) {
         if (stack.hasTagCompound()) {
-            return stack.getTagCompound().hasNoTags();
+            return stack.getTagCompound()
+                .hasNoTags();
         }
         return true;
     }
@@ -183,7 +198,8 @@ public final class ItemStackNBT {
     @Nullable
     public static NBTTagCompound copy(ItemStack stack) {
         if (stack.hasTagCompound()) {
-            return (NBTTagCompound) stack.getTagCompound().copy();
+            return (NBTTagCompound) stack.getTagCompound()
+                .copy();
         }
         return null;
     }

@@ -23,12 +23,11 @@ import com.asdflj.ae2thing.util.NameConst;
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
 import appeng.api.storage.ITerminalHost;
-import appeng.api.storage.data.IAEItemStack;
+import appeng.api.storage.StorageName;
+import appeng.api.storage.data.IAEStack;
 import appeng.client.gui.AEBaseGui;
 import appeng.core.localization.ColorUtils;
 import appeng.core.localization.GuiText;
-import appeng.util.Platform;
-import codechicken.nei.VisiblityData;
 import codechicken.nei.api.INEIGuiHandler;
 import codechicken.nei.api.TaggedInventoryArea;
 import cpw.mods.fml.common.Optional;
@@ -40,8 +39,6 @@ public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
     protected GuiButton replace;
     protected GuiButton clear;
     protected ContainerPatternModifier container;
-    private PatternValueSlot replaceSourceSlot;
-    private PatternValueSlot replaceTargetSlot;
 
     public GuiPatternModifier(InventoryPlayer inventory, ITerminalHost inv) {
         super(new ContainerPatternModifier(inventory, inv));
@@ -85,26 +82,25 @@ public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
     }
 
     private void initReplaceSlots() {
-        if (this.replaceSourceSlot != null) return;
         if (this.container.replaceSourceSync == null || this.container.replaceTargetSync == null) return;
-        this.replaceSourceSlot = new PatternValueSlot(
+        var replaceSourceSlot = new PatternValueSlot(
             8,
             93,
             this.container.replaceSourceSync,
             0,
-            (slot, type, button) -> true,
+            (_, _, _) -> true,
             true);
-        this.replaceTargetSlot = new PatternValueSlot(
+        var replaceTargetSlot = new PatternValueSlot(
             50,
             93,
             this.container.replaceTargetSync,
             0,
-            (slot, type, button) -> true,
+            (_, _, _) -> true,
             true);
-        this.replaceSourceSlot.setShowAmount(false);
-        this.replaceTargetSlot.setShowAmount(false);
-        this.registerVirtualSlots(this.replaceSourceSlot);
-        this.registerVirtualSlots(this.replaceTargetSlot);
+        replaceSourceSlot.setShowAmount(false);
+        replaceTargetSlot.setShowAmount(false);
+        this.registerVirtualSlots(replaceSourceSlot);
+        this.registerVirtualSlots(replaceTargetSlot);
     }
 
     @Override
@@ -136,48 +132,37 @@ public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
     }
 
     private void drawSlot(final Slot s) {
-        if (s instanceof SlotEncodedPatternInput p && p.getHasStack()
-            && p.getStack()
-                .getItem() != null
-            && p.getStack()
-                .getItem() instanceof ICraftingPatternItem cr
-            && this.container.getReplaceSource() != null) {
-            ItemStack item = this.container.getReplaceSource();
-            ICraftingPatternDetails details = cr
-                .getPatternForItem(s.getStack(), this.container.getInventoryPlayer().player.worldObj);
-            if (details != null) {
-                if (drawSlotBG(details.getInputs(), item, s)) return;
-                if (drawSlotBG(details.getOutputs(), item, s)) return;
-                this.zLevel = 100.0F;
-                itemRender.zLevel = 100.0F;
-                GL11.glDisable(GL11.GL_LIGHTING);
-                drawRect(
-                    s.xDisplayPosition,
-                    s.yDisplayPosition,
-                    16 + s.xDisplayPosition,
-                    16 + s.yDisplayPosition,
-                    ColorUtils.itemSlotOverlayUnpowered.getColor());
-                GL11.glEnable(GL11.GL_LIGHTING);
-                this.zLevel = 0.0F;
-                itemRender.zLevel = 0.0F;
-            }
-        }
+        if (!(s instanceof final SlotEncodedPatternInput p) || !p.getHasStack()) return;
+        final ItemStack stack = p.getStack();
+        if (stack.getItem() == null || !(stack.getItem() instanceof final ICraftingPatternItem cr)) return;
+        final IAEStack<?> aes = this.container.getReplaceAEStack(StorageName.CRAFTING_INPUT);
+        if (aes == null) return;
+        final ICraftingPatternDetails details = cr.getPatternForItem(stack, this.container.getInventoryPlayer().player.worldObj);
+        if (details == null) return;
+        if (drawSlotBG(details.getAEInputs(), aes)) return;
+        if (drawSlotBG(details.getAEOutputs(), aes)) return;
+        this.zLevel = 100.0F;
+        itemRender.zLevel = 100.0F;
+        GL11.glDisable(GL11.GL_LIGHTING);
+        drawRect(
+            s.xDisplayPosition,
+            s.yDisplayPosition,
+            16 + s.xDisplayPosition,
+            16 + s.yDisplayPosition,
+            ColorUtils.itemSlotOverlayUnpowered.getColor());
+        GL11.glEnable(GL11.GL_LIGHTING);
+        this.zLevel = 0.0F;
+        itemRender.zLevel = 0.0F;
     }
 
-    private boolean drawSlotBG(IAEItemStack[] list, ItemStack item, Slot s) {
-        for (IAEItemStack is : list) {
+    private boolean drawSlotBG(IAEStack<?>[] list, IAEStack<?> item) {
+        for (IAEStack<?> is : list) {
             if (is == null) continue;
-            ItemStack i = is.getItemStack();
-            if (Platform.isSameItemPrecise(i, item)) {
+            if (is.isSameType(item)) {
                 return true;
             }
         }
         return false;
-    }
-
-    @Override
-    public VisiblityData modifyVisiblity(GuiContainer gui, VisiblityData currentVisibility) {
-        return currentVisibility;
     }
 
     @Override
@@ -202,11 +187,6 @@ public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
         if (this.getVirtualMESlotUnderMouse() != null) {
             return super.handleDragNDrop(gui, mouseX, mouseY, draggedStack, button);
         }
-        return false;
-    }
-
-    @Override
-    public boolean hideItemPanelSlot(GuiContainer gui, int x, int y, int w, int h) {
         return false;
     }
 

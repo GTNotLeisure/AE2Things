@@ -6,7 +6,6 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
-import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.inventory.InventoryCrafting;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
@@ -14,6 +13,7 @@ import net.minecraft.item.crafting.ShapelessRecipes;
 import net.minecraft.world.World;
 
 import com.asdflj.ae2thing.api.Constants;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.Util;
 
 import cpw.mods.fml.common.registry.GameRegistry;

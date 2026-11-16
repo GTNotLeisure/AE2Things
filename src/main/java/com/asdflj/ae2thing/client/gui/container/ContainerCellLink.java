@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.client.gui.container;
 
-import com.asdflj.ae2thing.util.ItemStackNBT;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.IInventory;
@@ -8,6 +7,7 @@ import net.minecraft.item.ItemStack;
 
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.inventory.ItemCellLinkInventory;
+import com.asdflj.ae2thing.util.ItemStackNBT;
 
 import appeng.api.implementations.guiobjects.IGuiItemObject;
 import appeng.container.AEBaseContainer;
