@@ -1,7 +1,6 @@
 package com.asdflj.ae2thing.coremod.mixin.ae;
 
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.Iterator;
 import java.util.Map;
 
@@ -22,8 +21,10 @@ import com.asdflj.ae2thing.common.item.ItemInfinityStorageUniversalCell;
 import com.asdflj.ae2thing.common.storage.StorageManager;
 import com.asdflj.ae2thing.common.storage.UniversalCellHandler;
 import com.asdflj.ae2thing.common.storage.UniversalCellInventory;
+import com.asdflj.ae2thing.common.storage.UniversalCellInventoryHandler;
 import com.asdflj.ae2thing.coremod.hooker.CoreModHooks;
 import com.asdflj.ae2thing.util.ItemStackNBT;
+import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.config.Actionable;
 import appeng.api.config.FullnessMode;
@@ -37,9 +38,9 @@ import appeng.api.networking.storage.IStorageGrid;
 import appeng.api.networking.ticking.TickRateModulation;
 import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEMonitor;
-import appeng.api.storage.data.AEStackTypeRegistry;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IAEStackType;
+import appeng.api.storage.data.IItemList;
 import appeng.me.GridAccessException;
 import appeng.me.storage.CellInventoryHandler;
 import appeng.tile.grid.AENetworkInvTile;
@@ -75,8 +76,12 @@ public abstract class MixinTileIOPort extends AENetworkInvTile {
     @Shadow(remap = false)
     private int[] moveQueue;
 
+    @SuppressWarnings("unchecked")
     @Unique
-    private final Map<ItemStack, Map<String, IMEInventory<?>>> ae2t$typeInventories = new IdentityHashMap<>();
+    private final Map<String, IMEInventory<?>>[] ae2t$typeInventories = new Map[6];
+
+    @Unique
+    private final ItemStack[] ae2t$cachedCells = new ItemStack[6];
 
     @Unique
     private final boolean[] ae2t$didWorkBySlot = new boolean[6];
@@ -165,9 +170,9 @@ public abstract class MixinTileIOPort extends AENetworkInvTile {
             if (is == null || !(is.getItem() instanceof ItemInfinityStorageUniversalCell)) continue;
             if (fullnessMode != FullnessMode.HALF && this.moveQueue[x] == 1) continue;
 
-            for (final IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
+            for (final IAEStackType<?> type : Util.getTypes()) {
                 if (type == AEItemStackType.ITEM_STACK_TYPE) continue;
-                final IMEInventory<?> cellInventory = this.ae2t$cellInventory(is, type);
+                final IMEInventory<?> cellInventory = this.ae2t$cellInventory(is, x, type);
                 if (cellInventory == null) continue;
                 final IMEMonitor<?> monitor = storage.getMEMonitor(type);
                 if (monitor == null) continue;
@@ -190,7 +195,7 @@ public abstract class MixinTileIOPort extends AENetworkInvTile {
 
     @Unique
     private static boolean ae2t$otherTypesDrained(IStorageGrid storage) {
-        for (final IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
+        for (final IAEStackType<?> type : Util.getTypes()) {
             if (type == AEItemStackType.ITEM_STACK_TYPE) continue;
             final IMEMonitor<?> monitor = storage.getMEMonitor(type);
             if (monitor != null && !monitor.getStorageList()
@@ -239,21 +244,37 @@ public abstract class MixinTileIOPort extends AENetworkInvTile {
     }
 
     @Unique
-    private IMEInventory<?> ae2t$cellInventory(ItemStack cell, IAEStackType<?> type) {
-        final Map<String, IMEInventory<?>> byType = this.ae2t$typeInventories
-            .computeIfAbsent(cell, _ -> new HashMap<>());
+    private IMEInventory<?> ae2t$cellInventory(ItemStack cell, int slot, IAEStackType<?> type) {
+        if (this.ae2t$cachedCells[slot] != cell) {
+            this.ae2t$cachedCells[slot] = cell;
+            this.ae2t$typeInventories[slot] = new HashMap<>();
+        }
+        Map<String, IMEInventory<?>> byType = this.ae2t$typeInventories[slot];
+        if (byType == null) {
+            byType = new HashMap<>();
+            this.ae2t$typeInventories[slot] = byType;
+        }
         return byType.computeIfAbsent(type.getId(), _ -> UniversalCellHandler.create(cell, null, type));
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @Unique
+    private static Iterable<? extends IAEStack> ae2t$stacksOf(IMEInventory<?> source) {
+        if (source instanceof UniversalCellInventoryHandler<?>handler) {
+            final IItemList<?> stored = handler.getStoredList();
+            if (stored != null) return stored;
+        }
+        return ((IMEInventory) source).getAvailableItems(
+            source.getStackType()
+                .createList(),
+            IterationCounter.fetchNewId());
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     @Unique
     private long ae2t$transfer(IEnergySource energy, IMEInventory<?> source, IMEInventory<?> destination, long budget) {
         long moved = 0;
-        final Iterator<? extends IAEStack<?>> iterator = source.getAvailableItems(
-            ((IMEInventory) source).getStackType()
-                .createList(),
-            IterationCounter.fetchNewId())
-            .iterator();
+        final Iterator<? extends IAEStack> iterator = ae2t$stacksOf(source).iterator();
 
         while (iterator.hasNext() && budget > 0) {
             final IAEStack<?> stack = iterator.next();

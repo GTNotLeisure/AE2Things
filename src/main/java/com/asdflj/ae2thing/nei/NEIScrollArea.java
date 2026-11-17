@@ -63,6 +63,15 @@ public class NEIScrollArea {
             .isMouseDragged();
     }
 
+    public int getFirstRow() {
+        return this.firstRow;
+    }
+
+    public void scrollToRow(int row) {
+        if (!this.isScrollable()) return;
+        this.setFirstRow(row);
+    }
+
     private boolean contains(int mouseX, int mouseY) {
         int width = this.columns * SLOT_SIZE + TRACK_GAP
             + this.container.getVerticalScroll()

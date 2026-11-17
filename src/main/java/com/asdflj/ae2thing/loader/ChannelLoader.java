@@ -5,6 +5,7 @@ import net.minecraft.network.Packet;
 import net.minecraft.world.World;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.network.CPacketCellContentsRequest;
 import com.asdflj.ae2thing.network.CPacketContainerInteraction;
 import com.asdflj.ae2thing.network.CPacketCraftRequest;
 import com.asdflj.ae2thing.network.CPacketFindCellItem;
@@ -22,6 +23,7 @@ import com.asdflj.ae2thing.network.CPacketTransferRecipe;
 import com.asdflj.ae2thing.network.CPacketTypeFilter;
 import com.asdflj.ae2thing.network.CPacketUniversalStorageBusAction;
 import com.asdflj.ae2thing.network.CPacketValueConfig;
+import com.asdflj.ae2thing.network.SPacketCellContents;
 import com.asdflj.ae2thing.network.SPacketCraftingDebugCardUpdate;
 import com.asdflj.ae2thing.network.SPacketCraftingStateUpdate;
 import com.asdflj.ae2thing.network.SPacketFindCellItem;
@@ -53,7 +55,7 @@ public class ChannelLoader implements Runnable {
         SPacketNBTDataUpdate.class, SPacketStringUpdate.class, SPacketSwitchBack.class, SPacketTypeFilter.class,
         SPacketInterfaceSuffixUpdate.class, CPacketUniversalStorageBusAction.class,
         SPacketInterfaceRecipeMapUpdate.class, CPacketInterfaceRecipeMapRequest.class, SPacketItemGuiHint.class,
-        CPacketContainerInteraction.class };
+        CPacketContainerInteraction.class, CPacketCellContentsRequest.class, SPacketCellContents.class };
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })

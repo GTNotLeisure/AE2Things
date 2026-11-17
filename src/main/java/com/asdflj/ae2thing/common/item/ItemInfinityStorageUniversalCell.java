@@ -20,14 +20,15 @@ import net.minecraft.util.IIcon;
 import org.jetbrains.annotations.Nullable;
 
 import com.asdflj.ae2thing.api.Constants;
+import com.asdflj.ae2thing.client.me.InfinityCellContentsCache;
 import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.NameConst;
+import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.config.Upgrades;
 import appeng.api.implementations.items.IUpgradeModule;
-import appeng.api.storage.data.AEStackTypeRegistry;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IAEStackType;
 import appeng.core.localization.GuiText;
@@ -43,6 +44,8 @@ public class ItemInfinityStorageUniversalCell extends BaseInfinityCellItem<ItemI
 
     public IIcon halo;
 
+    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.ENGLISH);
+
     public ItemInfinityStorageUniversalCell() {
         super(NameConst.ITEM_INFINITY_UNIVERSAL_CELL, 2);
     }
@@ -55,8 +58,8 @@ public class ItemInfinityStorageUniversalCell extends BaseInfinityCellItem<ItemI
     @SideOnly(Side.CLIENT)
     @Nullable
     private static IAEStack<?> firstContent(ItemStack cell) {
-        for (final IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
-            final List<IAEStack<?>> contents = InfinityStorageCellSnapshot.contents(cell, type);
+        for (final IAEStackType<?> type : Util.getTypes()) {
+            final List<IAEStack<?>> contents = InfinityCellContentsCache.contents(cell, type);
             if (!contents.isEmpty()) return contents.getFirst();
         }
         return null;
@@ -66,12 +69,12 @@ public class ItemInfinityStorageUniversalCell extends BaseInfinityCellItem<ItemI
     @Override
     public void addCheckedInformation(ItemStack stack, EntityPlayer player, List<String> lines,
         boolean displayMoreInfo) {
-        final NumberFormat fmt = NumberFormat.getInstance(Locale.ENGLISH);
+        final NumberFormat fmt = NUMBER_FORMAT;
         final int bytesPerType = this.getBytesPerType(stack);
 
         long usedBytes = 0;
         long usedTypes = 0;
-        for (IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
+        for (IAEStackType<?> type : Util.getTypes()) {
             NBTTagCompound section = InfinityStorageCellSnapshot.section(stack, type);
             if (section == null) continue;
             long types = section.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES);
@@ -88,7 +91,6 @@ public class ItemInfinityStorageUniversalCell extends BaseInfinityCellItem<ItemI
             if (only != null) lines.add(GuiText.Contains.getLocal() + ": " + only.getDisplayName());
         }
 
-        final IInventory upgrades = this.getUpgradesInventory(stack);
         final IAEStackInventory config = this.getConfigAEInventory(stack);
         final List<String> filters = new ArrayList<>();
         for (int i = 0; i < config.getSizeInventory(); i++) {
@@ -97,6 +99,7 @@ public class ItemInfinityStorageUniversalCell extends BaseInfinityCellItem<ItemI
         }
 
         if (!filters.isEmpty()) {
+            final IInventory upgrades = this.getUpgradesInventory(stack);
             final String include = hasUpgrade(upgrades, Upgrades.INVERTER) ? GuiText.Excluded.getLocal()
                 : GuiText.Included.getLocal();
             final String match = hasUpgrade(upgrades, Upgrades.FUZZY) ? GuiText.Fuzzy.getLocal()
@@ -110,7 +113,7 @@ public class ItemInfinityStorageUniversalCell extends BaseInfinityCellItem<ItemI
         }
 
         if (GuiScreen.isShiftKeyDown()) {
-            for (final IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
+            for (final IAEStackType<?> type : Util.getTypes()) {
                 final NBTTagCompound s = InfinityStorageCellSnapshot.section(stack, type);
                 if (s == null) continue;
                 long count = s.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT),

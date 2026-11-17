@@ -10,8 +10,8 @@ import net.minecraft.util.ResourceLocation;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.network.CPacketTypeFilter;
+import com.asdflj.ae2thing.util.Util;
 
-import appeng.api.storage.data.AEStackTypeRegistry;
 import appeng.api.storage.data.IAEStackType;
 import appeng.client.gui.widgets.TypeToggleButton;
 import appeng.util.AEStackTypeFilter;
@@ -50,7 +50,7 @@ public class TypeFilterWidget {
             return;
         }
         int y = yStart;
-        for (final IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
+        for (final IAEStackType<?> type : Util.getTypes()) {
             final ResourceLocation texture = type.getButtonTexture();
             final IIcon icon = type.getButtonIcon();
             if (texture == null || icon == null) {

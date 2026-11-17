@@ -3,7 +3,9 @@ package com.asdflj.ae2thing.proxy;
 import java.io.File;
 
 import net.minecraft.entity.player.EntityPlayer;
+import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
+import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.MinecraftForge;
@@ -40,6 +42,7 @@ import com.asdflj.ae2thing.loader.BRLoader;
 import com.asdflj.ae2thing.loader.ItemAndBlockHolder;
 import com.asdflj.ae2thing.loader.PatternTerminalLoader;
 import com.asdflj.ae2thing.loader.PatternTerminalMouseWheelLoader;
+import com.asdflj.ae2thing.network.CPacketCellContentsRequest;
 import com.asdflj.ae2thing.network.wrapper.AE2ThingNetworkWrapper;
 import com.asdflj.ae2thing.util.AspectUtil;
 import com.asdflj.ae2thing.util.ItemGuiHintCache;
@@ -65,6 +68,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import de.eydamos.backpack.item.ItemBackpackBase;
 import forestry.storage.items.ItemBackpack;
@@ -130,7 +134,16 @@ public class CommonProxy {
         if (event.phase != TickEvent.Phase.END) return;
         if (++this.snapshotTick < 20) return;
         this.snapshotTick = 0;
+        final MinecraftServer server = MinecraftServer.getServer();
+        if (server == null || server.getConfigurationManager().playerEntityList.isEmpty()) return;
         InfinityStorageCellSnapshot.flushAll();
+    }
+
+    @SubscribeEvent
+    public void onPlayerLogout(PlayerEvent.PlayerLoggedOutEvent event) {
+        if (event.player instanceof EntityPlayerMP player) {
+            CPacketCellContentsRequest.Handler.forget(player);
+        }
     }
 
     @SubscribeEvent

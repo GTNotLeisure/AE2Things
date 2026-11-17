@@ -1,12 +1,8 @@
 package com.asdflj.ae2thing.common.storage.infinityCell;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.Iterator;
-import java.util.List;
-import java.util.WeakHashMap;
+import java.util.UUID;
 
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -26,122 +22,81 @@ import appeng.api.storage.data.IAEStackType;
 import appeng.util.Platform;
 import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public final class InfinityStorageCellSnapshot {
 
     public static final String NBT_DATA = "ucData";
     public static final String NBT_SNAPSHOT_TYPES = "types";
     public static final String NBT_SNAPSHOT_COUNT = "count";
-    public static final String NBT_SNAPSHOT_CONTENTS = "contents";
-    public static final String NBT_SNAPSHOT_VERSION = "ver";
+    public static final String NBT_PAGE_TOTAL = "total";
+    public static final String NBT_PAGE_ENTRIES = "entries";
 
-    private static final long FLUSH_INTERVAL = 1000L;
-    private static final int MAX_SNAPSHOT_STACKS = 256;
+    public static final int PAGE_SIZE = 256;
+    public static final int MAX_OFFSET = PAGE_SIZE * 32;
 
-    private static final Object2ObjectMap<String, Entry> ENTRIES = new Object2ObjectOpenHashMap<>();
-    private static final WeakHashMap<ItemStack, Object2ObjectMap<String, CachedContents>> CACHE = new WeakHashMap<>();
+    private static final long FLUSH_INTERVAL = 2000L;
+
+    private static final Object2ObjectMap<UUID, Object2ObjectMap<String, Entry>> ENTRIES = new Object2ObjectOpenHashMap<>();
 
     private InfinityStorageCellSnapshot() {}
 
-    public static void markDirty(String uuid, IAEStackType<?> type, ItemStack cell) {
-        if (Platform.isClient() || uuid == null || uuid.isEmpty() || type == null || cell == null) return;
-        final Entry entry = entry(uuid, type);
-        entry.cell = new WeakReference<>(cell);
+    public static void markDirty(DataStorage storage, IAEStackType<?> type, ItemStack cell) {
+        if (Platform.isClient() || storage == null || type == null || cell == null) return;
+        final Entry entry = entry(storage, type);
+        if (entry.cell.get() != cell) entry.cell = new WeakReference<>(cell);
         entry.dirty = true;
-        entry.ver++;
     }
 
-    public static void markDirtyIfMissing(String uuid, IAEStackType<?> type, ItemStack cell) {
-        if (section(cell, type) != null) return;
-        markDirty(uuid, type, cell);
+    public static void markDirtyIfMissing(DataStorage storage, IAEStackType<?> type, ItemStack cell) {
+        if (storage == null || section(cell, type) != null) return;
+        markDirty(storage, type, cell);
     }
 
     public static void flushAll() {
         if (ENTRIES.isEmpty()) return;
         final long now = System.currentTimeMillis();
-        final Iterator<Entry> iterator = ENTRIES.values()
+        final Iterator<Object2ObjectMap.Entry<UUID, Object2ObjectMap<String, Entry>>> outer = ENTRIES
+            .object2ObjectEntrySet()
             .iterator();
-        while (iterator.hasNext()) {
-            final Entry entry = iterator.next();
-            if (entry.cell.get() == null) {
-                iterator.remove();
-                continue;
+        while (outer.hasNext()) {
+            final Object2ObjectMap<String, Entry> byType = outer.next()
+                .getValue();
+            final Iterator<Entry> inner = byType.values()
+                .iterator();
+            while (inner.hasNext()) {
+                final Entry entry = inner.next();
+                if (entry.cell.get() == null) {
+                    inner.remove();
+                    continue;
+                }
+                if (!entry.dirty || now - entry.lastWrite < FLUSH_INTERVAL) continue;
+                write(entry);
             }
-            if (!entry.dirty || now - entry.lastWrite < FLUSH_INTERVAL) continue;
-            write(entry);
+            if (byType.isEmpty()) outer.remove();
         }
     }
 
     public static void flushAllForce() {
         if (ENTRIES.isEmpty()) return;
-        for (final Entry entry : ENTRIES.values()) {
-            if (entry.dirty) write(entry);
+        for (final Object2ObjectMap<String, Entry> byType : ENTRIES.values()) {
+            for (final Entry entry : byType.values()) {
+                if (entry.dirty) write(entry);
+            }
         }
     }
 
     public static void flushNow(ItemStack cell) {
         if (ENTRIES.isEmpty() || cell == null) return;
-        for (final Entry entry : ENTRIES.values()) {
-            if (entry.dirty && entry.cell.get() == cell) write(entry);
+        for (final Object2ObjectMap<String, Entry> byType : ENTRIES.values()) {
+            for (final Entry entry : byType.values()) {
+                if (entry.dirty && entry.cell.get() == cell) write(entry);
+            }
         }
     }
 
     public static void clear() {
         ENTRIES.clear();
-        CACHE.clear();
-    }
-
-    private static Entry entry(String uuid, IAEStackType<?> type) {
-        return ENTRIES.computeIfAbsent(uuid + '#' + type.getId(), _ -> new Entry(uuid, type));
-    }
-
-    private static void write(Entry e) {
-        final StorageManager manager = AE2ThingAPI.instance()
-            .getStorageManager();
-        final ItemStack cell = e.cell.get();
-        if (manager == null || cell == null) return;
-
-        final DataStorage storage = manager.getStorage(e.uuid, e.type);
-        final NBTTagCompound section = new NBTTagCompound();
-        final NBTTagList contents = new NBTTagList();
-        final List<IAEStack<?>> stacks = new ArrayList<>();
-        long types = 0;
-        long count = 0;
-        for (final IAEStack<?> stack : storage.list()) {
-            if (stack.getStackSize() <= 0) continue;
-            types++;
-            count += stack.getStackSize();
-            stacks.add(stack);
-        }
-        if (stacks.size() > MAX_SNAPSHOT_STACKS) {
-            stacks.sort(
-                Comparator.<IAEStack<?>>comparingLong(IAEStack::getStackSize)
-                    .reversed());
-            for (int i = 0; i < MAX_SNAPSHOT_STACKS; i++) {
-                contents.appendTag(
-                    stacks.get(i)
-                        .toNBTGeneric());
-            }
-        } else {
-            for (final IAEStack<?> stack : stacks) {
-                contents.appendTag(stack.toNBTGeneric());
-            }
-        }
-        section.setInteger(NBT_SNAPSHOT_TYPES, (int) Math.min(Integer.MAX_VALUE, types));
-        section.setLong(NBT_SNAPSHOT_COUNT, count);
-        section.setInteger(NBT_SNAPSHOT_VERSION, e.ver);
-        section.setTag(NBT_SNAPSHOT_CONTENTS, contents);
-        writeSection(cell, e.type, section);
-
-        e.dirty = false;
-        e.lastWrite = System.currentTimeMillis();
-    }
-
-    private static void writeSection(ItemStack cell, IAEStackType<?> type, NBTTagCompound section) {
-        final NBTTagCompound root = ItemStackNBT.get(cell);
-        final NBTTagCompound data = root.getCompoundTag(NBT_DATA);
-        data.setTag(type.getId(), section);
-        root.setTag(NBT_DATA, data);
     }
 
     @Nullable
@@ -154,43 +109,79 @@ public final class InfinityStorageCellSnapshot {
     }
 
     @NotNull
-    public static List<IAEStack<?>> contents(ItemStack cell, IAEStackType<?> type) {
-        final NBTTagCompound section = section(cell, type);
-        if (section == null) return Collections.emptyList();
+    public static NBTTagCompound emptyPage() {
+        final NBTTagCompound out = new NBTTagCompound();
+        out.setInteger(NBT_PAGE_TOTAL, 0);
+        out.setTag(NBT_PAGE_ENTRIES, new NBTTagList());
+        return out;
+    }
 
-        final int ver = section.getInteger(NBT_SNAPSHOT_VERSION);
-        final Object2ObjectMap<String, CachedContents> cache = CACHE
-            .computeIfAbsent(cell, _ -> new Object2ObjectOpenHashMap<>());
-        final CachedContents cached = cache.get(type.getId());
-        if (cached != null && cached.ver == ver) return cached.stacks;
-
-        final NBTTagList list = section.getTagList(NBT_SNAPSHOT_CONTENTS, Constants.NBT.TAG_COMPOUND);
-        final List<IAEStack<?>> stacks = new ArrayList<>(list.tagCount());
-        for (int i = 0; i < list.tagCount(); i++) {
-            final IAEStack<?> stack = IAEStack.fromNBTGeneric(list.getCompoundTagAt(i));
-            if (stack != null) stacks.add(stack);
+    @NotNull
+    public static NBTTagCompound page(DataStorage storage, int offset) {
+        final ObjectList<IAEStack<?>> sorted = storage.getSortedContents(MAX_OFFSET + PAGE_SIZE);
+        final NBTTagCompound out = new NBTTagCompound();
+        out.setInteger(NBT_PAGE_TOTAL, (int) Math.min(Integer.MAX_VALUE, storage.getStoredTypes()));
+        final NBTTagList entries = new NBTTagList();
+        final int end = Math.min(offset + PAGE_SIZE, sorted.size());
+        for (int i = Math.max(0, offset); i < end; i++) {
+            final NBTTagCompound tag = new NBTTagCompound();
+            sorted.get(i)
+                .writeToNBT(tag);
+            entries.appendTag(tag);
         }
-        final List<IAEStack<?>> result = Collections.unmodifiableList(stacks);
-        cache.put(type.getId(), new CachedContents(ver, result));
-        return result;
+        out.setTag(NBT_PAGE_ENTRIES, entries);
+        return out;
+    }
+
+    private static Entry entry(DataStorage storage, IAEStackType<?> type) {
+        final UUID uuid = storage.getRawUUID();
+        final String typeId = type.getId();
+        Object2ObjectMap<String, Entry> byType = ENTRIES.get(uuid);
+        if (byType == null) {
+            byType = new Object2ObjectOpenHashMap<>();
+            ENTRIES.put(uuid, byType);
+        }
+        Entry entry = byType.get(typeId);
+        if (entry == null) {
+            entry = new Entry(uuid, type);
+            byType.put(typeId, entry);
+        }
+        return entry;
+    }
+
+    private static void write(Entry e) {
+        final StorageManager manager = AE2ThingAPI.instance()
+            .getStorageManager();
+        final ItemStack cell = e.cell.get();
+        if (manager == null || cell == null) return;
+        final DataStorage storage = manager.getStorage(e.uuid, e.type);
+        final NBTTagCompound section = new NBTTagCompound();
+        section.setInteger(NBT_SNAPSHOT_TYPES, (int) Math.min(Integer.MAX_VALUE, storage.getStoredTypes()));
+        section.setLong(NBT_SNAPSHOT_COUNT, storage.getStoredCount());
+        writeSection(cell, e.type, section);
+        e.dirty = false;
+        e.lastWrite = System.currentTimeMillis();
+    }
+
+    private static void writeSection(ItemStack cell, IAEStackType<?> type, NBTTagCompound section) {
+        final NBTTagCompound root = ItemStackNBT.get(cell);
+        final NBTTagCompound data = root.getCompoundTag(NBT_DATA);
+        data.setTag(type.getId(), section);
+        root.setTag(NBT_DATA, data);
     }
 
     private static final class Entry {
 
-        private final String uuid;
+        private final UUID uuid;
         private final IAEStackType<?> type;
 
-        private WeakReference<ItemStack> cell;
+        private WeakReference<ItemStack> cell = new WeakReference<>(null);
         private boolean dirty;
-        private int ver;
         private long lastWrite;
 
-        private Entry(String uuid, IAEStackType<?> type) {
+        private Entry(UUID uuid, IAEStackType<?> type) {
             this.uuid = uuid;
             this.type = type;
-            this.cell = new WeakReference<>(null);
         }
     }
-
-    private record CachedContents(int ver, List<IAEStack<?>> stacks) {}
 }

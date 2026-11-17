@@ -50,7 +50,7 @@ public class StorageManager extends WorldSavedData {
     private static final String DISK_TEMP_SUFFIX = ".tmp";
     private static final String DISK_BACKUP_SUFFIX = ".bak";
 
-    private final Map<UUID, Map<IAEStackType<?>, DataStorage>> disks = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, Map<String, DataStorage>> disks = new Object2ObjectOpenHashMap<>();
     private final Map<UUID, Set<IGrid>> grids = new Object2ObjectOpenHashMap<>();
     private final Set<UUID> dirtyDisks = new ObjectOpenHashSet<>();
 
@@ -75,12 +75,17 @@ public class StorageManager extends WorldSavedData {
                 uid = UUID.randomUUID();
             } while (this.disks.containsKey(uid));
         }
-        final Map<IAEStackType<?>, DataStorage> byType = this.disks
-            .computeIfAbsent(uid, _ -> new Object2ObjectOpenHashMap<>());
-        DataStorage storage = byType.get(stackType);
+        return this.getStorage(uid, stackType);
+    }
+
+    public DataStorage getStorage(UUID uid, IAEStackType<?> stackType) {
+        if (uid == null || stackType == null) return null;
+        final String typeId = stackType.getId();
+        final Map<String, DataStorage> byType = this.disks.computeIfAbsent(uid, _ -> new Object2ObjectOpenHashMap<>());
+        DataStorage storage = byType.get(typeId);
         if (storage == null) {
             storage = new DataStorage(uid, stackType);
-            byType.put(stackType, storage);
+            byType.put(typeId, storage);
             this.dirtyDisks.add(uid);
         }
         return storage;
@@ -95,8 +100,13 @@ public class StorageManager extends WorldSavedData {
         }
     }
 
+    public boolean hasContent(DataStorage storage) {
+        return storage != null && this.hasContent(storage.getRawUUID());
+    }
+
     private boolean hasContent(UUID uid) {
-        final Map<IAEStackType<?>, DataStorage> byType = this.disks.get(uid);
+        if (uid == null) return false;
+        final Map<String, DataStorage> byType = this.disks.get(uid);
         if (byType == null) return false;
         for (final DataStorage storage : byType.values()) {
             if (!storage.isEmpty()) return true;
@@ -111,13 +121,8 @@ public class StorageManager extends WorldSavedData {
             .add(grid);
     }
 
-    public void addGrid(String uuid, IGrid grid) {
-        UUID uid = UUID.fromString(uuid);
-        this.addGrid(uid, grid);
-    }
-
-    public void addGrid(String uuid, IChestOrDrive drive) {
-        if (drive == null || uuid.isEmpty()) return;
+    public void addGrid(UUID uuid, IChestOrDrive drive) {
+        if (drive == null || uuid == null) return;
         this.addGrid(
             uuid,
             drive.getActionableNode()
@@ -183,7 +188,7 @@ public class StorageManager extends WorldSavedData {
         this.dirtyDisks.clear();
         boolean ok = true;
         for (final UUID uid : dirty) {
-            final Map<IAEStackType<?>, DataStorage> byType = this.disks.get(uid);
+            final Map<String, DataStorage> byType = this.disks.get(uid);
             if (byType == null || byType.isEmpty()) continue;
             if (!this.hasContent(uid)) {
                 this.deleteDisk(uid);
@@ -230,14 +235,15 @@ public class StorageManager extends WorldSavedData {
         }
     }
 
-    private boolean writeDisk(UUID uid, Map<IAEStackType<?>, DataStorage> byType) {
+    private boolean writeDisk(UUID uid, Map<String, DataStorage> byType) {
         final File file = this.diskFile(uid);
         if (file == null) return true;
         final NBTTagCompound tag = new NBTTagCompound();
-        for (final DataStorage storage : byType.values()) {
-            final IAEStackType<?> type = storage.getStackType();
-            if (type == null) continue;
-            tag.setTag(type.getId(), storage.writeToNBT());
+        for (Map.Entry<String, DataStorage> entry : byType.entrySet()) {
+            tag.setTag(
+                entry.getKey(),
+                entry.getValue()
+                    .writeToNBT());
         }
         return writeCompressed(file, tag);
     }
@@ -334,7 +340,7 @@ public class StorageManager extends WorldSavedData {
             return;
         }
 
-        final Map<UUID, Map<IAEStackType<?>, DataStorage>> d = new Object2ObjectOpenHashMap<>();
+        final Map<UUID, Map<String, DataStorage>> d = new Object2ObjectOpenHashMap<>();
         try {
             final NBTTagList diskList = data.getTagList(Constants.DISKLIST, 10);
             for (int i = 0; i < diskList.tagCount(); i++) {
@@ -407,7 +413,7 @@ public class StorageManager extends WorldSavedData {
         final NBTTagList diskList = new NBTTagList();
         final NBTTagList fluidDiskList = new NBTTagList();
         final NBTTagList otherDiskList = new NBTTagList();
-        for (Map.Entry<UUID, Map<IAEStackType<?>, DataStorage>> entry : this.disks.entrySet()) {
+        for (Map.Entry<UUID, Map<String, DataStorage>> entry : this.disks.entrySet()) {
             for (DataStorage storage : entry.getValue()
                 .values()) {
                 if (storage.isEmpty()) continue;
@@ -437,9 +443,12 @@ public class StorageManager extends WorldSavedData {
         data.setTag(Constants.OTHER_DISKLIST, otherDiskList);
     }
 
-    private static void put(Map<UUID, Map<IAEStackType<?>, DataStorage>> map, UUID uid, DataStorage storage) {
+    private static void put(Map<UUID, Map<String, DataStorage>> map, UUID uid, DataStorage storage) {
         map.computeIfAbsent(uid, _ -> new Object2ObjectOpenHashMap<>())
-            .put(storage.getStackType(), storage);
+            .put(
+                storage.getStackType()
+                    .getId(),
+                storage);
     }
 
     public void postItemChange(final DataStorage storage, IChestOrDrive drive, IAEItemStack change) {

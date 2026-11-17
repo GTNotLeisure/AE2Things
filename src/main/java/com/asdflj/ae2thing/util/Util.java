@@ -1,6 +1,8 @@
 package com.asdflj.ae2thing.util;
 
 import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
@@ -74,6 +76,8 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 public class Util {
 
     private static int AE_VERSION = -1;
+    private static List<IAEStackType<?>> SORTED_TYPES;
+    private static int SORTED_TYPES_SIZE = -1;
 
     public static int getAEVersion() {
         if (AE_VERSION == -1) {
@@ -101,7 +105,12 @@ public class Util {
     }
 
     public static List<IAEStackType<?>> getTypes() {
-        return AEStackTypeRegistry.getSortedTypes();
+        final Collection<IAEStackType<?>> all = AEStackTypeRegistry.getAllTypes();
+        if (SORTED_TYPES == null || SORTED_TYPES_SIZE != all.size()) {
+            SORTED_TYPES = Collections.unmodifiableList(AEStackTypeRegistry.getSortedTypes());
+            SORTED_TYPES_SIZE = all.size();
+        }
+        return SORTED_TYPES;
     }
 
     @SuppressWarnings("rawtypes")

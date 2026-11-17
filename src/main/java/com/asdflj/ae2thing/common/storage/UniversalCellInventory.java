@@ -57,12 +57,12 @@ public class UniversalCellInventory<T extends IAEStack<T>> implements ICellInven
         if (manager == null) return null;
         final DataStorage storage = manager.getStorage(this.data.getString(Constants.DISKUUID), this.type);
         this.data.setString(Constants.DISKUUID, storage.getUUID());
-        InfinityStorageCellSnapshot.markDirtyIfMissing(storage.getUUID(), this.type, this.cellItem);
+        InfinityStorageCellSnapshot.markDirtyIfMissing(storage, this.type, this.cellItem);
         return storage;
     }
 
     @SuppressWarnings("unchecked")
-    private IItemList<T> getCellItems() {
+    public IItemList<T> getCellItems() {
         if (this.cellItems == null) {
             final IItemList<?> list;
             if (this.storage == null) {
@@ -229,7 +229,7 @@ public class UniversalCellInventory<T extends IAEStack<T>> implements ICellInven
     public IItemList<T> getAvailableItems(IItemList<T> out, int iteration) {
         final StorageManager manager = AE2ThingAPI.instance()
             .getStorageManager();
-        if (this.storage != null && manager != null) manager.addGrid(this.storage.getUUID(), this.drive);
+        if (this.storage != null && manager != null) manager.addGrid(this.storage.getRawUUID(), this.drive);
         for (final T stack : this.getCellItems()) {
             if (stack.getStackSize() > 0) out.add(stack);
         }
@@ -246,9 +246,9 @@ public class UniversalCellInventory<T extends IAEStack<T>> implements ICellInven
             .getStorageManager();
         this.data.setBoolean(
             Constants.IS_EMPTY,
-            this.storage == null || manager == null || !manager.hasContent(this.storage.getUUID()));
+            this.storage == null || manager == null || !manager.hasContent(this.storage));
         if (this.storage != null) {
-            InfinityStorageCellSnapshot.markDirty(this.storage.getUUID(), this.type, this.cellItem);
+            InfinityStorageCellSnapshot.markDirty(this.storage, this.type, this.cellItem);
         }
         if (this.container != null) this.container.saveChanges(this);
         if (manager != null) {

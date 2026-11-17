@@ -18,17 +18,17 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import com.asdflj.ae2thing.client.me.InfinityCellContentsCache;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageCell;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageFluidCell;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageUniversalCell;
-import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
 import com.asdflj.ae2thing.util.NameConst;
+import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.AEApi;
 import appeng.api.storage.ICellWorkbenchItem;
 import appeng.api.storage.IMEInventoryHandler;
-import appeng.api.storage.data.AEStackTypeRegistry;
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IAEStackType;
@@ -98,7 +98,7 @@ public class CellContentHandler extends TooltipHandlerWaila {
                 }
                 Set<IMEInventoryHandler<?>> seenHandlers = Collections.newSetFromMap(new IdentityHashMap<>());
                 List<IAEStack<?>> contents = new ObjectArrayList<>();
-                for (IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
+                for (IAEStackType<?> type : Util.getTypes()) {
                     IMEInventoryHandler<?> handler = AEApi.instance()
                         .registries()
                         .cell()
@@ -119,8 +119,8 @@ public class CellContentHandler extends TooltipHandlerWaila {
 
     private void addUniversalCellTooltip(ItemStack cell, List<String> currentToolTip) {
         ObjectArrayList<IAEStack<?>> contents = new ObjectArrayList<>();
-        for (IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
-            contents.addAll(InfinityStorageCellSnapshot.contents(cell, type));
+        for (IAEStackType<?> type : Util.getTypes()) {
+            contents.addAll(InfinityCellContentsCache.contents(cell, type));
         }
         if (contents.isEmpty()) {
             addUpgradeCard(cell, currentToolTip);

@@ -30,6 +30,7 @@ import com.asdflj.ae2thing.client.gui.GuiCraftingTerminal;
 import com.asdflj.ae2thing.client.gui.GuiInfusionPatternTerminal;
 import com.asdflj.ae2thing.client.gui.GuiWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
+import com.asdflj.ae2thing.client.me.InfinityCellContentsCache;
 import com.asdflj.ae2thing.client.render.BlockPosHighlighter;
 import com.asdflj.ae2thing.common.item.ItemPhial;
 import com.asdflj.ae2thing.integration.Mods;
@@ -300,5 +301,6 @@ public class ClientProxy extends CommonProxy {
         AE2ThingAPI.instance()
             .getPinned()
             .clear();
+        InfinityCellContentsCache.clear();
     }
 }

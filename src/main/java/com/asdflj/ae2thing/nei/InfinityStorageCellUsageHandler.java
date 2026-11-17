@@ -18,11 +18,12 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.input.Mouse;
 
+import com.asdflj.ae2thing.client.me.InfinityCellContentsCache;
 import com.asdflj.ae2thing.common.item.BaseInfinityCellItem;
 import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
+import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.config.TerminalFontSize;
-import appeng.api.storage.data.AEStackTypeRegistry;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IAEStackType;
 import appeng.client.render.StackSizeRenderer;
@@ -39,6 +40,8 @@ import codechicken.nei.recipe.GuiRecipeTabs;
 import codechicken.nei.recipe.IUsageHandler;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectList;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectMap;
+import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 
 public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
@@ -50,11 +53,19 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
     private static final int SLOT_HEIGHT = 18;
     private static final int BOTTOM_MARGIN = 6;
     private static final int PAGE_HEADER_HEIGHT = 36;
+    private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
 
     private final ObjectList<ViewItemStack> entries = new ObjectArrayList<>();
     private final ObjectList<PositionedStack> positioned = new ObjectArrayList<>();
+    private final Reference2ObjectMap<IAEStack<?>, PositionedStack> positionedCache = new Reference2ObjectOpenHashMap<>();
+
+    private static int cachedScreenHeight = -1;
+    private static int cachedMaxHeight = -1;
+    private static int cachedMaxRows = 1;
 
     private NEIScrollArea scrollArea;
+    private ItemStack cell;
+    private long loadedVersion;
     private int rows = 1;
     private int rowsLimit = 1;
     private long usedTypes;
@@ -65,11 +76,13 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
     @Override
     public IUsageHandler getUsageHandler(String inputId, Object... ingredients) {
-        if (ingredients.length == 0 || !(ingredients[0] instanceof ItemStack cell)) return null;
+        if (ingredients.length == 0 || !(ingredients[0] instanceof ItemStack cellItem)) return null;
         if (!(cell.getItem() instanceof BaseInfinityCellItem<?>storageCell)) {
             return null;
         }
 
+        this.cell = cellItem;
+        this.scrollArea = null;
         this.totalTypes = storageCell.getTotalTypes(cell);
         this.totalBytes = storageCell.getBytesLong(cell);
         this.unlimited = this.totalTypes >= Integer.MAX_VALUE;
@@ -77,8 +90,7 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
         this.usedTypes = 0;
         this.usedBytes = 0;
-        final ObjectList<IAEStack<?>> contents = new ObjectArrayList<>();
-        for (final IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
+        for (final IAEStackType<?> type : Util.getTypes()) {
             final NBTTagCompound section = InfinityStorageCellSnapshot.section(cell, type);
             if (section == null) continue;
 
@@ -87,36 +99,74 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
             if (types <= 0 && count <= 0) continue;
             this.usedTypes += types;
             this.usedBytes += count / Math.max(1, type.getAmountPerByte()) + types * (long) bytesPerType;
-            contents.addAll(InfinityStorageCellSnapshot.contents(cell, type));
         }
         if (this.totalBytes > 0) this.usedBytes = Math.min(this.usedBytes, this.totalBytes);
 
+        this.rebuild();
+        return this;
+    }
+
+    private void rebuild() {
+        if (this.cell == null) return;
+        final int keepRow = this.scrollArea == null ? 0 : this.scrollArea.getFirstRow();
+        final ObjectList<IAEStack<?>> contents = new ObjectArrayList<>();
+        for (final IAEStackType<?> type : Util.getTypes()) {
+            if (!hasEntries(type)) continue;
+            contents.addAll(InfinityCellContentsCache.contents(this.cell, type));
+        }
         contents.sort(
             Comparator.<IAEStack<?>>comparingLong(IAEStack::getStackSize)
                 .reversed());
 
         this.entries.clear();
         this.positioned.clear();
+        final Reference2ObjectMap<IAEStack<?>, PositionedStack> reused = new Reference2ObjectOpenHashMap<>();
         for (final IAEStack<?> aes : contents) {
-            final ItemStack display = aes.getItemStackForNEI();
-            final ItemStack single = aes.getItemStackForNEI(1);
-            final boolean bakeCount = aes.isFluid() || aes.getStackSize() < Integer.MAX_VALUE;
-            final ItemStack stack = bakeCount ? display : single;
-            if (stack == null) continue;
-            final PositionedStack positionedStack = new PositionedStack(stack.copy(), 0, 0, false);
-            this.entries
-                .add(new ViewItemStack(positionedStack, bakeCount ? 0 : aes.getStackSize(), aes.getStackSize()));
+            PositionedStack positionedStack = this.positionedCache.get(aes);
+            if (positionedStack == null) {
+                final ItemStack display = aes.getItemStackForNEI();
+                final ItemStack single = aes.getItemStackForNEI(1);
+                final boolean bakeCount = aes.isFluid() || aes.getStackSize() < Integer.MAX_VALUE;
+                final ItemStack stack = bakeCount ? display : single;
+                if (stack == null) continue;
+                positionedStack = new PositionedStack(stack.copy(), 0, 0, false);
+            }
+            reused.put(aes, positionedStack);
+            this.entries.add(
+                new ViewItemStack(
+                    positionedStack,
+                    aes.isFluid() || aes.getStackSize() < Integer.MAX_VALUE ? 0 : aes.getStackSize(),
+                    aes.getStackSize()));
             this.positioned.add(positionedStack);
         }
+        this.positionedCache.clear();
+        this.positionedCache.putAll(reused);
         this.rowsLimit = maxRows();
         this.rows = Math.clamp((this.entries.size() + COLUMNS - 1) / COLUMNS, 1, this.rowsLimit);
         this.scrollArea = new NEIScrollArea(OFFSET_X, ITEMS_OFFSET_Y, COLUMNS, this.rows);
         this.scrollArea.setStacks(this.positioned);
-        return this;
+        this.scrollArea.scrollToRow(keepRow);
+        this.loadedVersion = InfinityCellContentsCache.version();
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private boolean hasEntries(IAEStackType<?> type) {
+        final NBTTagCompound section = InfinityStorageCellSnapshot.section(this.cell, type);
+        if (section == null) return false;
+        return section.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES) > 0
+            || section.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT) > 0;
+    }
+
+    private void requestMore() {
+        if (this.cell == null) return;
+        for (final IAEStackType<?> type : Util.getTypes()) {
+            if (!hasEntries(type)) continue;
+            InfinityCellContentsCache.requestMore(this.cell, type);
+        }
     }
 
     private void ensureLayout() {
-        this.rowsLimit = Math.max(1, Math.min(this.rowsLimit, maxRows()));
+        this.rowsLimit = Math.clamp(this.rowsLimit, 1, maxRows());
         final int desired = Math.clamp((this.entries.size() + COLUMNS - 1) / COLUMNS, 1, this.rowsLimit);
         if (desired == this.rows && this.scrollArea != null) return;
         this.rows = desired;
@@ -127,10 +177,15 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
     private static int maxRows() {
         final Minecraft mc = Minecraft.getMinecraft();
         final int screenHeight = mc.currentScreen == null ? 240 : mc.currentScreen.height;
-        final int pageHeight = Math.min(
-            screenHeight - 44 - GuiRecipeTabs.getTabHeight(),
-            NEIClientConfig.getIntSetting("inventory.guirecipe.maxHeight"));
-        return Math.max(1, (pageHeight - PAGE_HEADER_HEIGHT - ITEMS_OFFSET_Y - BOTTOM_MARGIN) / SLOT_HEIGHT);
+        final int maxHeight = NEIClientConfig.getIntSetting("inventory.guirecipe.maxHeight");
+        if (screenHeight != cachedScreenHeight || maxHeight != cachedMaxHeight) {
+            cachedScreenHeight = screenHeight;
+            cachedMaxHeight = maxHeight;
+            final int pageHeight = Math.min(screenHeight - 44 - GuiRecipeTabs.getTabHeight(), maxHeight);
+            cachedMaxRows = Math
+                .max(1, (pageHeight - PAGE_HEADER_HEIGHT - ITEMS_OFFSET_Y - BOTTOM_MARGIN) / SLOT_HEIGHT);
+        }
+        return cachedMaxRows;
     }
 
     @Override
@@ -151,6 +206,10 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
     @Override
     public void drawBackground(int recipe) {
+        if (InfinityCellContentsCache.version() != this.loadedVersion) {
+            this.rebuild();
+        }
+        this.requestMore();
         this.ensureLayout();
         if (this.scrollArea == null) return;
 
@@ -179,7 +238,7 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
     @Override
     public void drawForeground(int recipe) {
         final FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
-        final NumberFormat fmt = NumberFormat.getInstance();
+        final NumberFormat fmt = NUMBER_FORMAT;
         final int color = ColorUtils.neiCellView.getColor();
 
         final String byteLine = this.unlimited
@@ -261,12 +320,8 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
         for (final ViewItemStack entry : this.entries) {
             if (!NEIScrollArea.isShown(entry.stack)) continue;
             if (!entry.stack.item.equals(stack)) continue;
-            currenttip.add(
-                1,
-                EnumChatFormatting.GRAY + GuiText.Stored.getLocal()
-                    + ": "
-                    + NumberFormat.getNumberInstance()
-                        .format(entry.count));
+            currenttip
+                .add(1, EnumChatFormatting.GRAY + GuiText.Stored.getLocal() + ": " + NUMBER_FORMAT.format(entry.count));
             break;
         }
         return currenttip;

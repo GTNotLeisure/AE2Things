@@ -11,6 +11,7 @@ import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageCell;
 import com.asdflj.ae2thing.common.storage.DataStorage;
 import com.asdflj.ae2thing.common.storage.ITCellInventory;
+import com.asdflj.ae2thing.common.storage.StorageManager;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 
 import appeng.api.AEApi;
@@ -32,18 +33,15 @@ import appeng.util.item.AEItemStackType;
 
 public class InfinityItemStorageCellInventory implements ITCellInventory {
 
-    private static final String ITEM_TYPE_TAG = "it";
-    private static final String ITEM_COUNT_TAG = "ic";
     protected final ItemStack cellItem;
     protected ItemInfinityStorageCell cellType;
     protected final ISaveProvider container;
     protected final EntityPlayer player;
     protected IItemList<IAEItemStack> cellItems = null;
-    protected long storedItemTypes;
-    protected long storedItemCount;
     protected final ItemStackNBT data;
     protected final IChestOrDrive drive;
     protected final DataStorage storage;
+    private boolean empty;
 
     public InfinityItemStorageCellInventory(ItemStack o, ISaveProvider c, EntityPlayer p) throws AppEngException {
         if (o == null) {
@@ -55,12 +53,11 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
         this.drive = c instanceof IChestOrDrive ? (IChestOrDrive) c : null;
         this.cellType = (ItemInfinityStorageCell) this.cellItem.getItem();
         this.data = ItemStackNBT.of(this.cellItem);
-        this.storedItemTypes = data.getLong(ITEM_TYPE_TAG);
-        this.storedItemCount = data.getLong(ITEM_COUNT_TAG);
+        this.empty = data.getBoolean(Constants.IS_EMPTY);
         this.storage = this.getStorage();
         if (this.storage != null) {
             InfinityStorageCellSnapshot
-                .markDirtyIfMissing(this.storage.getUUID(), AEItemStackType.ITEM_STACK_TYPE, this.cellItem);
+                .markDirtyIfMissing(this.storage, AEItemStackType.ITEM_STACK_TYPE, this.cellItem);
         }
     }
 
@@ -78,18 +75,7 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
                     .createItemList();
             } else {
                 this.cellItems = this.storage.getItems();
-                long types = 0;
-                long count = 0;
-                for (final IAEItemStack is : this.cellItems) {
-                    if (is.getStackSize() <= 0) {
-                        is.reset();
-                        continue;
-                    }
-                    types++;
-                    count += is.getStackSize();
-                }
-                this.storedItemTypes = types;
-                this.storedItemCount = count;
+                this.empty = this.cellItems.isEmpty();
             }
         }
         if (this.storage != null && !this.getUUID()
@@ -166,13 +152,13 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
     @Override
     public long getStoredItemCount() {
         this.getCellItems();
-        return this.storedItemCount;
+        return this.storage == null ? 0 : this.storage.getStoredCount();
     }
 
     @Override
     public long getStoredItemTypes() {
         this.getCellItems();
-        return this.storedItemTypes;
+        return this.storage == null ? 0 : this.storage.getStoredTypes();
     }
 
     @Override
@@ -349,17 +335,15 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
     }
 
     private void saveChanges(IAEItemStack change, long typeDelta) {
-        this.storedItemCount = Math.max(0, this.storedItemCount + change.getStackSize());
-        this.storedItemTypes = Math.max(0, this.storedItemTypes + typeDelta);
-        this.data.setLong(ITEM_TYPE_TAG, this.storedItemTypes);
-        this.data.setLong(ITEM_COUNT_TAG, this.storedItemCount);
-        this.data.setBoolean(
-            Constants.IS_EMPTY,
-            this.getCellItems()
-                .isEmpty());
+        if (this.storage != null) this.storage.addStored(change.getStackSize(), typeDelta);
+        final boolean empty = this.getCellItems()
+            .isEmpty();
+        if (this.empty != empty) {
+            this.empty = empty;
+            this.data.setBoolean(Constants.IS_EMPTY, empty);
+        }
         if (this.storage != null) {
-            InfinityStorageCellSnapshot
-                .markDirty(this.storage.getUUID(), AEItemStackType.ITEM_STACK_TYPE, this.cellItem);
+            InfinityStorageCellSnapshot.markDirty(this.storage, AEItemStackType.ITEM_STACK_TYPE, this.cellItem);
         }
         if (this.container != null) {
             this.container.saveChanges(this);
@@ -374,12 +358,9 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
 
     @Override
     public IItemList<IAEItemStack> getAvailableItems(IItemList<IAEItemStack> out, int iteration) {
-        if (this.storage != null && AE2ThingAPI.instance()
-            .getStorageManager() != null) {
-            AE2ThingAPI.instance()
-                .getStorageManager()
-                .addGrid(this.getUUID(), this.drive);
-        }
+        final StorageManager manager = AE2ThingAPI.instance()
+            .getStorageManager();
+        if (this.storage != null && manager != null) manager.addGrid(this.storage.getRawUUID(), this.drive);
         for (final IAEItemStack i : this.getCellItems()) {
             out.add(i);
         }

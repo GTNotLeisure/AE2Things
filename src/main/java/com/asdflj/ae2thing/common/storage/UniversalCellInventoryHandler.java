@@ -24,6 +24,11 @@ public class UniversalCellInventoryHandler<T extends IAEStack<T>> extends CellIn
             .getStackType() == AEFluidStackType.FLUID_STACK_TYPE ? StorageChannel.FLUIDS : StorageChannel.ITEMS;
     }
 
+    public IItemList<T> getStoredList() {
+        final IMEInventory<T> inventory = this.getInternal();
+        return inventory instanceof UniversalCellInventory<T>cell ? cell.getCellItems() : null;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     protected void setPriorityList(boolean hasFuzzy, IAEStackInventory config, FuzzyMode fzMode) {
