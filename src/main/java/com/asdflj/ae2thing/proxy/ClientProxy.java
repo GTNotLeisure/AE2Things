@@ -37,6 +37,7 @@ import com.asdflj.ae2thing.integration.ae2stuff.Ae2StuffIntegration;
 import com.asdflj.ae2thing.loader.KeybindLoader;
 import com.asdflj.ae2thing.loader.ListenerLoader;
 import com.asdflj.ae2thing.loader.RenderLoader;
+import com.asdflj.ae2thing.nei.NEIHandlerInfoRegistrar;
 import com.asdflj.ae2thing.nei.recipes.DefaultExtractorLoader;
 import com.asdflj.ae2thing.network.CPacketTerminalBtns;
 import com.asdflj.ae2thing.util.FindITUtil;
@@ -108,6 +109,9 @@ public class ClientProxy extends CommonProxy {
 
     @Override
     public void preInit(FMLPreInitializationEvent event) {
+        if (Mods.NOT_ENOUGH_ITEMS.isModLoaded()) {
+            MinecraftForge.EVENT_BUS.register(NEIHandlerInfoRegistrar.INSTANCE);
+        }
         super.preInit(event);
     }
 

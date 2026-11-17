@@ -19,6 +19,7 @@ public enum Mods implements IMod, ITargetMod {
     ANGELICA("angelica"),
     ADVENTURE_BACKPACK("adventurebackpack"),
     ASPECT_RECIPE_INDEX("aspectrecipeindex"),
+    AVARITIA("Avaritia"),
     BACKPACK("Backpack"),
     BAUBLES("Baubles", () -> Loader.isModLoaded("Baubles") || Loader.isModLoaded("Baubles|Expanded"), null),
     BETTER_P2P("betterp2p"),

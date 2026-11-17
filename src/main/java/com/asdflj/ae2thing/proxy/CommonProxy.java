@@ -29,6 +29,7 @@ import com.asdflj.ae2thing.common.parts.PartThaumatoriumInterface;
 import com.asdflj.ae2thing.common.parts.universal.PartUniversalStorageBus;
 import com.asdflj.ae2thing.common.storage.StorageManager;
 import com.asdflj.ae2thing.common.storage.backpack.OKBackpackHandler;
+import com.asdflj.ae2thing.common.storage.infinityCell.UniversalCellSnapshot;
 import com.asdflj.ae2thing.common.tile.TileInfusionInterface;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.item.PatternModifierInventory;
@@ -61,6 +62,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
+import cpw.mods.fml.common.gameevent.TickEvent;
 import de.eydamos.backpack.item.ItemBackpackBase;
 import forestry.storage.items.ItemBackpack;
 import ic2.core.Ic2Items;
@@ -70,6 +72,8 @@ import thaumicenergistics.common.storage.AEEssentiaStackType;
 public class CommonProxy {
 
     public AE2ThingNetworkWrapper netHandler = new AE2ThingNetworkWrapper(AE2Thing.MODID);
+
+    private int snapshotTick;
 
     public void scheduleClientTask(Runnable task) {
         throw new IllegalStateException("Cannot schedule a client task on a dedicated server");
@@ -102,6 +106,27 @@ public class CommonProxy {
                 event.world.mapStorage.setData(AE2Thing.MODID, s);
             }
         }
+    }
+
+    @SubscribeEvent
+    public void onServerTick(TickEvent.ServerTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
+        if (++this.snapshotTick < 20) return;
+        this.snapshotTick = 0;
+        UniversalCellSnapshot.flushAll();
+    }
+
+    @SubscribeEvent
+    public void onWorldSave(WorldEvent.Save event) {
+        if (Platform.isClient() || event.world.provider.dimensionId != 0) return;
+        UniversalCellSnapshot.flushAllForce();
+    }
+
+    @SubscribeEvent
+    public void onWorldUnload(WorldEvent.Unload event) {
+        if (Platform.isClient() || event.world.provider.dimensionId != 0) return;
+        UniversalCellSnapshot.flushAllForce();
+        UniversalCellSnapshot.clear();
     }
 
     public void init(FMLInitializationEvent event) {
@@ -144,6 +169,9 @@ public class CommonProxy {
         Upgrades.ORE_FILTER.registerItem(ItemAndBlockHolder.ITEM_INFINITY_FLUID_CELL.stack(), 1);
         Upgrades.FUZZY.registerItem(ItemAndBlockHolder.ITEM_INFINITY_FLUID_CELL.stack(), 1);
         Upgrades.INVERTER.registerItem(ItemAndBlockHolder.ITEM_INFINITY_FLUID_CELL.stack(), 1);
+        Upgrades.ORE_FILTER.registerItem(ItemAndBlockHolder.ITEM_INFINITY_UNIVERSAL_CELL.stack(), 1);
+        Upgrades.FUZZY.registerItem(ItemAndBlockHolder.ITEM_INFINITY_UNIVERSAL_CELL.stack(), 1);
+        Upgrades.INVERTER.registerItem(ItemAndBlockHolder.ITEM_INFINITY_UNIVERSAL_CELL.stack(), 1);
 
         // Upgrades.ORE_FILTER.registerItem(ItemAndBlockHolder.TOGGLE_VIEW_CELL.stack(), 1);
         // Upgrades.FUZZY.registerItem(ItemAndBlockHolder.TOGGLE_VIEW_CELL.stack(), 1);
@@ -280,6 +308,8 @@ public class CommonProxy {
     }
 
     public void serverStopping(FMLServerStoppingEvent event) {
+        UniversalCellSnapshot.flushAllForce();
+        UniversalCellSnapshot.clear();
         StorageManager m = AE2ThingAPI.instance()
             .getStorageManager();
         if (m != null) m.setDirty(true);

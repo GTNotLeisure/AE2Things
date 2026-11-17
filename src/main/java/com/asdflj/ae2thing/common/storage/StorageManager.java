@@ -36,7 +36,7 @@ import it.unimi.dsi.fastutil.objects.ObjectSets;
 
 public class StorageManager extends WorldSavedData {
 
-    private final Map<UUID, DataStorage> disks = new Object2ObjectOpenHashMap<>();
+    private final Map<UUID, Map<IAEStackType<?>, DataStorage>> disks = new Object2ObjectOpenHashMap<>();
     private final Map<UUID, Set<IGrid>> grids = new Object2ObjectOpenHashMap<>();
 
     public StorageManager(String name) {
@@ -46,22 +46,34 @@ public class StorageManager extends WorldSavedData {
             .setStorageManager(this);
     }
 
-    private DataStorage getStorage(String uuid, IAEStackType<?> stackType) {
+    public DataStorage getStorage(String uuid, IAEStackType<?> stackType) {
         UUID uid;
-        DataStorage d;
         try {
             uid = UUID.fromString(uuid);
         } catch (Exception ignored) {
             do {
                 uid = UUID.randomUUID();
-            } while (disks.get(uid) != null);
+            } while (this.disks.containsKey(uid));
         }
-        d = disks.get(uid);
-        if (d == null) {
-            d = new DataStorage(uid, stackType);
-            disks.put(uid, d);
+        UUID finalUid = uid;
+        return this.disks.computeIfAbsent(uid, _ -> new Object2ObjectOpenHashMap<>())
+            .computeIfAbsent(stackType, t -> new DataStorage(finalUid, t));
+    }
+
+    public boolean hasContent(String uuid) {
+        if (uuid == null || uuid.isEmpty()) return false;
+        final UUID uid;
+        try {
+            uid = UUID.fromString(uuid);
+        } catch (IllegalArgumentException e) {
+            return false;
         }
-        return d;
+        final Map<IAEStackType<?>, DataStorage> byType = this.disks.get(uid);
+        if (byType == null) return false;
+        for (final DataStorage storage : byType.values()) {
+            if (!storage.isEmpty()) return true;
+        }
+        return false;
     }
 
     private void addGrid(UUID uid, IGrid grid) {
@@ -115,24 +127,26 @@ public class StorageManager extends WorldSavedData {
 
     @Override
     public void readFromNBT(NBTTagCompound data) {
-        final Map<UUID, DataStorage> d = new Object2ObjectOpenHashMap<>();
+        final Map<UUID, Map<IAEStackType<?>, DataStorage>> d = new Object2ObjectOpenHashMap<>();
         try {
             final NBTTagList diskList = data.getTagList(Constants.DISKLIST, 10);
             for (int i = 0; i < diskList.tagCount(); i++) {
-                NBTTagCompound disk = diskList.getCompoundTagAt(i);
-                UUID uid = this.parseDiskUUID(disk);
+                final NBTTagCompound disk = diskList.getCompoundTagAt(i);
+                final UUID uid = this.parseDiskUUID(disk);
                 if (uid == null) continue;
-                d.put(
+                put(
+                    d,
                     uid,
                     DataStorage
                         .readFromNBT(uid, disk.getTagList(Constants.DISKDATA, 10), AEItemStackType.ITEM_STACK_TYPE));
             }
-            NBTTagList fluidDiskList = data.getTagList(Constants.FLUID_DISKLIST, 10);
+            final NBTTagList fluidDiskList = data.getTagList(Constants.FLUID_DISKLIST, 10);
             for (int i = 0; i < fluidDiskList.tagCount(); i++) {
-                NBTTagCompound disk = fluidDiskList.getCompoundTagAt(i);
-                UUID uid = this.parseDiskUUID(disk);
+                final NBTTagCompound disk = fluidDiskList.getCompoundTagAt(i);
+                final UUID uid = this.parseDiskUUID(disk);
                 if (uid == null) continue;
-                d.put(
+                put(
+                    d,
                     uid,
                     DataStorage.readFromNBT(
                         uid,
@@ -141,12 +155,12 @@ public class StorageManager extends WorldSavedData {
             }
             NBTTagList otherDiskList = data.getTagList(Constants.OTHER_DISKLIST, 10);
             for (int i = 0; i < otherDiskList.tagCount(); i++) {
-                NBTTagCompound disk = otherDiskList.getCompoundTagAt(i);
-                UUID uid = this.parseDiskUUID(disk);
+                final NBTTagCompound disk = otherDiskList.getCompoundTagAt(i);
+                final UUID uid = this.parseDiskUUID(disk);
                 if (uid == null) continue;
-                IAEStackType<?> type = AEStackTypeRegistry.getType(disk.getString(Constants.DISKTYPE));
+                final IAEStackType<?> type = AEStackTypeRegistry.getType(disk.getString(Constants.DISKTYPE));
                 if (type == null) continue;
-                d.put(uid, DataStorage.readFromNBT(uid, disk.getTagList(Constants.OTHER_DISKLIST, 10), type));
+                put(d, uid, DataStorage.readFromNBT(uid, disk.getTagList(Constants.OTHER_DISKLIST, 10), type));
             }
         } catch (Exception e) {
             AELog.error(e, "[AE2Thing] Failed to read StorageManager data, keeping previous state");
@@ -156,47 +170,40 @@ public class StorageManager extends WorldSavedData {
         this.disks.putAll(d);
     }
 
+    private static void put(Map<UUID, Map<IAEStackType<?>, DataStorage>> map, UUID uid, DataStorage storage) {
+        map.computeIfAbsent(uid, _ -> new Object2ObjectOpenHashMap<>())
+            .put(storage.getStackType(), storage);
+    }
+
     @Override
     public void writeToNBT(NBTTagCompound data) {
-        NBTTagList diskList = new NBTTagList();
-        NBTTagList fluidDiskList = new NBTTagList();
-        NBTTagList otherDiskList = new NBTTagList();
-        for (Map.Entry<UUID, DataStorage> entry : disks.entrySet()) {
-            if (entry.getValue()
-                .isEmpty()) continue;
-            final NBTTagCompound disk = new NBTTagCompound();
-
-            disk.setString(
-                Constants.DISKUUID,
-                entry.getKey()
-                    .toString());
-            IAEStackType<?> type = entry.getValue()
-                .getStackType();
-            if (type != null) {
-                disk.setString(Constants.DISKTYPE, type.getId());
-            }
-            if (entry.getValue()
-                .getStackType() == AEItemStackType.ITEM_STACK_TYPE) {
-                disk.setTag(
-                    Constants.DISKDATA,
-                    entry.getValue()
-                        .writeToNBT());
-                diskList.appendTag(disk);
-            } else if (entry.getValue()
-                .getStackType() == AEFluidStackType.FLUID_STACK_TYPE) {
-                    disk.setTag(
-                        Constants.FLUID_DISKLIST,
-                        entry.getValue()
-                            .writeToNBT());
+        final NBTTagList diskList = new NBTTagList();
+        final NBTTagList fluidDiskList = new NBTTagList();
+        final NBTTagList otherDiskList = new NBTTagList();
+        for (Map.Entry<UUID, Map<IAEStackType<?>, DataStorage>> entry : this.disks.entrySet()) {
+            for (DataStorage storage : entry.getValue()
+                .values()) {
+                if (storage.isEmpty()) continue;
+                final NBTTagCompound disk = new NBTTagCompound();
+                disk.setString(
+                    Constants.DISKUUID,
+                    entry.getKey()
+                        .toString());
+                final IAEStackType<?> type = storage.getStackType();
+                if (type != null) {
+                    disk.setString(Constants.DISKTYPE, type.getId());
+                }
+                if (type == AEItemStackType.ITEM_STACK_TYPE) {
+                    disk.setTag(Constants.DISKDATA, storage.writeToNBT());
+                    diskList.appendTag(disk);
+                } else if (type == AEFluidStackType.FLUID_STACK_TYPE) {
+                    disk.setTag(Constants.FLUID_DISKLIST, storage.writeToNBT());
                     fluidDiskList.appendTag(disk);
                 } else {
-                    disk.setTag(
-                        Constants.OTHER_DISKLIST,
-                        entry.getValue()
-                            .writeToNBT());
+                    disk.setTag(Constants.OTHER_DISKLIST, storage.writeToNBT());
                     otherDiskList.appendTag(disk);
                 }
-
+            }
         }
         data.setTag(Constants.DISKLIST, diskList);
         data.setTag(Constants.FLUID_DISKLIST, fluidDiskList);
@@ -221,7 +228,7 @@ public class StorageManager extends WorldSavedData {
                 .postAlterationOfStoredItems(AEFluidStackType.FLUID_STACK_TYPE, ObjectLists.singleton(change), null));
     }
 
-    public void postOtherChange(final DataStorage storage, IChestOrDrive drive, IAEStack<?> change) {
+    public void postChange(final DataStorage storage, IChestOrDrive drive, IAEStack<?> change) {
         if (change == null || change.getStackSize() == 0) return;
         final IAEStackType<?> type = change.getStackType();
         if (type == null) return;

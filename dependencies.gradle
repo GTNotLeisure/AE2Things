@@ -57,6 +57,8 @@ dependencies {
     compileOnlyApi("com.github.GTNewHorizons:BetterP2P:1.4.8:dev")
     compileOnlyApi("com.github.GTNewHorizons:Angelica:2.2.43:dev")
     compileOnlyApi("com.github.GTNewHorizons:Botania:1.13.42-GTNH:dev") { transitive = false }
+    compileOnly("com.github.GTNewHorizons:Avaritia:1.100:dev") { transitive = false }
+
     compileOnlyApi("com.github.Shigure-Ruiseki:OKBackpack:26.09.26.0:dev")
     compileOnlyApi("com.github.Shigure-Ruiseki:OKCore:26.09.27.0:dev") { transitive = false }
 

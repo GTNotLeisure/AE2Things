@@ -24,6 +24,8 @@ public class DataStorage implements IDataStorage {
     private IItemList<IAEStack<?>> others;
     private final UUID uuid;
     private final IAEStackType<?> stackType;
+    private long storedCount = -1;
+    private long storedTypes = -1;
 
     public DataStorage(UUID uuid, IAEStackType<?> stackType) {
         this.uuid = uuid;
@@ -33,6 +35,44 @@ public class DataStorage implements IDataStorage {
     @Override
     public IAEStackType<?> getStackType() {
         return this.stackType;
+    }
+
+    public long getStoredCount() {
+        if (this.storedCount < 0) this.recount();
+        return this.storedCount;
+    }
+
+    public long getStoredTypes() {
+        if (this.storedTypes < 0) this.recount();
+        return this.storedTypes;
+    }
+
+    public void addStored(final long count, final long types) {
+        if (this.storedCount >= 0) this.storedCount += count;
+        if (this.storedTypes >= 0) this.storedTypes += types;
+    }
+
+    public Iterable<? extends IAEStack<?>> list() {
+        if (this.getStackType() == AEItemStackType.ITEM_STACK_TYPE) {
+            return this.getItems();
+        } else if (this.getStackType() == AEFluidStackType.FLUID_STACK_TYPE) {
+            return this.getFluids();
+        } else {
+            return this.getOthers();
+        }
+    }
+
+    private void recount() {
+        final Iterable<? extends IAEStack<?>> list = this.list();
+        long count = 0;
+        long types = 0;
+        for (final IAEStack<?> stack : list) {
+            if (stack.getStackSize() <= 0) continue;
+            count += stack.getStackSize();
+            types++;
+        }
+        this.storedCount = count;
+        this.storedTypes = types;
     }
 
     @Override
@@ -117,6 +157,8 @@ public class DataStorage implements IDataStorage {
                     .add(as);
             }
         }
+        this.storedCount = -1;
+        this.storedTypes = -1;
     }
 
     private IItemList<IAEStack<?>> readOtherList(final NBTTagList tag) {
@@ -199,7 +241,7 @@ public class DataStorage implements IDataStorage {
         final NBTTagCompound out = new NBTTagCompound();
 
         if (other != null) {
-            other.writeToNBT(out);
+            other.writeToNBTGeneric(out);
         }
 
         return out;

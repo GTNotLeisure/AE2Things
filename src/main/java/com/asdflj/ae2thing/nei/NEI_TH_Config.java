@@ -36,6 +36,7 @@ public class NEI_TH_Config implements IConfigureNEI {
     @Override
     public void loadConfig() {
         API.registerNEIGuiHandler(new AE2TH_NEIGuiHandler());
+        API.registerUsageHandler(new InfinityStorageCellUsageHandler());
         List<String> recipes = new ObjectArrayList<>();
         recipes.add("crafting");
         recipes.add("crafting2x2");

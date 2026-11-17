@@ -14,6 +14,7 @@ public class NameConst {
     public static final String ITEM_CREATIVE_FLUID_CELL_WATER = ITEM_CREATIVE_FLUID_CELL + ".water";
     public static final String ITEM_CREATIVE_FLUID_CELL_LAVA = ITEM_CREATIVE_FLUID_CELL + ".lava";
     public static final String ITEM_INFINITY_FLUID_CELL = "infinity_fluid_cell";
+    public static final String ITEM_INFINITY_UNIVERSAL_CELL = "infinity_universal_cell";
     public static final String ITEM_PART_INFUSION_PATTERN_TERMINAL = "part_infusion_pattern_terminal";
     public static final String ITEM_PART_THAUMATORIUM_INTERFACE = "part_thaumatorium_interface";
     public static final String ITEM_PART_WIRELESS_CONNECTOR_TERMINAL = "part_wireless_connector_terminal";

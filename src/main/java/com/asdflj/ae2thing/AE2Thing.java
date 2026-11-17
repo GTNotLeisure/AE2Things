@@ -4,6 +4,7 @@ import net.minecraft.util.ResourceLocation;
 
 import com.asdflj.ae2thing.common.Config;
 import com.asdflj.ae2thing.common.storage.CellHandler;
+import com.asdflj.ae2thing.common.storage.UniversalCellHandler;
 import com.asdflj.ae2thing.crossmod.waila.WailaInit;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
@@ -74,6 +75,10 @@ public class AE2Thing {
             .registries()
             .cell()
             .addCellHandler(new CellHandler());
+        AEApi.instance()
+            .registries()
+            .cell()
+            .addCellHandler(new UniversalCellHandler());
         RecipeLoader.INSTANCE.run();
         proxy.postInit(event);
     }

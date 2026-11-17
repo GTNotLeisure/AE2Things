@@ -16,6 +16,7 @@ import com.asdflj.ae2thing.common.item.ItemCreativeCell;
 import com.asdflj.ae2thing.common.item.ItemCreativeFluidCell;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageCell;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageFluidCell;
+import com.asdflj.ae2thing.common.item.ItemInfinityStorageUniversalCell;
 import com.asdflj.ae2thing.common.item.ItemPartInfusionPatternTerminal;
 import com.asdflj.ae2thing.common.item.ItemPartThaumatoriumInterface;
 import com.asdflj.ae2thing.common.item.ItemPartWirelessConnectorTerminal;
@@ -50,6 +51,8 @@ public class ItemAndBlockHolder implements Runnable {
     public static BlockWirelessDistributor WIRELESS_DISTRIBUTOR;
     public static ItemInfinityStorageCell ITEM_INFINITY_CELL = new ItemInfinityStorageCell().register();
     public static ItemInfinityStorageFluidCell ITEM_INFINITY_FLUID_CELL = new ItemInfinityStorageFluidCell().register();
+    public static ItemInfinityStorageUniversalCell ITEM_INFINITY_UNIVERSAL_CELL = new ItemInfinityStorageUniversalCell()
+        .register();
     public static ItemPartWirelessConnectorTerminal WIRELESS_CONNECTOR_TERMINAL = new ItemPartWirelessConnectorTerminal()
         .register();
     public static ItemWirelessConnectorTerminal ITEM_WIRELESS_CONNECTOR_TERMINAL = new ItemWirelessConnectorTerminal()

@@ -3,9 +3,9 @@ package com.asdflj.ae2thing.api.container;
 import java.util.IdentityHashMap;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.item.ItemStack;
+
+import org.jetbrains.annotations.Nullable;
 
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IAEStackType;

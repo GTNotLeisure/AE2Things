@@ -21,6 +21,8 @@ import net.minecraft.item.ItemStack;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageCell;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageFluidCell;
+import com.asdflj.ae2thing.common.item.ItemInfinityStorageUniversalCell;
+import com.asdflj.ae2thing.common.storage.infinityCell.UniversalCellSnapshot;
 import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.api.AEApi;
@@ -44,6 +46,7 @@ public class CellContentHandler extends TooltipHandlerWaila {
     private static final List<IAEStack<?>> cellContent = new ObjectArrayList<>();
     private static final List<IAEItemStack> upgradeCard = new ObjectArrayList<>();
     private static final int maxStacksPerRow = 5;
+    private static final int maxTooltipStacks = maxStacksPerRow * 3;
     private static final GuiDraw.ITooltipLineHandler cellItemStackHandler = new GuiDraw.ITooltipLineHandler() {
 
         @Override
@@ -89,6 +92,10 @@ public class CellContentHandler extends TooltipHandlerWaila {
             try {
                 cellContent.clear();
                 upgradeCard.clear();
+                if (cell.getItem() instanceof ItemInfinityStorageUniversalCell) {
+                    this.addUniversalCellTooltip(cell, currentToolTip);
+                    return currentToolTip;
+                }
                 Set<IMEInventoryHandler<?>> seenHandlers = Collections.newSetFromMap(new IdentityHashMap<>());
                 List<IAEStack<?>> contents = new ObjectArrayList<>();
                 for (IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
@@ -108,6 +115,22 @@ public class CellContentHandler extends TooltipHandlerWaila {
             } catch (Exception ignored) {}
         }
         return currentToolTip;
+    }
+
+    private void addUniversalCellTooltip(ItemStack cell, List<String> currentToolTip) {
+        ObjectArrayList<IAEStack<?>> contents = new ObjectArrayList<>();
+        for (IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
+            contents.addAll(UniversalCellSnapshot.contents(cell, type));
+        }
+        if (contents.isEmpty()) {
+            addUpgradeCard(cell, currentToolTip);
+            return;
+        }
+        this.sortContents(contents);
+        addTooltip(
+            contents.size() > maxTooltipStacks ? contents.subList(0, maxTooltipStacks) : contents,
+            cell,
+            currentToolTip);
     }
 
     private void addTooltip(List<IAEStack<?>> list, ItemStack cell, List<String> currentToolTip) {

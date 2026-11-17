@@ -15,7 +15,10 @@ public enum Mixins implements IMixins {
             "ae.MixinContainerSubGui",
             "ae.MixinCraftingJobV2",
             "ae.MixinGridStorage",
+            "ae.MixinGridStorageCache",
             "ae.MixinPacketMonitorableAction",
+            "ae.MixinTileChest",
+            "ae.MixinTileDrive",
             "ae.MixinTileIOPort",
             "ae.MixinContainerCraftAmount")
         .addClientMixins(

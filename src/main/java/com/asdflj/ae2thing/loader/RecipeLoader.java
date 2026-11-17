@@ -13,6 +13,7 @@ import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_CREATIVE_COBBLE
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_CREATIVE_WATER_CELL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_INFINITY_CELL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_INFINITY_FLUID_CELL;
+import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_INFINITY_UNIVERSAL_CELL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_PATTERN_MODIFIER;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_WIRELESS_CONNECTOR_TERMINAL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL;
@@ -194,6 +195,11 @@ public class RecipeLoader implements Runnable {
                 "CCC",
                 'C',
                 AE2FC_DIGITAL_SINGULARITY_CELL));
+        GameRegistry.addRecipe(
+            new ShapelessOreRecipe(
+                ITEM_INFINITY_UNIVERSAL_CELL.stack(),
+                ITEM_INFINITY_CELL.stack(),
+                ITEM_INFINITY_FLUID_CELL.stack()));
         ItemStack ae2StuffWireless = Ae2StuffIntegration.wirelessBlockStack();
         if (ae2StuffWireless != null) {
             GameRegistry

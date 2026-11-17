@@ -20,13 +20,13 @@ The project's own code is released under the GNU General Public License v3.0, se
 
 ### Third-party material
 
-Two upstream projects are involved. They carry different licenses, so they are kept separate here.
+Three upstream projects are involved. They carry different licenses, so they are kept separate here.
 
-| Upstream                                                                  | License                                                | How it is used                                                                                | Bundled in this jar |
-|:--------------------------------------------------------------------------|:-------------------------------------------------------|:----------------------------------------------------------------------------------------------|:-------------------:|
-| [Botania](https://github.com/GTNewHorizons/Botania) (Vazkii)              | [Botania License](https://botaniamod.net/license.html) | runtime dependency: API calls and extended internals, its own pool texture is read at runtime |         ❌          |
-| [appbot / Applied Botanics](https://github.com/ramidzkh/Applied-Botanics) | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | ported code and all resource files                                                            |         ✅          |
-
+| Upstream                                                                              | License                                                | How it is used                                                                                | Bundled in this jar |
+|:--------------------------------------------------------------------------------------|:-------------------------------------------------------|:----------------------------------------------------------------------------------------------|:-------------------:|
+| [GTNewHorizons/Botania](https://github.com/GTNewHorizons/Botania) (Vazkii)            | [Botania License](https://botaniamod.net/license.html) | runtime dependency: API calls and extended internals, its own pool texture is read at runtime |         ❌          |
+| [ramidzkh/Applied Botanics](https://github.com/ramidzkh/Applied-Botanics)             | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | ported code and all resource files                                                            |         ✅          |
+| [DancingSnow0517/AE2InfinityCell](https://github.com/DancingSnow0517/AE2InfinityCell) | [MIT](https://mit-license.org/)                        | inspired and reuse some codes                                                                 |         ❌          |
 #### Botania (Vazkii) — runtime dependency, nothing bundled
 
 The Applied Botanics module is built on top of Botania and requires it at runtime. It calls Botania's API
@@ -47,9 +47,8 @@ adapted from appbot as well: the blockstates and block model of the fluix mana p
 mana cells, the cell housing, the creative cell, the mana marker, the GUI / inventory icons and the fluix mana
 pool model textures. Only the language files under `assets/ae2thing_ab/lang` are written for this project.
 
-appbot is licensed under LGPL-3.0, which allows relicensing into a GPLv3 work; the original copyrights of the
-ported code and resource files remain with appbot's authors. The 1.7.10 / GTNH port itself is this project's
-work.
+the original copyrights of the ported code and resource files remain with appbot's authors.
+The 1.7.10 / GTNH port itself is this project's work.
 
 ## Gallery
 **Infinity cell**</br>
