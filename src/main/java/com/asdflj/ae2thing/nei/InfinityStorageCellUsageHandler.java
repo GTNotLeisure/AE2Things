@@ -18,8 +18,8 @@ import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.input.Mouse;
 
-import com.asdflj.ae2thing.common.item.ItemInfinityStorageUniversalCell;
-import com.asdflj.ae2thing.common.storage.infinityCell.UniversalCellSnapshot;
+import com.asdflj.ae2thing.common.item.BaseInfinityCellItem;
+import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
 
 import appeng.api.config.TerminalFontSize;
 import appeng.api.storage.data.AEStackTypeRegistry;
@@ -56,6 +56,7 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
     private NEIScrollArea scrollArea;
     private int rows = 1;
+    private int rowsLimit = 1;
     private long usedTypes;
     private long totalTypes;
     private long usedBytes;
@@ -64,8 +65,8 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
     @Override
     public IUsageHandler getUsageHandler(String inputId, Object... ingredients) {
-        if (ingredients.length == 0 || !(ingredients[0] instanceof ItemStack cell)
-            || !(cell.getItem() instanceof ItemInfinityStorageUniversalCell storageCell)) {
+        if (ingredients.length == 0 || !(ingredients[0] instanceof ItemStack cell)) return null;
+        if (!(cell.getItem() instanceof BaseInfinityCellItem<?>storageCell)) {
             return null;
         }
 
@@ -78,15 +79,15 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
         this.usedBytes = 0;
         final ObjectList<IAEStack<?>> contents = new ObjectArrayList<>();
         for (final IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
-            final NBTTagCompound section = ItemInfinityStorageUniversalCell.getSnapshot(cell, type);
+            final NBTTagCompound section = InfinityStorageCellSnapshot.section(cell, type);
             if (section == null) continue;
 
-            final long types = section.getInteger(ItemInfinityStorageUniversalCell.NBT_SNAPSHOT_TYPES);
-            final long count = section.getLong(ItemInfinityStorageUniversalCell.NBT_SNAPSHOT_COUNT);
+            final long types = section.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES);
+            final long count = section.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT);
             if (types <= 0 && count <= 0) continue;
             this.usedTypes += types;
             this.usedBytes += count / Math.max(1, type.getAmountPerByte()) + types * (long) bytesPerType;
-            contents.addAll(UniversalCellSnapshot.contents(cell, type));
+            contents.addAll(InfinityStorageCellSnapshot.contents(cell, type));
         }
         if (this.totalBytes > 0) this.usedBytes = Math.min(this.usedBytes, this.totalBytes);
 
@@ -107,10 +108,20 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
                 .add(new ViewItemStack(positionedStack, bakeCount ? 0 : aes.getStackSize(), aes.getStackSize()));
             this.positioned.add(positionedStack);
         }
-        this.rows = Math.clamp((this.entries.size() + COLUMNS - 1) / COLUMNS, 1, maxRows());
+        this.rowsLimit = maxRows();
+        this.rows = Math.clamp((this.entries.size() + COLUMNS - 1) / COLUMNS, 1, this.rowsLimit);
         this.scrollArea = new NEIScrollArea(OFFSET_X, ITEMS_OFFSET_Y, COLUMNS, this.rows);
         this.scrollArea.setStacks(this.positioned);
         return this;
+    }
+
+    private void ensureLayout() {
+        this.rowsLimit = Math.max(1, Math.min(this.rowsLimit, maxRows()));
+        final int desired = Math.clamp((this.entries.size() + COLUMNS - 1) / COLUMNS, 1, this.rowsLimit);
+        if (desired == this.rows && this.scrollArea != null) return;
+        this.rows = desired;
+        this.scrollArea = new NEIScrollArea(OFFSET_X, ITEMS_OFFSET_Y, COLUMNS, desired);
+        this.scrollArea.setStacks(this.positioned);
     }
 
     private static int maxRows() {
@@ -124,6 +135,7 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
     @Override
     public int getRecipeHeight(int recipe) {
+        this.ensureLayout();
         return ITEMS_OFFSET_Y + this.rows * SLOT_HEIGHT + BOTTOM_MARGIN;
     }
 
@@ -139,6 +151,7 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
     @Override
     public void drawBackground(int recipe) {
+        this.ensureLayout();
         if (this.scrollArea == null) return;
 
         if (NEIClientUtils.getGuiContainer() instanceof GuiRecipe<?>gui && this.scrollArea.isDragging()) {

@@ -32,7 +32,7 @@ import com.asdflj.ae2thing.common.parts.PartThaumatoriumInterface;
 import com.asdflj.ae2thing.common.parts.universal.PartUniversalStorageBus;
 import com.asdflj.ae2thing.common.storage.StorageManager;
 import com.asdflj.ae2thing.common.storage.backpack.OKBackpackHandler;
-import com.asdflj.ae2thing.common.storage.infinityCell.UniversalCellSnapshot;
+import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
 import com.asdflj.ae2thing.common.tile.TileInfusionInterface;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.item.PatternModifierInventory;
@@ -130,20 +130,20 @@ public class CommonProxy {
         if (event.phase != TickEvent.Phase.END) return;
         if (++this.snapshotTick < 20) return;
         this.snapshotTick = 0;
-        UniversalCellSnapshot.flushAll();
+        InfinityStorageCellSnapshot.flushAll();
     }
 
     @SubscribeEvent
     public void onWorldSave(WorldEvent.Save event) {
         if (Platform.isClient() || event.world.provider.dimensionId != 0) return;
-        UniversalCellSnapshot.flushAllForce();
+        InfinityStorageCellSnapshot.flushAllForce();
     }
 
     @SubscribeEvent
     public void onWorldUnload(WorldEvent.Unload event) {
         if (Platform.isClient() || event.world.provider.dimensionId != 0) return;
-        UniversalCellSnapshot.flushAllForce();
-        UniversalCellSnapshot.clear();
+        InfinityStorageCellSnapshot.flushAllForce();
+        InfinityStorageCellSnapshot.clear();
         final StorageManager manager = AE2ThingAPI.instance()
             .getStorageManager();
         if (manager != null) manager.flushDirtyDisks();
@@ -328,8 +328,8 @@ public class CommonProxy {
     }
 
     public void serverStopping(FMLServerStoppingEvent event) {
-        UniversalCellSnapshot.flushAllForce();
-        UniversalCellSnapshot.clear();
+        InfinityStorageCellSnapshot.flushAllForce();
+        InfinityStorageCellSnapshot.clear();
         StorageManager m = AE2ThingAPI.instance()
             .getStorageManager();
         if (m != null) {

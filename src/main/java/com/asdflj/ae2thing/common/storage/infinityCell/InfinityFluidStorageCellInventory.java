@@ -58,6 +58,10 @@ public class InfinityFluidStorageCellInventory implements ITFluidCellInventory {
         this.storedFluids = this.data.getLong(FLUID_TYPE_TAG);
         this.storedFluidCount = this.data.getLong(FLUID_COUNT_TAG);
         this.storage = this.getStorage();
+        if (this.storage != null) {
+            InfinityStorageCellSnapshot
+                .markDirtyIfMissing(this.storage.getUUID(), AEFluidStackType.FLUID_STACK_TYPE, this.cellItem);
+        }
     }
 
     @Override
@@ -76,8 +80,9 @@ public class InfinityFluidStorageCellInventory implements ITFluidCellInventory {
 
         if (l != null) {
             if (mode == Actionable.MODULATE) {
+                final long typeDelta = l.getStackSize() <= 0 ? 1 : 0;
                 l.setStackSize(l.getStackSize() + input.getStackSize());
-                this.saveChanges(input.copy());
+                this.saveChanges(input.copy(), typeDelta);
             }
             return null;
         }
@@ -86,7 +91,7 @@ public class InfinityFluidStorageCellInventory implements ITFluidCellInventory {
         {
             if (mode == Actionable.MODULATE) {
                 this.cellFluids.add(input);
-                this.saveChanges(input.copy());
+                this.saveChanges(input.copy(), 1);
             }
             return null;
         }
@@ -114,10 +119,11 @@ public class InfinityFluidStorageCellInventory implements ITFluidCellInventory {
                 results.setStackSize(l.getStackSize());
 
                 if (mode == Actionable.MODULATE) {
+                    final long typeDelta = l.getStackSize() > 0 ? -1 : 0;
                     l.setStackSize(0);
                     IAEFluidStack change = results.copy();
                     change.setStackSize(-results.getStackSize());
-                    this.saveChanges(change);
+                    this.saveChanges(change, typeDelta);
                 }
             } else {
                 results.setStackSize(size);
@@ -126,7 +132,7 @@ public class InfinityFluidStorageCellInventory implements ITFluidCellInventory {
                     l.setStackSize(l.getStackSize() - size);
                     IAEFluidStack change = results.copy();
                     change.setStackSize(-results.getStackSize());
-                    this.saveChanges(change);
+                    this.saveChanges(change, 0);
                 }
             }
         }
@@ -134,8 +140,19 @@ public class InfinityFluidStorageCellInventory implements ITFluidCellInventory {
         return results;
     }
 
-    private void saveChanges(IAEFluidStack change) {
-        this.data.setBoolean(Constants.IS_EMPTY, this.cellFluids.isEmpty());
+    private void saveChanges(IAEFluidStack change, long typeDelta) {
+        this.storedFluidCount = Math.max(0, this.storedFluidCount + change.getStackSize());
+        this.storedFluids = Math.max(0, this.storedFluids + typeDelta);
+        this.data.setLong(FLUID_TYPE_TAG, this.storedFluids);
+        this.data.setLong(FLUID_COUNT_TAG, this.storedFluidCount);
+        this.data.setBoolean(
+            Constants.IS_EMPTY,
+            this.getCellFluids()
+                .isEmpty());
+        if (this.storage != null) {
+            InfinityStorageCellSnapshot
+                .markDirty(this.storage.getUUID(), AEFluidStackType.FLUID_STACK_TYPE, this.cellItem);
+        }
         if (this.container != null) {
             this.container.saveChanges(this);
         }
@@ -170,11 +187,24 @@ public class InfinityFluidStorageCellInventory implements ITFluidCellInventory {
 
     protected void loadCellFluids() {
         if (this.cellFluids == null) {
-            this.cellFluids = this.storage == null ? AEApi.instance()
-                .storage()
-                .createFluidList() : this.storage.getFluids();
-            for (IAEFluidStack is : this.cellFluids) {
-                if (is.getStackSize() <= 0) is.reset();
+            if (this.storage == null) {
+                this.cellFluids = AEApi.instance()
+                    .storage()
+                    .createFluidList();
+            } else {
+                this.cellFluids = this.storage.getFluids();
+                long types = 0;
+                long count = 0;
+                for (final IAEFluidStack is : this.cellFluids) {
+                    if (is.getStackSize() <= 0) {
+                        is.reset();
+                        continue;
+                    }
+                    types++;
+                    count += is.getStackSize();
+                }
+                this.storedFluids = types;
+                this.storedFluidCount = count;
             }
         }
         if (this.storage != null && !this.getUUID()
@@ -249,6 +279,7 @@ public class InfinityFluidStorageCellInventory implements ITFluidCellInventory {
 
     @Override
     public long getStoredItemCount() {
+        this.getCellFluids();
         return this.storedFluidCount;
     }
 
@@ -280,6 +311,7 @@ public class InfinityFluidStorageCellInventory implements ITFluidCellInventory {
 
     @Override
     public long getStoredItemTypes() {
+        this.getCellFluids();
         return this.storedFluids;
     }
 

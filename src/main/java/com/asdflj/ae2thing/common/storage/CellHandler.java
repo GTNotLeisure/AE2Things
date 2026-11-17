@@ -9,6 +9,7 @@ import net.minecraft.util.IIcon;
 
 import com.asdflj.ae2thing.common.item.IItemInventoryHandler;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
+import com.asdflj.ae2thing.common.item.ItemInfinityStorageUniversalCell;
 
 import appeng.api.implementations.tiles.IChestOrDrive;
 import appeng.api.storage.ICellHandler;
@@ -25,8 +26,9 @@ public class CellHandler implements ICellHandler {
 
     @Override
     public boolean isCell(ItemStack is) {
-        return is != null && is.getItem() instanceof IItemInventoryHandler
-            && !(is.getItem() instanceof ItemBackpackTerminal);
+        if (is == null || !(is.getItem() instanceof IItemInventoryHandler)) return false;
+        if (is.getItem() instanceof ItemBackpackTerminal) return false;
+        return !(is.getItem() instanceof ItemInfinityStorageUniversalCell);
     }
 
     @Override
@@ -34,7 +36,9 @@ public class CellHandler implements ICellHandler {
         try {
             // The backpack terminal inventory is backed by a specific player's carried backpacks. Drives, chests and
             // generic cell probes do not have that player context and must not construct it as a storage cell.
-            if (is == null || is.getItem() instanceof ItemBackpackTerminal) return null;
+            // The universal cell mounts through UniversalCellHandler and the drive/chest mixins instead.
+            if (is == null || is.getItem() instanceof ItemBackpackTerminal
+                || is.getItem() instanceof ItemInfinityStorageUniversalCell) return null;
             if (is.getItem() instanceof IItemInventoryHandler iih) {
                 if (Objects.equals(iih.getStackType(), stackType)) {
                     return iih.getInventoryHandler(is, container, null);

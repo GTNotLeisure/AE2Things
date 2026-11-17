@@ -58,6 +58,10 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
         this.storedItemTypes = data.getLong(ITEM_TYPE_TAG);
         this.storedItemCount = data.getLong(ITEM_COUNT_TAG);
         this.storage = this.getStorage();
+        if (this.storage != null) {
+            InfinityStorageCellSnapshot
+                .markDirtyIfMissing(this.storage.getUUID(), AEItemStackType.ITEM_STACK_TYPE, this.cellItem);
+        }
     }
 
     @Override
@@ -68,11 +72,24 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
     @Override
     public void loadCellItems() {
         if (this.cellItems == null) {
-            this.cellItems = this.storage == null ? AEApi.instance()
-                .storage()
-                .createItemList() : this.storage.getItems();
-            for (IAEItemStack is : this.cellItems) {
-                if (is.getStackSize() <= 0) is.reset();
+            if (this.storage == null) {
+                this.cellItems = AEApi.instance()
+                    .storage()
+                    .createItemList();
+            } else {
+                this.cellItems = this.storage.getItems();
+                long types = 0;
+                long count = 0;
+                for (final IAEItemStack is : this.cellItems) {
+                    if (is.getStackSize() <= 0) {
+                        is.reset();
+                        continue;
+                    }
+                    types++;
+                    count += is.getStackSize();
+                }
+                this.storedItemTypes = types;
+                this.storedItemCount = count;
             }
         }
         if (this.storage != null && !this.getUUID()
@@ -148,11 +165,13 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
 
     @Override
     public long getStoredItemCount() {
+        this.getCellItems();
         return this.storedItemCount;
     }
 
     @Override
     public long getStoredItemTypes() {
+        this.getCellItems();
         return this.storedItemTypes;
     }
 
@@ -225,6 +244,8 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
                 return input;
             }
 
+            final long typeDelta = l.getStackSize() <= 0 ? 1 : 0;
+
             if (in > remainingItemSlots) {
                 final IAEItemStack r = input.copy();
                 r.setStackSize(r.getStackSize() - remainingItemSlots);
@@ -233,14 +254,14 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
                     l.setStackSize(l.getStackSize() + remainingItemSlots);
                     IAEItemStack change = input.copy();
                     change.setStackSize(remainingItemSlots);
-                    this.saveChanges(change);
+                    this.saveChanges(change, typeDelta);
                 }
 
                 return r;
             } else {
                 if (mode == Actionable.MODULATE) {
                     l.setStackSize(l.getStackSize() + in);
-                    this.saveChanges(input.copy());
+                    this.saveChanges(input.copy(), typeDelta);
                 }
 
                 return null;
@@ -260,14 +281,14 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
                         final IAEItemStack toWrite = input.copy();
                         toWrite.setStackSize(remainingItemCount);
                         this.cellItems.add(toWrite);
-                        this.saveChanges(toWrite.copy());
+                        this.saveChanges(toWrite.copy(), 1);
                     }
                     return toReturn;
                 }
 
                 if (mode == Actionable.MODULATE) {
                     this.cellItems.add(input);
-                    this.saveChanges(input.copy());
+                    this.saveChanges(input.copy(), 1);
                 }
 
                 return null;
@@ -306,10 +327,11 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
                 results.setStackSize(l.getStackSize());
 
                 if (mode == Actionable.MODULATE) {
+                    final long typeDelta = l.getStackSize() > 0 ? -1 : 0;
                     l.setStackSize(0);
                     IAEItemStack change = results.copy();
                     change.setStackSize(-results.getStackSize());
-                    this.saveChanges(change);
+                    this.saveChanges(change, typeDelta);
                 }
             } else {
                 results.setStackSize(size);
@@ -318,7 +340,7 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
                     l.setStackSize(l.getStackSize() - size);
                     IAEItemStack change = results.copy();
                     change.setStackSize(-results.getStackSize());
-                    this.saveChanges(change);
+                    this.saveChanges(change, 0);
                 }
             }
         }
@@ -326,8 +348,19 @@ public class InfinityItemStorageCellInventory implements ITCellInventory {
         return results;
     }
 
-    private void saveChanges(IAEItemStack change) {
-        this.data.setBoolean(Constants.IS_EMPTY, this.cellItems.isEmpty());
+    private void saveChanges(IAEItemStack change, long typeDelta) {
+        this.storedItemCount = Math.max(0, this.storedItemCount + change.getStackSize());
+        this.storedItemTypes = Math.max(0, this.storedItemTypes + typeDelta);
+        this.data.setLong(ITEM_TYPE_TAG, this.storedItemTypes);
+        this.data.setLong(ITEM_COUNT_TAG, this.storedItemCount);
+        this.data.setBoolean(
+            Constants.IS_EMPTY,
+            this.getCellItems()
+                .isEmpty());
+        if (this.storage != null) {
+            InfinityStorageCellSnapshot
+                .markDirty(this.storage.getUUID(), AEItemStackType.ITEM_STACK_TYPE, this.cellItem);
+        }
         if (this.container != null) {
             this.container.saveChanges(this);
         }

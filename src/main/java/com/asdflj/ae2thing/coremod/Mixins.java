@@ -56,6 +56,7 @@ public enum Mixins implements IMixins {
 
     NEI(new MixinBuilder()
         .addClientMixins(
+            "ae.MixinNEICellViewHandler",
             "nei.MixinAutoCraftingManager",
             "nei.MixinGuiContainerManager",
             "nei.MixinGuiOverlayButton",

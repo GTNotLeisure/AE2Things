@@ -56,6 +56,8 @@ public class StorageManager extends WorldSavedData {
 
     private File saveDirectory;
     private boolean legacyLoaded;
+    private boolean legacyLoadFailed;
+    private boolean legacyBackedUp;
 
     public StorageManager(String name) {
         super(name);
@@ -86,12 +88,14 @@ public class StorageManager extends WorldSavedData {
 
     public boolean hasContent(String uuid) {
         if (uuid == null || uuid.isEmpty()) return false;
-        final UUID uid;
         try {
-            uid = UUID.fromString(uuid);
+            return this.hasContent(UUID.fromString(uuid));
         } catch (IllegalArgumentException e) {
             return false;
         }
+    }
+
+    private boolean hasContent(UUID uid) {
         final Map<IAEStackType<?>, DataStorage> byType = this.disks.get(uid);
         if (byType == null) return false;
         for (final DataStorage storage : byType.values()) {
@@ -155,6 +159,14 @@ public class StorageManager extends WorldSavedData {
 
     public void loadFromDirectory() {
         if (this.saveDirectory == null) return;
+        final File[] temps = this.saveDirectory.listFiles((_, name) -> name.endsWith(DISK_TEMP_SUFFIX));
+        if (temps != null) {
+            for (final File temp : temps) {
+                try {
+                    Files.deleteIfExists(temp.toPath());
+                } catch (Exception ignored) {}
+            }
+        }
         final File[] files = this.saveDirectory.listFiles((_, name) -> name.endsWith(DISK_SUFFIX));
         if (files == null) return;
         for (final File file : files) {
@@ -165,15 +177,36 @@ public class StorageManager extends WorldSavedData {
         }
     }
 
-    public void flushDirtyDisks() {
-        if (this.saveDirectory == null || this.dirtyDisks.isEmpty()) return;
+    public boolean flushDirtyDisks() {
+        if (this.saveDirectory == null || this.dirtyDisks.isEmpty()) return true;
         final UUID[] dirty = this.dirtyDisks.toArray(new UUID[0]);
         this.dirtyDisks.clear();
+        boolean ok = true;
         for (final UUID uid : dirty) {
             final Map<IAEStackType<?>, DataStorage> byType = this.disks.get(uid);
             if (byType == null || byType.isEmpty()) continue;
-            if (!this.writeDisk(uid, byType)) this.dirtyDisks.add(uid);
+            if (!this.hasContent(uid)) {
+                this.deleteDisk(uid);
+                continue;
+            }
+            if (!this.writeDisk(uid, byType)) {
+                this.dirtyDisks.add(uid);
+                ok = false;
+            }
         }
+        return ok;
+    }
+
+    private void deleteDisk(UUID uid) {
+        final File file = this.diskFile(uid);
+        if (file == null) return;
+        try {
+            Files.deleteIfExists(file.toPath());
+        } catch (Exception e) {
+            AELog.error("[AE2Thing] Failed to delete disk %s: %s", file.getName(), e);
+            return;
+        }
+        deleteQuietly(new File(file.getParentFile(), file.getName() + DISK_BACKUP_SUFFIX));
     }
 
     private void loadDisk(UUID uid, File file) {
@@ -225,10 +258,9 @@ public class StorageManager extends WorldSavedData {
         try (FileOutputStream out = new FileOutputStream(temp)) {
             CompressedStreamTools.writeCompressed(tag, out);
             out.flush();
-            out.getFD()
-                .sync();
         } catch (Exception e) {
-            AELog.error(e, "[AE2Thing] Failed to write disk " + file.getName());
+            AELog.error("[AE2Thing] Failed to write disk %s: %s", file.getName(), e);
+            deleteQuietly(temp);
             return false;
         }
 
@@ -247,10 +279,18 @@ public class StorageManager extends WorldSavedData {
                 Files.move(temp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (Exception e) {
-            AELog.error(e, "[AE2Thing] Failed to replace disk " + file.getName());
+            AELog.error("[AE2Thing] Failed to replace disk %s: %s", file.getName(), e);
+            deleteQuietly(temp);
             return false;
         }
         return true;
+    }
+
+    private static void deleteQuietly(File file) {
+        if (file == null) return;
+        try {
+            Files.deleteIfExists(file.toPath());
+        } catch (Exception ignored) {}
     }
 
     private static NBTTagCompound readCompressed(File file) {
@@ -331,6 +371,7 @@ public class StorageManager extends WorldSavedData {
             }
         } catch (Exception e) {
             AELog.error(e, "[AE2Thing] Failed to read legacy storage data, keeping previous state");
+            this.legacyLoadFailed = true;
             return;
         }
 
@@ -346,11 +387,19 @@ public class StorageManager extends WorldSavedData {
             this.writeLegacy(data);
             return;
         }
+        if (this.legacyLoadFailed && !this.legacyBackedUp) {
+            this.legacyBackedUp = true;
+            this.backupLegacyFile();
+        }
+        if (!this.flushDirtyDisks()) {
+            this.writeLegacy(data);
+            this.legacyLoaded = true;
+            return;
+        }
         if (this.legacyLoaded) {
             this.legacyLoaded = false;
             this.backupLegacyFile();
         }
-        this.flushDirtyDisks();
         data.setInteger(SAVE_FORMAT, SAVE_FORMAT_DISK_FILES);
     }
 

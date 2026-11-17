@@ -7,7 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.Constants;
-import com.asdflj.ae2thing.common.storage.infinityCell.UniversalCellSnapshot;
+import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 
 import appeng.api.config.Actionable;
@@ -57,7 +57,7 @@ public class UniversalCellInventory<T extends IAEStack<T>> implements ICellInven
         if (manager == null) return null;
         final DataStorage storage = manager.getStorage(this.data.getString(Constants.DISKUUID), this.type);
         this.data.setString(Constants.DISKUUID, storage.getUUID());
-        UniversalCellSnapshot.markDirtyIfMissing(storage.getUUID(), this.type, this.cellItem);
+        InfinityStorageCellSnapshot.markDirtyIfMissing(storage.getUUID(), this.type, this.cellItem);
         return storage;
     }
 
@@ -242,16 +242,15 @@ public class UniversalCellInventory<T extends IAEStack<T>> implements ICellInven
     }
 
     private void saveChanges(T change) {
-        this.data.setBoolean(
-            Constants.IS_EMPTY,
-            this.getCellItems()
-                .isEmpty());
-        if (this.storage != null) {
-            UniversalCellSnapshot.markDirty(this.storage.getUUID(), this.type, this.cellItem);
-        }
-        if (this.container != null) this.container.saveChanges(this);
         final StorageManager manager = AE2ThingAPI.instance()
             .getStorageManager();
+        this.data.setBoolean(
+            Constants.IS_EMPTY,
+            this.storage == null || manager == null || !manager.hasContent(this.storage.getUUID()));
+        if (this.storage != null) {
+            InfinityStorageCellSnapshot.markDirty(this.storage.getUUID(), this.type, this.cellItem);
+        }
+        if (this.container != null) this.container.saveChanges(this);
         if (manager != null) {
             manager.postChange(this.storage, this.drive, change);
             manager.setDirty(true);

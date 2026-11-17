@@ -49,6 +49,13 @@ public final class ItemStackNBT {
         return this;
     }
 
+    public ItemStackNBT setLong(String key, long value) {
+        ensureInitialized();
+        stack.getTagCompound()
+            .setLong(key, value);
+        return this;
+    }
+
     public ItemStackNBT setString(String key, @NotNull String value) {
         ensureInitialized();
         stack.getTagCompound()

@@ -5,13 +5,11 @@ import static net.minecraft.util.EnumChatFormatting.WHITE;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
-import java.util.EnumSet;
 import java.util.List;
 import java.util.Locale;
 
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.renderer.texture.IIconRegister;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -21,100 +19,32 @@ import net.minecraft.util.IIcon;
 
 import org.jetbrains.annotations.Nullable;
 
-import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.Constants;
-import com.asdflj.ae2thing.common.storage.infinityCell.UniversalCellSnapshot;
-import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
+import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.NameConst;
 
-import appeng.api.config.FuzzyMode;
 import appeng.api.config.Upgrades;
-import appeng.api.implementations.items.IStorageCell;
 import appeng.api.implementations.items.IUpgradeModule;
 import appeng.api.storage.data.AEStackTypeRegistry;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IAEStackType;
-import appeng.core.features.AEFeature;
 import appeng.core.localization.GuiText;
-import appeng.items.contents.CellConfig;
-import appeng.items.contents.CellUpgrades;
 import appeng.tile.inventory.IAEStackInventory;
 import cpw.mods.fml.common.Optional;
-import cpw.mods.fml.common.registry.GameRegistry;
 import cpw.mods.fml.relauncher.Side;
 import cpw.mods.fml.relauncher.SideOnly;
 import fox.spiteful.avaritia.render.IHaloRenderItem;
 
 @Optional.Interface(modid = "Avaritia", iface = "fox.spiteful.avaritia.render.IHaloRenderItem")
-public class ItemInfinityStorageUniversalCell extends BaseItem implements IStorageCell, IHaloRenderItem {
-
-    public static final String NBT_DATA = "ucData";
-    public static final String NBT_SNAPSHOT_TYPES = "types";
-    public static final String NBT_SNAPSHOT_COUNT = "count";
-    public static final String NBT_SNAPSHOT_CONTENTS = "contents";
-    public static final String NBT_SNAPSHOT_VERSION = "ver";
+public class ItemInfinityStorageUniversalCell extends BaseInfinityCellItem<ItemInfinityStorageUniversalCell>
+    implements IHaloRenderItem {
 
     public IIcon halo;
 
     public ItemInfinityStorageUniversalCell() {
-        this.setMaxStackSize(1);
-        this.setUnlocalizedName(NameConst.ITEM_INFINITY_UNIVERSAL_CELL);
-        this.setTextureName(
-            AE2Thing.resource(NameConst.ITEM_INFINITY_UNIVERSAL_CELL)
-                .toString());
-        this.setFeature(EnumSet.of(AEFeature.StorageCells));
-    }
-
-    @Override
-    public boolean isEditable(ItemStack is) {
-        return true;
-    }
-
-    @Override
-    public IInventory getUpgradesInventory(ItemStack is) {
-        return new CellUpgrades(is, 2);
-    }
-
-    @Override
-    public IAEStackInventory getConfigAEInventory(ItemStack is) {
-        return new CellConfig(is);
-    }
-
-    @Override
-    public FuzzyMode getFuzzyMode(ItemStack is) {
-        return FuzzyMode.fromItemStack(is);
-    }
-
-    @Override
-    public void setFuzzyMode(ItemStack is, FuzzyMode fzMode) {
-        ItemStackNBT.setString(is, "FuzzyMode", fzMode.name());
-    }
-
-    @Override
-    public int getBytes(ItemStack cellItem) {
-        return Integer.MAX_VALUE;
-    }
-
-    @Override
-    public long getBytesLong(ItemStack cellItem) {
-        return (Long.MAX_VALUE - 9) / 8 + 1;
-    }
-
-    @Override
-    public int BytePerType(ItemStack cellItem) {
-        return 1;
-    }
-
-    @Override
-    public int getBytesPerType(ItemStack cellItem) {
-        return 1;
-    }
-
-    @Override
-    public int getTotalTypes(ItemStack cellItem) {
-        return Integer.MAX_VALUE;
+        super(NameConst.ITEM_INFINITY_UNIVERSAL_CELL, 2);
     }
 
     @Override
@@ -122,32 +52,11 @@ public class ItemInfinityStorageUniversalCell extends BaseItem implements IStora
         return requestedAddition == null;
     }
 
-    @Override
-    public boolean storableInStorageCell() {
-        return false;
-    }
-
-    @Override
-    public boolean isStorageCell(ItemStack i) {
-        return false;
-    }
-
-    @Override
-    public double getIdleDrain() {
-        return 0D;
-    }
-
-    @SideOnly(Side.CLIENT)
-    @Nullable
-    public static NBTTagCompound getSnapshot(ItemStack cell, IAEStackType<?> type) {
-        return UniversalCellSnapshot.section(cell, type);
-    }
-
     @SideOnly(Side.CLIENT)
     @Nullable
     private static IAEStack<?> firstContent(ItemStack cell) {
         for (final IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
-            final List<IAEStack<?>> contents = UniversalCellSnapshot.contents(cell, type);
+            final List<IAEStack<?>> contents = InfinityStorageCellSnapshot.contents(cell, type);
             if (!contents.isEmpty()) return contents.getFirst();
         }
         return null;
@@ -163,10 +72,10 @@ public class ItemInfinityStorageUniversalCell extends BaseItem implements IStora
         long usedBytes = 0;
         long usedTypes = 0;
         for (IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
-            NBTTagCompound section = getSnapshot(stack, type);
+            NBTTagCompound section = InfinityStorageCellSnapshot.section(stack, type);
             if (section == null) continue;
-            long types = section.getInteger(NBT_SNAPSHOT_TYPES);
-            long count = section.getLong(NBT_SNAPSHOT_COUNT);
+            long types = section.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES);
+            long count = section.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT);
             if (types <= 0 && count <= 0) continue;
             usedTypes += types;
             usedBytes += count / Math.max(1, type.getAmountPerByte()) + types * (long) bytesPerType;
@@ -202,17 +111,16 @@ public class ItemInfinityStorageUniversalCell extends BaseItem implements IStora
 
         if (GuiScreen.isShiftKeyDown()) {
             for (final IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
-                final NBTTagCompound s = getSnapshot(stack, type);
+                final NBTTagCompound s = InfinityStorageCellSnapshot.section(stack, type);
                 if (s == null) continue;
-                long count = s.getLong(NBT_SNAPSHOT_COUNT), types = s.getInteger(NBT_SNAPSHOT_TYPES);
+                long count = s.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT),
+                    types = s.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES);
                 if (count <= 0 && types <= 0) continue;
                 final String unit = type.getDisplayUnit();
                 lines.add(type.getDisplayName() + ": " + fmt.format(count) + (unit.isEmpty() ? "" : " " + unit));
             }
             final String uuid = ItemStackNBT.getString(stack, Constants.DISKUUID);
             if (!uuid.isEmpty()) lines.add(EnumChatFormatting.DARK_GRAY + uuid);
-        } else {
-            lines.add(I18n.format(NameConst.TT_SHIFT_FOR_MORE));
         }
 
         super.addCheckedInformation(stack, player, lines, displayMoreInfo);
@@ -228,13 +136,6 @@ public class ItemInfinityStorageUniversalCell extends BaseItem implements IStora
             }
         }
         return false;
-    }
-
-    @Override
-    public ItemInfinityStorageUniversalCell register() {
-        GameRegistry.registerItem(this, NameConst.ITEM_INFINITY_UNIVERSAL_CELL, AE2Thing.MODID);
-        setCreativeTab(AE2ThingTabs.INSTANCE);
-        return this;
     }
 
     @Override

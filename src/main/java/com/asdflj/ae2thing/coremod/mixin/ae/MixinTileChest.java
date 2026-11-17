@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageUniversalCell;
 import com.asdflj.ae2thing.common.storage.UniversalCellHandler;
-import com.asdflj.ae2thing.common.storage.infinityCell.UniversalCellSnapshot;
+import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
 
 import appeng.api.AEApi;
 import appeng.api.storage.ICellHandler;
@@ -89,8 +89,8 @@ public abstract class MixinTileChest extends AENetworkPowerTile {
     @Inject(method = "onChangeInventory", at = @At("HEAD"), remap = false)
     private void ae2t$flushSnapshot(final IInventory inv, final int slot, final InvOperation mc,
         final ItemStack removed, final ItemStack added, final CallbackInfo ci) {
-        UniversalCellSnapshot.flushNow(removed);
-        UniversalCellSnapshot.flushNow(added);
+        InfinityStorageCellSnapshot.flushNow(removed);
+        InfinityStorageCellSnapshot.flushNow(added);
     }
 
     @Inject(method = "canInsertItem", at = @At("HEAD"), cancellable = true)

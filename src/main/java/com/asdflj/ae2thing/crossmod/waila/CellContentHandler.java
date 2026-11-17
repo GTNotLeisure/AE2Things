@@ -22,7 +22,7 @@ import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageCell;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageFluidCell;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageUniversalCell;
-import com.asdflj.ae2thing.common.storage.infinityCell.UniversalCellSnapshot;
+import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
 import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.api.AEApi;
@@ -120,7 +120,7 @@ public class CellContentHandler extends TooltipHandlerWaila {
     private void addUniversalCellTooltip(ItemStack cell, List<String> currentToolTip) {
         ObjectArrayList<IAEStack<?>> contents = new ObjectArrayList<>();
         for (IAEStackType<?> type : AEStackTypeRegistry.getSortedTypes()) {
-            contents.addAll(UniversalCellSnapshot.contents(cell, type));
+            contents.addAll(InfinityStorageCellSnapshot.contents(cell, type));
         }
         if (contents.isEmpty()) {
             addUpgradeCard(cell, currentToolTip);
