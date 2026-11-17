@@ -1,5 +1,11 @@
 package com.asdflj.ae2thing.common.storage;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.StandardCopyOption;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -7,6 +13,7 @@ import java.util.function.Consumer;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.world.WorldSavedData;
@@ -36,8 +43,19 @@ import it.unimi.dsi.fastutil.objects.ObjectSets;
 
 public class StorageManager extends WorldSavedData {
 
+    private static final String SAVE_FORMAT = "format";
+    private static final int SAVE_FORMAT_DISK_FILES = 2;
+
+    private static final String DISK_SUFFIX = ".dat";
+    private static final String DISK_TEMP_SUFFIX = ".tmp";
+    private static final String DISK_BACKUP_SUFFIX = ".bak";
+
     private final Map<UUID, Map<IAEStackType<?>, DataStorage>> disks = new Object2ObjectOpenHashMap<>();
     private final Map<UUID, Set<IGrid>> grids = new Object2ObjectOpenHashMap<>();
+    private final Set<UUID> dirtyDisks = new ObjectOpenHashSet<>();
+
+    private File saveDirectory;
+    private boolean legacyLoaded;
 
     public StorageManager(String name) {
         super(name);
@@ -55,9 +73,15 @@ public class StorageManager extends WorldSavedData {
                 uid = UUID.randomUUID();
             } while (this.disks.containsKey(uid));
         }
-        UUID finalUid = uid;
-        return this.disks.computeIfAbsent(uid, _ -> new Object2ObjectOpenHashMap<>())
-            .computeIfAbsent(stackType, t -> new DataStorage(finalUid, t));
+        final Map<IAEStackType<?>, DataStorage> byType = this.disks
+            .computeIfAbsent(uid, _ -> new Object2ObjectOpenHashMap<>());
+        DataStorage storage = byType.get(stackType);
+        if (storage == null) {
+            storage = new DataStorage(uid, stackType);
+            byType.put(stackType, storage);
+            this.dirtyDisks.add(uid);
+        }
+        return storage;
     }
 
     public boolean hasContent(String uuid) {
@@ -125,8 +149,151 @@ public class StorageManager extends WorldSavedData {
         data.setBoolean(Constants.LINKED, true);
     }
 
+    public void setSaveDirectory(File directory) {
+        this.saveDirectory = directory;
+    }
+
+    public void loadFromDirectory() {
+        if (this.saveDirectory == null) return;
+        final File[] files = this.saveDirectory.listFiles((_, name) -> name.endsWith(DISK_SUFFIX));
+        if (files == null) return;
+        for (final File file : files) {
+            final String name = file.getName();
+            final UUID uid = parseUuid(name.substring(0, name.length() - DISK_SUFFIX.length()));
+            if (uid == null) continue;
+            this.loadDisk(uid, file);
+        }
+    }
+
+    public void flushDirtyDisks() {
+        if (this.saveDirectory == null || this.dirtyDisks.isEmpty()) return;
+        final UUID[] dirty = this.dirtyDisks.toArray(new UUID[0]);
+        this.dirtyDisks.clear();
+        for (final UUID uid : dirty) {
+            final Map<IAEStackType<?>, DataStorage> byType = this.disks.get(uid);
+            if (byType == null || byType.isEmpty()) continue;
+            if (!this.writeDisk(uid, byType)) this.dirtyDisks.add(uid);
+        }
+    }
+
+    private void loadDisk(UUID uid, File file) {
+        NBTTagCompound tag = readCompressed(file);
+        if (tag == null) {
+            final File backup = new File(file.getParentFile(), file.getName() + DISK_BACKUP_SUFFIX);
+            tag = readCompressed(backup);
+            if (tag == null) {
+                AELog.warn("[AE2Thing] Failed to read disk %s, all of its contents are lost", file.getName());
+                return;
+            }
+            AELog.warn("[AE2Thing] Recovered disk %s from its backup", file.getName());
+        }
+
+        for (final String key : tag.func_150296_c()) {
+            final IAEStackType<?> type = AEStackTypeRegistry.getType(key);
+            if (type == null) continue;
+            final DataStorage storage = new DataStorage(uid, type);
+            storage.readFromNBT(tag.getTagList(key, 10));
+            put(this.disks, uid, storage);
+        }
+    }
+
+    private boolean writeDisk(UUID uid, Map<IAEStackType<?>, DataStorage> byType) {
+        final File file = this.diskFile(uid);
+        if (file == null) return true;
+        final NBTTagCompound tag = new NBTTagCompound();
+        for (final DataStorage storage : byType.values()) {
+            final IAEStackType<?> type = storage.getStackType();
+            if (type == null) continue;
+            tag.setTag(type.getId(), storage.writeToNBT());
+        }
+        return writeCompressed(file, tag);
+    }
+
+    private File diskFile(UUID uid) {
+        if (this.saveDirectory == null) return null;
+        return new File(this.saveDirectory, uid.toString() + DISK_SUFFIX);
+    }
+
+    private static boolean writeCompressed(File file, NBTTagCompound tag) {
+        final File parent = file.getParentFile();
+        if (parent != null && !parent.isDirectory() && !parent.mkdirs()) {
+            AELog.error("[AE2Thing] Failed to create disk directory %s", parent);
+            return false;
+        }
+
+        final File temp = new File(parent, file.getName() + DISK_TEMP_SUFFIX);
+        try (FileOutputStream out = new FileOutputStream(temp)) {
+            CompressedStreamTools.writeCompressed(tag, out);
+            out.flush();
+            out.getFD()
+                .sync();
+        } catch (Exception e) {
+            AELog.error(e, "[AE2Thing] Failed to write disk " + file.getName());
+            return false;
+        }
+
+        final File backup = new File(parent, file.getName() + DISK_BACKUP_SUFFIX);
+        try {
+            if (file.isFile()) {
+                Files.copy(file.toPath(), backup.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+            try {
+                Files.move(
+                    temp.toPath(),
+                    file.toPath(),
+                    StandardCopyOption.ATOMIC_MOVE,
+                    StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException e) {
+                Files.move(temp.toPath(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (Exception e) {
+            AELog.error(e, "[AE2Thing] Failed to replace disk " + file.getName());
+            return false;
+        }
+        return true;
+    }
+
+    private static NBTTagCompound readCompressed(File file) {
+        if (file == null || !file.isFile()) return null;
+        try (FileInputStream in = new FileInputStream(file)) {
+            return CompressedStreamTools.readCompressed(in);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    private static UUID parseUuid(String raw) {
+        if (raw == null || raw.isEmpty()) return null;
+        try {
+            return UUID.fromString(raw);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+    }
+
+    private void backupLegacyFile() {
+        if (this.saveDirectory == null) return;
+        final File parent = this.saveDirectory.getParentFile();
+        if (parent == null) return;
+        final File legacy = new File(parent, this.mapName + ".dat");
+        if (!legacy.isFile()) return;
+        try {
+            Files.copy(
+                legacy.toPath(),
+                new File(parent, legacy.getName() + DISK_BACKUP_SUFFIX).toPath(),
+                StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            AELog.error(e, "[AE2Thing] Failed to backup legacy storage file");
+        }
+    }
+
     @Override
     public void readFromNBT(NBTTagCompound data) {
+        if (data.getInteger(SAVE_FORMAT) >= SAVE_FORMAT_DISK_FILES) {
+            this.legacyLoaded = false;
+            return;
+        }
+
         final Map<UUID, Map<IAEStackType<?>, DataStorage>> d = new Object2ObjectOpenHashMap<>();
         try {
             final NBTTagList diskList = data.getTagList(Constants.DISKLIST, 10);
@@ -163,20 +330,31 @@ public class StorageManager extends WorldSavedData {
                 put(d, uid, DataStorage.readFromNBT(uid, disk.getTagList(Constants.OTHER_DISKLIST, 10), type));
             }
         } catch (Exception e) {
-            AELog.error(e, "[AE2Thing] Failed to read StorageManager data, keeping previous state");
+            AELog.error(e, "[AE2Thing] Failed to read legacy storage data, keeping previous state");
             return;
         }
+
         this.disks.clear();
         this.disks.putAll(d);
-    }
-
-    private static void put(Map<UUID, Map<IAEStackType<?>, DataStorage>> map, UUID uid, DataStorage storage) {
-        map.computeIfAbsent(uid, _ -> new Object2ObjectOpenHashMap<>())
-            .put(storage.getStackType(), storage);
+        this.dirtyDisks.addAll(d.keySet());
+        this.legacyLoaded = !d.isEmpty();
     }
 
     @Override
     public void writeToNBT(NBTTagCompound data) {
+        if (this.saveDirectory == null) {
+            this.writeLegacy(data);
+            return;
+        }
+        if (this.legacyLoaded) {
+            this.legacyLoaded = false;
+            this.backupLegacyFile();
+        }
+        this.flushDirtyDisks();
+        data.setInteger(SAVE_FORMAT, SAVE_FORMAT_DISK_FILES);
+    }
+
+    private void writeLegacy(NBTTagCompound data) {
         final NBTTagList diskList = new NBTTagList();
         final NBTTagList fluidDiskList = new NBTTagList();
         final NBTTagList otherDiskList = new NBTTagList();
@@ -210,8 +388,14 @@ public class StorageManager extends WorldSavedData {
         data.setTag(Constants.OTHER_DISKLIST, otherDiskList);
     }
 
+    private static void put(Map<UUID, Map<IAEStackType<?>, DataStorage>> map, UUID uid, DataStorage storage) {
+        map.computeIfAbsent(uid, _ -> new Object2ObjectOpenHashMap<>())
+            .put(storage.getStackType(), storage);
+    }
+
     public void postItemChange(final DataStorage storage, IChestOrDrive drive, IAEItemStack change) {
         if (change == null || change.getStackSize() == 0) return;
+        this.dirtyDisks.add(storage.getRawUUID());
         this.postChanges(
             storage,
             drive,
@@ -221,6 +405,7 @@ public class StorageManager extends WorldSavedData {
 
     public void postFluidChange(final DataStorage storage, IChestOrDrive drive, IAEFluidStack change) {
         if (change == null || change.getStackSize() == 0) return;
+        this.dirtyDisks.add(storage.getRawUUID());
         this.postChanges(
             storage,
             drive,
@@ -232,6 +417,7 @@ public class StorageManager extends WorldSavedData {
         if (change == null || change.getStackSize() == 0) return;
         final IAEStackType<?> type = change.getStackType();
         if (type == null) return;
+        this.dirtyDisks.add(storage.getRawUUID());
         this.postChanges(
             storage,
             drive,

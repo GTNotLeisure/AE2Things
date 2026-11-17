@@ -1,7 +1,10 @@
 package com.asdflj.ae2thing.proxy;
 
+import java.io.File;
+
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import net.minecraft.world.World;
 import net.minecraft.world.WorldSavedData;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
@@ -100,12 +103,26 @@ public class CommonProxy {
             return;
         }
         if (event.world.provider.dimensionId == 0) {
-            WorldSavedData w = event.world.mapStorage.loadData(StorageManager.class, AE2Thing.MODID);
-            if (w == null) {
-                StorageManager s = new StorageManager(AE2Thing.MODID);
-                event.world.mapStorage.setData(AE2Thing.MODID, s);
+            final WorldSavedData data = event.world.mapStorage.loadData(StorageManager.class, AE2Thing.MODID);
+            final StorageManager manager;
+            if (data instanceof StorageManager loaded) {
+                manager = loaded;
+            } else {
+                manager = new StorageManager(AE2Thing.MODID);
+                event.world.mapStorage.setData(AE2Thing.MODID, manager);
             }
+            manager.setSaveDirectory(diskDirectory(event.world));
+            manager.loadFromDirectory();
         }
+    }
+
+    private static File diskDirectory(World world) {
+        return new File(
+            new File(
+                world.getSaveHandler()
+                    .getWorldDirectory(),
+                "data"),
+            "ae2thing");
     }
 
     @SubscribeEvent
@@ -127,6 +144,9 @@ public class CommonProxy {
         if (Platform.isClient() || event.world.provider.dimensionId != 0) return;
         UniversalCellSnapshot.flushAllForce();
         UniversalCellSnapshot.clear();
+        final StorageManager manager = AE2ThingAPI.instance()
+            .getStorageManager();
+        if (manager != null) manager.flushDirtyDisks();
     }
 
     public void init(FMLInitializationEvent event) {
@@ -312,6 +332,9 @@ public class CommonProxy {
         UniversalCellSnapshot.clear();
         StorageManager m = AE2ThingAPI.instance()
             .getStorageManager();
-        if (m != null) m.setDirty(true);
+        if (m != null) {
+            m.flushDirtyDisks();
+            m.setDirty(true);
+        }
     }
 }
