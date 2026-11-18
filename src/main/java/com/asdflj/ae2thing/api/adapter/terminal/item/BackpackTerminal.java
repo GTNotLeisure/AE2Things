@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.api.adapter.terminal.item;
 
-import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.item.Item;
