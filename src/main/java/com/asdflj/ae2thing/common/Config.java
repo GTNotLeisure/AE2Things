@@ -3,12 +3,17 @@ package com.asdflj.ae2thing.common;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.util.Locale;
+import java.util.function.Supplier;
 
+import net.minecraftforge.common.config.ConfigCategory;
 import net.minecraftforge.common.config.Configuration;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.Constants;
+import com.asdflj.ae2thing.common.config.SyncedServerConfig;
 
+import appeng.util.Platform;
 import cpw.mods.fml.common.FMLLog;
 import cpw.mods.fml.relauncher.FMLInjectionData;
 
@@ -16,7 +21,7 @@ public class Config {
 
     private static final String GENERAL_LANG_KEY = "ae2thing.config.general";
     private static final String DUAL_TERMINAL_CATEGORY = AE2Thing.NAME + "." + Constants.DUAL_INTERFACE_TERMINAL;
-    private static final String DUAL_TERMINAL_LANG_KEY = "ae2thing.config.dualInterfaceTerminal";
+    private static final String TERMINAL_BAUBLES_KEY = "Terminal baubles support";
 
     private static final Configuration Config = new Configuration(resolveConfigFile());
 
@@ -27,8 +32,12 @@ public class Config {
     public static int exIOPortTransferContentsRate;
     public static boolean backpackTerminalAddTicSupport = false;
     public static int craftingHistorySize = 200;
-    public static boolean dualTerminalCanStoredInBaubles = true;
+    private static boolean terminalBaublesEnabled = true;
     public static boolean modernInteraction = false;
+
+    public static final SyncedServerConfig SERVER_SETTINGS = new SyncedServerConfig(Platform::isServer);
+    private static final Supplier<Boolean> TERMINAL_BAUBLES = SERVER_SETTINGS
+        .register("terminalBaubles", SyncedServerConfig.BOOLEAN, false, () -> terminalBaublesEnabled);
 
     private static File resolveConfigFile() {
         final File configDir = new File((File) FMLInjectionData.data()[6], "config");
@@ -108,12 +117,13 @@ public class Config {
             300,
             "crafting history size",
             GENERAL_LANG_KEY + ".craftingHistorySize");
-        dualTerminalCanStoredInBaubles = Config.getBoolean(
-            "2-in-1 terminal baubles support",
-            DUAL_TERMINAL_CATEGORY,
+        migrateTerminalBaublesSetting();
+        terminalBaublesEnabled = Config.getBoolean(
+            TERMINAL_BAUBLES_KEY,
+            AE2Thing.NAME,
             true,
-            "Let the 2-in-1 terminal be stored in baubles slots",
-            DUAL_TERMINAL_LANG_KEY + ".canStoredInBaubles");
+            "Allow the 2-in-1 interface terminal and backpack terminal to be equipped in any baubles slot",
+            GENERAL_LANG_KEY + ".terminalBaubles");
         modernInteraction = Config.getBoolean(
             "Modern container interaction in terminal",
             AE2Thing.NAME,
@@ -133,7 +143,24 @@ public class Config {
     private static void loadCategory() {
         Config.addCustomCategoryComment(AE2Thing.NAME, "Settings for AE2Thing.");
         Config.setCategoryLanguageKey(AE2Thing.NAME, GENERAL_LANG_KEY);
-        Config.setCategoryLanguageKey(DUAL_TERMINAL_CATEGORY, DUAL_TERMINAL_LANG_KEY);
-        Config.setCategoryRequiresMcRestart(DUAL_TERMINAL_CATEGORY, true);
+    }
+
+    private static void migrateTerminalBaublesSetting() {
+        String category = DUAL_TERMINAL_CATEGORY.toLowerCase(Locale.ROOT);
+        String oldKey = "2-in-1 terminal baubles support";
+        if (!Config.hasKey(category, oldKey)) return;
+        ConfigCategory legacy = Config.getCategory(category);
+        boolean enabled = legacy.remove(oldKey)
+            .getBoolean(true);
+        if (!Config.hasKey(AE2Thing.NAME.toLowerCase(Locale.ROOT), TERMINAL_BAUBLES_KEY)) {
+            Config.get(AE2Thing.NAME, TERMINAL_BAUBLES_KEY, true)
+                .set(enabled);
+        }
+        if (legacy.isEmpty() && legacy.getChildren()
+            .isEmpty()) Config.removeCategory(legacy);
+    }
+
+    public static boolean isTerminalBaublesEnabled() {
+        return TERMINAL_BAUBLES.get();
     }
 }

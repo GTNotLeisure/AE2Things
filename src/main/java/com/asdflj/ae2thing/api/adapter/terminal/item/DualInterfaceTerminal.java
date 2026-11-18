@@ -22,7 +22,7 @@ public class DualInterfaceTerminal implements IItemTerminal {
 
     @Override
     public boolean supportBaubles() {
-        return Config.dualTerminalCanStoredInBaubles;
+        return Config.isTerminalBaublesEnabled();
     }
 
     @Override

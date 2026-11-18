@@ -27,9 +27,11 @@ import appeng.core.features.AEFeature;
 import appeng.core.localization.PlayerMessages;
 import appeng.items.tools.powered.ToolWirelessTerminal;
 import appeng.util.Platform;
-import baubles.api.IBauble;
+import baubles.api.BaubleType;
+import baubles.api.expanded.BaubleExpandedSlots;
+import cpw.mods.fml.common.Optional;
 
-public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal implements IItemInventory, IBauble {
+public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal implements IItemInventory {
 
     private static final String[] NO_BAUBLE_TYPES = new String[0];
 
@@ -47,8 +49,14 @@ public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal impl
     }
 
     @Override
+    @Optional.Method(modid = "Baubles")
+    public BaubleType getBaubleType(ItemStack stack) {
+        return canBePlacedInBaubles(stack) ? BaubleType.UNIVERSAL : null;
+    }
+
+    @Override
     public String[] getBaubleTypes(final ItemStack is) {
-        return this.canBePlacedInBaubles(is) ? super.getBaubleTypes(is) : NO_BAUBLE_TYPES;
+        return this.canBePlacedInBaubles(is) ? new String[] { BaubleExpandedSlots.universalType } : NO_BAUBLE_TYPES;
     }
 
     @Override
@@ -58,7 +66,7 @@ public abstract class ItemBaseWirelessTerminal extends ToolWirelessTerminal impl
 
     @Override
     public boolean canEquip(ItemStack itemstack, EntityLivingBase player) {
-        return false;
+        return this.canBePlacedInBaubles(itemstack);
     }
 
     @Override

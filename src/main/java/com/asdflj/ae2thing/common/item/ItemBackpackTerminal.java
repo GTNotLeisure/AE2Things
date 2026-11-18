@@ -6,6 +6,7 @@ import java.util.List;
 
 import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
@@ -18,12 +19,14 @@ import org.jetbrains.annotations.NotNull;
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.MagnetObject;
+import com.asdflj.ae2thing.common.Config;
 import com.asdflj.ae2thing.common.storage.CellInventory;
 import com.asdflj.ae2thing.common.storage.CellInventoryHandler;
 import com.asdflj.ae2thing.common.storage.IStorageItemCell;
 import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
+import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.inventory.item.BackpackTerminalInventory;
 import com.asdflj.ae2thing.inventory.item.IItemInventory;
 import com.asdflj.ae2thing.util.BlockPos;
@@ -38,9 +41,15 @@ import appeng.api.storage.data.IAEStackType;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStackType;
+import baubles.api.BaubleType;
+import baubles.api.expanded.BaubleExpandedSlots;
+import baubles.api.expanded.IBaubleExpanded;
+import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.common.registry.GameRegistry;
 
-public class ItemBackpackTerminal extends BaseItem implements IItemInventory, IStorageItemCell, IItemInventoryHandler {
+@Optional.Interface(modid = "Baubles|Expanded", iface = "baubles.api.expanded.IBaubleExpanded")
+public class ItemBackpackTerminal extends BaseItem
+    implements IItemInventory, IStorageItemCell, IItemInventoryHandler, IBaubleExpanded {
 
     public ItemBackpackTerminal() {
         super();
@@ -93,6 +102,38 @@ public class ItemBackpackTerminal extends BaseItem implements IItemInventory, IS
     }
 
     @Override
+    @Optional.Method(modid = "Baubles")
+    public BaubleType getBaubleType(ItemStack stack) {
+        return Config.isTerminalBaublesEnabled() ? BaubleType.UNIVERSAL : null;
+    }
+
+    @Override
+    public String[] getBaubleTypes(ItemStack stack) {
+        return Config.isTerminalBaublesEnabled() ? new String[] { BaubleExpandedSlots.universalType } : new String[0];
+    }
+
+    @Override
+    public boolean canEquip(ItemStack stack, EntityLivingBase player) {
+        return Config.isTerminalBaublesEnabled();
+    }
+
+    @Override
+    public boolean canUnequip(ItemStack stack, EntityLivingBase player) {
+        return true;
+    }
+
+    @Override
+    public void onEquipped(ItemStack stack, EntityLivingBase player) {}
+
+    @Override
+    public void onUnequipped(ItemStack stack, EntityLivingBase player) {}
+
+    @Override
+    public void onWornTick(ItemStack stack, EntityLivingBase player) {
+        if (Config.isTerminalBaublesEnabled()) onUpdate(stack, player.worldObj, player, -1, false);
+    }
+
+    @Override
     public void onUpdate(ItemStack stack, World world, Entity entity, int slot, boolean hotbar) {
         if (!entity.isSneaking() && entity.ticksExisted % 10 == 0) {
             MagnetObject object = new MagnetObject(stack);
@@ -104,9 +145,19 @@ public class ItemBackpackTerminal extends BaseItem implements IItemInventory, IS
 
     @Override
     public Object getInventory(ItemStack stack, World world, int x, int y, int z, EntityPlayer player) {
+        return getInventoryAt(stack, world, x, y, z, player);
+    }
+
+    @Override
+    public Object getInventoryAt(ItemStack stack, World world, int x, int y, int z, EntityPlayer player) {
+        if (PlayerInvType.typeOf(x) == PlayerInvType.PLAYER_BAUBLES && !Config.isTerminalBaublesEnabled()) return null;
         if (stack.getItem() instanceof IItemInventoryHandler iih) {
             try {
-                return new BackpackTerminalInventory(stack, x, player, iih.getInventoryHandler(stack, null, player));
+                return new BackpackTerminalInventory(
+                    stack,
+                    PlayerInvType.typeOf(x) == PlayerInvType.PLAYER_INV ? PlayerInvType.slotOf(x) : x,
+                    player,
+                    iih.getInventoryHandler(stack, null, player));
             } catch (AppEngException ignored) {}
         }
         return null;

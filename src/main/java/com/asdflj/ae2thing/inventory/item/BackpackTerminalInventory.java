@@ -12,6 +12,7 @@ import org.jetbrains.annotations.NotNull;
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.common.storage.RefreshableStorageMonitor;
 import com.asdflj.ae2thing.inventory.ItemBiggerAppEngInventory;
+import com.asdflj.ae2thing.util.InvUtil;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 
 import appeng.api.AEApi;
@@ -126,7 +127,7 @@ public class BackpackTerminalInventory extends MEMonitorHandler<IAEItemStack> im
     }
 
     private void saveSettings() {
-        this.player.inventory.setInventorySlotContents(this.inventorySlot, this.target);
+        InvUtil.writeSlotRef(this.player, this.inventorySlot, this.target);
     }
 
     @Override

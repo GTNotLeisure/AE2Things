@@ -29,6 +29,8 @@ import com.asdflj.ae2thing.client.gui.container.ContainerPatternModifier;
 import com.asdflj.ae2thing.client.gui.container.ContainerPatternValueAmount;
 import com.asdflj.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.client.gui.container.IPatternValueContainer;
+import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
 import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
@@ -142,6 +144,10 @@ public class CPacketInventoryActionExtend implements IMessage {
                 try {
                     ItemStack terminal = InvUtil.readSlotRef(player, sourceSlot);
                     if (terminal == null || terminal.getItem() == null) continue;
+
+                    if (terminal.getItem() instanceof ItemWirelessDualInterfaceTerminal
+                        && PlayerInvType.typeOf(sourceSlot) != PlayerInvType.PLAYER_INV
+                        && !Config.isTerminalBaublesEnabled()) continue;
 
                     IWirelessTermHandler handler = AEApi.instance()
                         .registries()

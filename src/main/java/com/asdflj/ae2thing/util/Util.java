@@ -178,19 +178,18 @@ public class Util {
     }
 
     public static int findBackPackTerminal(EntityPlayer player, ItemStack is) {
-        IntObjectPair<ItemStack> found = scanItem(player, PlayerInvType.PLAYER_INV, is, ItemBackpackTerminal.class);
-        return found != null ? found.leftInt() : PlayerInvType.NO_SLOT;
+        return findEquippableTerminal(player, is, ItemBackpackTerminal.class);
     }
 
     public static int findDualInterfaceTerminal(EntityPlayerMP player, ItemStack is) {
-        IntObjectPair<ItemStack> found = scanItem(
-            player,
-            PlayerInvType.PLAYER_INV,
-            is,
-            ItemWirelessDualInterfaceTerminal.class);
+        return findEquippableTerminal(player, is, ItemWirelessDualInterfaceTerminal.class);
+    }
+
+    private static int findEquippableTerminal(EntityPlayer player, ItemStack is, Class<? extends Item> type) {
+        IntObjectPair<ItemStack> found = scanItem(player, PlayerInvType.PLAYER_INV, is, type);
         if (found != null) return found.leftInt();
-        if (!Mods.BAUBLES.isModLoaded() || !Config.dualTerminalCanStoredInBaubles) return PlayerInvType.NO_SLOT;
-        found = scanItem(player, PlayerInvType.PLAYER_BAUBLES, is, ItemWirelessDualInterfaceTerminal.class);
+        if (!Config.isTerminalBaublesEnabled()) return PlayerInvType.NO_SLOT;
+        found = scanItem(player, PlayerInvType.PLAYER_BAUBLES, is, type);
         return found != null ? found.leftInt() : PlayerInvType.NO_SLOT;
     }
 

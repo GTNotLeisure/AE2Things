@@ -12,6 +12,7 @@ import com.asdflj.ae2thing.api.adapter.crafting.ICraftingTerminalAdapter;
 import com.asdflj.ae2thing.api.adapter.findit.IFindItAdapter;
 import com.asdflj.ae2thing.api.adapter.pattern.IPatternTerminalAdapter;
 import com.asdflj.ae2thing.api.adapter.terminal.ITerminal;
+import com.asdflj.ae2thing.api.adapter.terminal.item.EquippableTerminalHandler;
 import com.asdflj.ae2thing.api.adapter.terminal.item.ITerminalHandler;
 import com.asdflj.ae2thing.client.gui.GuiCraftingTerminal;
 import com.asdflj.ae2thing.client.gui.widget.IGuiMonitor;
@@ -134,6 +135,10 @@ public class Terminal {
 
     public void registerTerminalItem(Class<? extends Item> item, ITerminalHandler terminal) {
         terminalItem.put(item, terminal);
+    }
+
+    public void registerTerminalItem(EquippableTerminalHandler terminal) {
+        terminalItem.put(terminal.getItemType(), terminal);
     }
 
     public ITerminalHandler getOpenTerminalHandler(Class<? extends Item> item) {

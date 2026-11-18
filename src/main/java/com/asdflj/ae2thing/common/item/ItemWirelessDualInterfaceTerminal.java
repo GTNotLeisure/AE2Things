@@ -65,6 +65,7 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
 
     @Override
     public Object getInventoryAt(ItemStack stack, World world, int x, int y, int z, EntityPlayer player) {
+        if (PlayerInvType.typeOf(x) != PlayerInvType.PLAYER_INV && !Config.isTerminalBaublesEnabled()) return null;
         try {
             return new WirelessObject(stack, world, x, y, z, player)
                 .getInventory(WirelessDualInterfaceTerminalInventory.class);
@@ -106,19 +107,19 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
 
     @Override
     protected boolean canBePlacedInBaubles(ItemStack stack) {
-        return Config.dualTerminalCanStoredInBaubles;
+        return Config.isTerminalBaublesEnabled();
     }
 
     @Override
     @Optional.Method(modid = "sciencenotleisure")
     public boolean canStoreInYog(ItemStack stack) {
-        return Config.dualTerminalCanStoredInBaubles;
+        return Config.isTerminalBaublesEnabled();
     }
 
     @Override
     @Optional.Method(modid = "sciencenotleisure")
     public boolean openFromSlot(ItemStack stack, EntityPlayer player, int slot) {
-        if (!Config.dualTerminalCanStoredInBaubles) return false;
+        if (!Config.isTerminalBaublesEnabled()) return false;
         if (!(player instanceof EntityPlayerMP mp) || stack == null) return false;
         final int index = YogIntegration.isAvailable() ? YogIntegration.indexOf(mp, stack) : -1;
         if (index < 0) return false;

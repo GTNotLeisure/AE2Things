@@ -2,6 +2,10 @@ package com.asdflj.ae2thing.proxy;
 
 import java.io.File;
 
+import com.asdflj.ae2thing.api.adapter.terminal.item.EquippableTerminalHandler;
+import com.asdflj.ae2thing.api.adapter.terminal.item.ITerminalHandler;
+import com.asdflj.ae2thing.api.adapter.terminal.item.TerminalItems;
+import com.asdflj.ae2thing.inventory.gui.GuiType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -20,13 +24,12 @@ import com.asdflj.ae2thing.api.adapter.crafting.WCTCraftingTerminal;
 import com.asdflj.ae2thing.api.adapter.findit.MEChestAdapter;
 import com.asdflj.ae2thing.api.adapter.findit.MEDriverAdapter;
 import com.asdflj.ae2thing.api.adapter.findit.PartStorageBusAdapter;
-import com.asdflj.ae2thing.api.adapter.terminal.item.BackpackTerminalHandler;
-import com.asdflj.ae2thing.api.adapter.terminal.item.DualInterfaceTerminalHandler;
 import com.asdflj.ae2thing.api.adapter.terminal.item.FCBaseTerminalHandler;
 import com.asdflj.ae2thing.api.adapter.terminal.item.UltraTerminalHandler;
 import com.asdflj.ae2thing.api.adapter.terminal.item.WCTWirelessCraftingTerminalHandler;
 import com.asdflj.ae2thing.api.container.EmptyContainerProviders;
 import com.asdflj.ae2thing.api.container.FluidContainerProvider;
+import com.asdflj.ae2thing.common.Config;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemPatternModifier;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
@@ -43,6 +46,7 @@ import com.asdflj.ae2thing.loader.ItemAndBlockHolder;
 import com.asdflj.ae2thing.loader.PatternTerminalLoader;
 import com.asdflj.ae2thing.loader.PatternTerminalMouseWheelLoader;
 import com.asdflj.ae2thing.network.CPacketCellContentsRequest;
+import com.asdflj.ae2thing.network.SPacketServerConfig;
 import com.asdflj.ae2thing.network.wrapper.AE2ThingNetworkWrapper;
 import com.asdflj.ae2thing.util.AspectUtil;
 import com.asdflj.ae2thing.util.ItemGuiHintCache;
@@ -69,6 +73,7 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
+import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import de.eydamos.backpack.item.ItemBackpackBase;
 import forestry.storage.items.ItemBackpack;
@@ -97,6 +102,13 @@ public class CommonProxy {
         if (Mods.THAUMIC_ENERGISTICS.isModLoaded()) {
             EmptyContainerProviders
                 .register(AEEssentiaStackType.ESSENTIA_STACK_TYPE, _ -> AspectUtil.HELPER.createEmptyPhial());
+        }
+    }
+
+    @SubscribeEvent
+    public void onPlayerLogin(PlayerLoggedInEvent event) {
+        if (event.player instanceof EntityPlayerMP player) {
+            netHandler.sendTo(new SPacketServerConfig(Config.SERVER_SETTINGS.writeServerValues()), player);
         }
     }
 
@@ -288,10 +300,15 @@ public class CommonProxy {
             .registerTerminalItem(ItemWirelessPatternTerminal.class, h);
         AE2ThingAPI.instance()
             .terminal()
-            .registerTerminalItem(ItemWirelessDualInterfaceTerminal.class, new DualInterfaceTerminalHandler());
+            .registerTerminalItem(new EquippableTerminalHandler(ItemWirelessDualInterfaceTerminal.class, GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL));
         AE2ThingAPI.instance()
             .terminal()
-            .registerTerminalItem(ItemBackpackTerminal.class, new BackpackTerminalHandler());
+            .registerTerminalItem(new EquippableTerminalHandler(ItemBackpackTerminal.class, GuiType.BACKPACK_TERMINAL) {
+                @Override
+                public boolean canConnect(ItemStack item, ITerminalHandler terminal, TerminalItems items, EntityPlayerMP player) {
+                    return true;
+                }
+            });
         if (Mods.WIRELESS_CRAFTING_TERMINAL.isModLoaded()) {
             AE2ThingAPI.instance()
                 .terminal()
