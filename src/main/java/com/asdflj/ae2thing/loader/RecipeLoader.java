@@ -212,10 +212,14 @@ public class RecipeLoader implements Runnable {
             AE2_SINGULARITY,
             AE2_SUPER_SPEED_CARD,
             AE2_SUPER_SPEED_CARD);
-        GameRegistry.addShapelessRecipe(
-            ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL.stack(),
-            WIRELESS_INTERFACE_TERM,
-            WIRELESS_PATTERN_TERM.stack());
+        if (ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL != null) {
+            GameRegistry.addShapelessRecipe(
+                ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL.stack(),
+                WIRELESS_INTERFACE_TERM,
+                WIRELESS_PATTERN_TERM.stack());
+            WirelessTerminalQuantumBridgeRecipe.register(ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL.stack());
+            WirelessTerminalEnergyRecipe.register(ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL.stack());
+        }
         GameRegistry.addShapelessRecipe(
             FLUID_PACKET_ENCODER.stack(),
             com.glodblock.github.loader.ItemAndBlockHolder.DECODER.stack());
@@ -267,8 +271,6 @@ public class RecipeLoader implements Runnable {
             GameRegistry
                 .addShapelessRecipe(ItemAndBlockHolder.UNIVERSAL_EXPORT_BUS.stack(), fluidExportBus(), AE2_EXPORT_BUS);
         }
-        WirelessTerminalQuantumBridgeRecipe.register(ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL.stack());
-        WirelessTerminalEnergyRecipe.register(ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL.stack());
         GameRegistry.addRecipe(new ShapedOreRecipe(BLOCK_FISHBIG.stack(), "FFF", "F F", "FFF", 'F', FISH));
         GameRegistry.addRecipe(new ShapedOreRecipe(BLOCK_MDDyue.stack(), "EEE", "E E", "EEE", 'E', EGG));
         GameRegistry.addRecipe(

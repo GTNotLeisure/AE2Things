@@ -56,7 +56,7 @@ public class ContainerCraftConfirm extends appeng.container.implementations.Cont
     private ItemStack originIcon(final GuiType type) {
         final ItemStack icon = switch (type) {
             case INFUSION_PATTERN_TERMINAL -> ItemAndBlockHolder.INFUSION_PATTERN_TERMINAL.stack();
-            case WIRELESS_DUAL_INTERFACE_TERMINAL -> ItemAndBlockHolder.ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL.stack();
+            case WIRELESS_DUAL_INTERFACE_TERMINAL -> ItemAndBlockHolder.wirelessDualInterfaceTerminalStack();
             default -> null;
         };
         if (icon != null) return icon;

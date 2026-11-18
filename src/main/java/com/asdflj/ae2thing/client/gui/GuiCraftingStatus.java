@@ -30,7 +30,7 @@ public class GuiCraftingStatus extends appeng.client.gui.implementations.GuiCraf
             originalGuiIcon = ItemAndBlockHolder.INFUSION_PATTERN_TERMINAL.stack();
             originalGui = GuiType.INFUSION_PATTERN_TERMINAL;
         } else if (host instanceof WirelessDualInterfaceTerminalInventory) {
-            originalGuiIcon = ItemAndBlockHolder.ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL.stack();
+            originalGuiIcon = ItemAndBlockHolder.wirelessDualInterfaceTerminalStack();
             originalGui = GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL;
         }
         super.initGui();

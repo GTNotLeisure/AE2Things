@@ -51,7 +51,7 @@ public class GuiCraftAmount extends appeng.client.gui.implementations.GuiCraftAm
             this.myIcon = ItemAndBlockHolder.INFUSION_PATTERN_TERMINAL.stack();
             this.originalGui = GuiType.INFUSION_PATTERN_TERMINAL;
         } else if (target instanceof WirelessDualInterfaceTerminalInventory) {
-            this.myIcon = ItemAndBlockHolder.ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL.stack();
+            this.myIcon = ItemAndBlockHolder.wirelessDualInterfaceTerminalStack();
             this.originalGui = GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL;
         }
         if (this.originalGui != null && this.myIcon != null) {

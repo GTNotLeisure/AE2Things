@@ -4,6 +4,10 @@ import static com.asdflj.ae2thing.common.item.ItemCreativeCell.cobblestone;
 import static com.asdflj.ae2thing.common.item.ItemCreativeFluidCell.lava_bucket;
 import static com.asdflj.ae2thing.common.item.ItemCreativeFluidCell.water_bucket;
 
+import net.minecraft.item.ItemStack;
+
+import org.jetbrains.annotations.Nullable;
+
 import com.asdflj.ae2thing.common.block.BaseDollBlockContainer;
 import com.asdflj.ae2thing.common.block.BlockEssentiaDiscretizer;
 import com.asdflj.ae2thing.common.block.BlockExIOPort;
@@ -74,6 +78,11 @@ public class ItemAndBlockHolder implements Runnable {
     public static BaseDollBlockContainer BLOCK_FISHBIG = new BaseDollBlockContainer(NameConst.BLOCK_FISHBIG).register();
 
     public static BaseDollBlockContainer BLOCK_MDDyue = new BaseDollBlockContainer(NameConst.BLOCK_MDDyue).register();
+
+    @Nullable
+    public static ItemStack wirelessDualInterfaceTerminalStack() {
+        return ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL == null ? null : ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL.stack();
+    }
 
     @Override
     public void run() {

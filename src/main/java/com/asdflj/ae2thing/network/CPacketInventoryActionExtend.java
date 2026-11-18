@@ -261,9 +261,8 @@ public class CPacketInventoryActionExtend implements IMessage {
                             if (storage == null || index < 0 || originGui == null) {
                                 return null;
                             }
-                            cpv.setPrimaryGui(
-                                AE2ThingPrimaryGui
-                                    .create(originGui, getOriginGuiIcon(originGui), pos, side));
+                            ItemStack icon = getOriginGuiIcon(originGui);
+                            if (icon != null) cpv.setPrimaryGui(AE2ThingPrimaryGui.create(originGui, icon, pos, side));
                             cpv.updateVirtualSlot(storage, index, message.stack);
                             cpv.detectAndSendChanges();
                         }
@@ -343,9 +342,8 @@ public class CPacketInventoryActionExtend implements IMessage {
                             if (storage == null || index < 0 || originGui == null) {
                                 return null;
                             }
-                            cpv.setPrimaryGui(
-                                AE2ThingPrimaryGui
-                                    .create(originGui, getOriginGuiIcon(originGui), pos, side));
+                            ItemStack icon = getOriginGuiIcon(originGui);
+                            if (icon != null) cpv.setPrimaryGui(AE2ThingPrimaryGui.create(originGui, icon, pos, side));
                             cpv.updateVirtualSlot(storage, index, message.stack);
                             cpv.detectAndSendChanges();
                         }
@@ -372,8 +370,7 @@ public class CPacketInventoryActionExtend implements IMessage {
             return switch (guiType) {
                 case INFUSION_PATTERN_TERMINAL -> ItemAndBlockHolder.INFUSION_PATTERN_TERMINAL.stack();
                 case PATTERN_MODIFIER -> ItemAndBlockHolder.ITEM_PATTERN_MODIFIER.stack();
-                case WIRELESS_DUAL_INTERFACE_TERMINAL -> ItemAndBlockHolder.ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL
-                    .stack();
+                case WIRELESS_DUAL_INTERFACE_TERMINAL -> ItemAndBlockHolder.wirelessDualInterfaceTerminalStack();
                 default -> null;
             };
         }

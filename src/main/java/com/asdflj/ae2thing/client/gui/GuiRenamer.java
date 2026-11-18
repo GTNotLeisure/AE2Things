@@ -46,7 +46,7 @@ public class GuiRenamer extends AEBaseGui implements IDropToFillTextField {
     public void initGui() {
         super.initGui();
         if (host instanceof WirelessDualInterfaceTerminalInventory) {
-            icon = ItemAndBlockHolder.ITEM_WIRELESS_DUAL_INTERFACE_TERMINAL.stack();
+            icon = ItemAndBlockHolder.wirelessDualInterfaceTerminalStack();
             originalGui = GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL;
         }
         if (this.icon != null) {
