@@ -27,7 +27,7 @@ public class Config {
     public static int exIOPortTransferContentsRate;
     public static boolean backpackTerminalAddTicSupport = false;
     public static int craftingHistorySize = 200;
-    public static boolean dualTerminalCanStoredInBaubles = false;
+    public static boolean dualTerminalCanStoredInBaubles = true;
     public static boolean modernInteraction = false;
 
     private static File resolveConfigFile() {
@@ -111,7 +111,7 @@ public class Config {
         dualTerminalCanStoredInBaubles = Config.getBoolean(
             "2-in-1 terminal baubles support",
             DUAL_TERMINAL_CATEGORY,
-            false,
+            true,
             "Let the 2-in-1 terminal be stored in baubles slots",
             DUAL_TERMINAL_LANG_KEY + ".canStoredInBaubles");
         modernInteraction = Config.getBoolean(
