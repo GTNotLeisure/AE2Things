@@ -7,9 +7,9 @@ This mod adds a new type of cell the DISK: Deep Item Storage disk. This cell has
 | GTNH  | AE2T   | Download                                                                                                                   | Maintenance |
 |-------|--------|----------------------------------------------------------------------------------------------------------------------------|:-----------:|
 | 2.7.4 | 1.1.28 | [![1.1.28](https://img.shields.io/badge/release-v1.1.28-orange)](https://github.com/asdflj/AE2Things/releases/v1.1.28)     |     ❌️      |
-| 2.8.0 | 1.2.8  | [![1.2.8](https://img.shields.io/badge/release-v1.2.8-orange)](https://github.com/asdflj/AE2Things/releases/v1.2.8)        |    ❌️️       |
-| 2.8.4 | 1.2.15 | [![1.2.15](https://img.shields.io/badge/release-v1.2.15-orange)](https://github.com/asdflj/AE2Things/releases/v1.2.15)     |    ❌️️       |
-| 2.9.0 | 1.2.16 | [![Latest](https://img.shields.io/github/v/release/ABKQPO/AE2Things)](https://github.com/ABKQPO/AE2Things/releases/latest) |    ✔️       |
+| 2.8.0 | 1.2.8  | [![1.2.8](https://img.shields.io/badge/release-v1.2.8-orange)](https://github.com/asdflj/AE2Things/releases/v1.2.8)        |     ❌️️      |
+| 2.8.4 | 1.2.15 | [![1.2.15](https://img.shields.io/badge/release-v1.2.15-orange)](https://github.com/asdflj/AE2Things/releases/v1.2.15)     |     ❌️️      |
+| 2.9.0 | 1.2.16 | [![Latest](https://img.shields.io/github/v/release/ABKQPO/AE2Things)](https://github.com/ABKQPO/AE2Things/releases/latest) |     ✔️      |
 
 ## License & Copyright
 
@@ -26,7 +26,7 @@ Four upstream projects are involved. They carry different licenses, so they are 
 |:--------------------------------------------------------------------------------------|:-------------------------------------------------------|:----------------------------------------------------------------------------------------------|:-------------------:|
 | [GTNewHorizons/Botania](https://github.com/GTNewHorizons/Botania) (Vazkii)            | [Botania License](https://botaniamod.net/license.html) | runtime dependency: API calls and extended internals, its own pool texture is read at runtime |         ❌          |
 | [ramidzkh/Applied Botanics](https://github.com/ramidzkh/Applied-Botanics)             | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | ported code and resource files                                                                |         ✅          |
-| [DancingSnow0517/AE2InfinityCell](https://github.com/DancingSnow0517/AE2InfinityCell) | [MIT](https://mit-license.org/)                        | inspired and reused part of codes                                                             |         ❌          |
+| [DancingSnow0517/AE2InfinityCell](https://github.com/DancingSnow0517/AE2InfinityCell) | [MIT](https://mit-license.org/)                        | inspired and reused resource files and part of codes                                          |         ❌          |
 | [rt-game-440/AE2-NEI-Chain](https://github.com/rt-game-440/AE2-NEI-Chain)             | [MIT](https://mit-license.org/)                        | inspired only                                                                                 |         ❌          |
 
 #### Botania (Vazkii) — runtime dependency, nothing bundled
