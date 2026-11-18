@@ -19,7 +19,7 @@ import org.jetbrains.annotations.NotNull;
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.MagnetObject;
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.storage.CellInventory;
 import com.asdflj.ae2thing.common.storage.CellInventoryHandler;
 import com.asdflj.ae2thing.common.storage.IStorageItemCell;
@@ -104,17 +104,17 @@ public class ItemBackpackTerminal extends BaseItem
     @Override
     @Optional.Method(modid = "Baubles")
     public BaubleType getBaubleType(ItemStack stack) {
-        return Config.isTerminalBaublesEnabled() ? BaubleType.UNIVERSAL : null;
+        return AE2ThingConfig.terminalBaubles ? BaubleType.UNIVERSAL : null;
     }
 
     @Override
     public String[] getBaubleTypes(ItemStack stack) {
-        return Config.isTerminalBaublesEnabled() ? new String[] { BaubleExpandedSlots.universalType } : new String[0];
+        return AE2ThingConfig.terminalBaubles ? new String[] { BaubleExpandedSlots.universalType } : new String[0];
     }
 
     @Override
     public boolean canEquip(ItemStack stack, EntityLivingBase player) {
-        return Config.isTerminalBaublesEnabled();
+        return AE2ThingConfig.terminalBaubles;
     }
 
     @Override
@@ -130,7 +130,7 @@ public class ItemBackpackTerminal extends BaseItem
 
     @Override
     public void onWornTick(ItemStack stack, EntityLivingBase player) {
-        if (Config.isTerminalBaublesEnabled()) onUpdate(stack, player.worldObj, player, -1, false);
+        if (AE2ThingConfig.terminalBaubles) onUpdate(stack, player.worldObj, player, -1, false);
     }
 
     @Override
@@ -150,7 +150,7 @@ public class ItemBackpackTerminal extends BaseItem
 
     @Override
     public Object getInventoryAt(ItemStack stack, World world, int x, int y, int z, EntityPlayer player) {
-        if (PlayerInvType.typeOf(x) == PlayerInvType.PLAYER_BAUBLES && !Config.isTerminalBaublesEnabled()) return null;
+        if (PlayerInvType.typeOf(x) == PlayerInvType.PLAYER_BAUBLES && !AE2ThingConfig.terminalBaubles) return null;
         if (stack.getItem() instanceof IItemInventoryHandler iih) {
             try {
                 return new BackpackTerminalInventory(

@@ -2,10 +2,6 @@ package com.asdflj.ae2thing.proxy;
 
 import java.io.File;
 
-import com.asdflj.ae2thing.api.adapter.terminal.item.EquippableTerminalHandler;
-import com.asdflj.ae2thing.api.adapter.terminal.item.ITerminalHandler;
-import com.asdflj.ae2thing.api.adapter.terminal.item.TerminalItems;
-import com.asdflj.ae2thing.inventory.gui.GuiType;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -24,12 +20,15 @@ import com.asdflj.ae2thing.api.adapter.crafting.WCTCraftingTerminal;
 import com.asdflj.ae2thing.api.adapter.findit.MEChestAdapter;
 import com.asdflj.ae2thing.api.adapter.findit.MEDriverAdapter;
 import com.asdflj.ae2thing.api.adapter.findit.PartStorageBusAdapter;
+import com.asdflj.ae2thing.api.adapter.terminal.item.EquippableTerminalHandler;
 import com.asdflj.ae2thing.api.adapter.terminal.item.FCBaseTerminalHandler;
+import com.asdflj.ae2thing.api.adapter.terminal.item.ITerminalHandler;
+import com.asdflj.ae2thing.api.adapter.terminal.item.TerminalItems;
 import com.asdflj.ae2thing.api.adapter.terminal.item.UltraTerminalHandler;
 import com.asdflj.ae2thing.api.adapter.terminal.item.WCTWirelessCraftingTerminalHandler;
+import com.asdflj.ae2thing.api.config.ConfigSyncHandler;
 import com.asdflj.ae2thing.api.container.EmptyContainerProviders;
 import com.asdflj.ae2thing.api.container.FluidContainerProvider;
-import com.asdflj.ae2thing.common.Config;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemPatternModifier;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
@@ -40,13 +39,13 @@ import com.asdflj.ae2thing.common.storage.backpack.OKBackpackHandler;
 import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
 import com.asdflj.ae2thing.common.tile.TileInfusionInterface;
 import com.asdflj.ae2thing.integration.Mods;
+import com.asdflj.ae2thing.inventory.gui.GuiType;
 import com.asdflj.ae2thing.inventory.item.PatternModifierInventory;
 import com.asdflj.ae2thing.loader.BRLoader;
 import com.asdflj.ae2thing.loader.ItemAndBlockHolder;
 import com.asdflj.ae2thing.loader.PatternTerminalLoader;
 import com.asdflj.ae2thing.loader.PatternTerminalMouseWheelLoader;
 import com.asdflj.ae2thing.network.CPacketCellContentsRequest;
-import com.asdflj.ae2thing.network.SPacketServerConfig;
 import com.asdflj.ae2thing.network.wrapper.AE2ThingNetworkWrapper;
 import com.asdflj.ae2thing.util.AspectUtil;
 import com.asdflj.ae2thing.util.ItemGuiHintCache;
@@ -73,7 +72,6 @@ import cpw.mods.fml.common.event.FMLServerStartingEvent;
 import cpw.mods.fml.common.event.FMLServerStoppingEvent;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import cpw.mods.fml.common.gameevent.PlayerEvent;
-import cpw.mods.fml.common.gameevent.PlayerEvent.PlayerLoggedInEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import de.eydamos.backpack.item.ItemBackpackBase;
 import forestry.storage.items.ItemBackpack;
@@ -96,19 +94,15 @@ public class CommonProxy {
         FMLCommonHandler.instance()
             .bus()
             .register(this);
+        FMLCommonHandler.instance()
+            .bus()
+            .register(new ConfigSyncHandler());
         ModAndClassUtil.init();
 
         EmptyContainerProviders.register(AEFluidStackType.FLUID_STACK_TYPE, FluidContainerProvider.INSTANCE);
         if (Mods.THAUMIC_ENERGISTICS.isModLoaded()) {
             EmptyContainerProviders
                 .register(AEEssentiaStackType.ESSENTIA_STACK_TYPE, _ -> AspectUtil.HELPER.createEmptyPhial());
-        }
-    }
-
-    @SubscribeEvent
-    public void onPlayerLogin(PlayerLoggedInEvent event) {
-        if (event.player instanceof EntityPlayerMP player) {
-            netHandler.sendTo(new SPacketServerConfig(Config.SERVER_SETTINGS.writeServerValues()), player);
         }
     }
 
@@ -218,9 +212,6 @@ public class CommonProxy {
         Upgrades.FUZZY.registerItem(ItemAndBlockHolder.ITEM_INFINITY_UNIVERSAL_CELL.stack(), 1);
         Upgrades.INVERTER.registerItem(ItemAndBlockHolder.ITEM_INFINITY_UNIVERSAL_CELL.stack(), 1);
 
-        // Upgrades.ORE_FILTER.registerItem(ItemAndBlockHolder.TOGGLE_VIEW_CELL.stack(), 1);
-        // Upgrades.FUZZY.registerItem(ItemAndBlockHolder.TOGGLE_VIEW_CELL.stack(), 1);
-        // Upgrades.INVERTER.registerItem(ItemAndBlockHolder.TOGGLE_VIEW_CELL.stack(), 1);
         if (Mods.THAUMIC_ENERGISTICS.isModLoaded()) {
             Upgrades.LOCK_CRAFTING.registerItem(ItemAndBlockHolder.INFUSION_INTERFACE.stack(), 1);
             Upgrades.LOCK_CRAFTING.registerItem(ItemAndBlockHolder.THAUMATRIUM_INTERFACE.stack(), 1);
@@ -300,12 +291,17 @@ public class CommonProxy {
             .registerTerminalItem(ItemWirelessPatternTerminal.class, h);
         AE2ThingAPI.instance()
             .terminal()
-            .registerTerminalItem(new EquippableTerminalHandler(ItemWirelessDualInterfaceTerminal.class, GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL));
+            .registerTerminalItem(
+                new EquippableTerminalHandler(
+                    ItemWirelessDualInterfaceTerminal.class,
+                    GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL));
         AE2ThingAPI.instance()
             .terminal()
             .registerTerminalItem(new EquippableTerminalHandler(ItemBackpackTerminal.class, GuiType.BACKPACK_TERMINAL) {
+
                 @Override
-                public boolean canConnect(ItemStack item, ITerminalHandler terminal, TerminalItems items, EntityPlayerMP player) {
+                public boolean canConnect(ItemStack item, ITerminalHandler terminal, TerminalItems items,
+                    EntityPlayerMP player) {
                     return true;
                 }
             });

@@ -12,7 +12,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerPickupXpEvent;
 
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.storage.CellInventory;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 
@@ -31,7 +31,6 @@ public class MagnetObject {
     }
 
     public static String modeKey = Constants.MAGNET_MODE_KEY;
-    private static final int range = Config.magnetRange;
 
     private final ItemStackNBT data;
     private Mode currentMode;
@@ -105,7 +104,7 @@ public class MagnetObject {
 
     public void doMagnet(World world, Entity entity) {
         if (!(entity instanceof EntityPlayer player)) return;
-        int range = MagnetObject.range;
+        int range = AE2ThingConfig.magnetRange;
 
         List<EntityItem> items = world.getEntitiesWithinAABB(
             EntityItem.class,

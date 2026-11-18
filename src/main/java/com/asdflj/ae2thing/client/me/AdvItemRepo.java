@@ -17,7 +17,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 
 import com.asdflj.ae2thing.client.gui.widget.IGuiMonitor;
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.util.Ae2ReflectClient;
 
 import appeng.api.storage.data.IAEItemStack;
@@ -65,7 +65,7 @@ public class AdvItemRepo extends ItemRepo implements Runnable {
     }
 
     public void setCache(IGuiMonitor gui) {
-        if (Config.updateViewThread) {
+        if (AE2ThingConfig.updateViewThread) {
             this.repo = new AdvItemRepo(gui);
             this.repo.setPowered(true);
             this.gui = gui;

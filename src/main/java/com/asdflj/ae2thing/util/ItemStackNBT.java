@@ -9,9 +9,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 /**
- * minimal copy of {@code ItemStackNBT}
- *
- * @see com.gtnewhorizon.gtnhlib.item.ItemStackNBT
+ * minimal copy of {@link com.gtnewhorizon.gtnhlib.item.ItemStackNBT}
  */
 public final class ItemStackNBT {
 

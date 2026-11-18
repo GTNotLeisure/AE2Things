@@ -9,7 +9,7 @@ import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.input.Keyboard;
 
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.ModernContainerPickup;
 
 import appeng.api.storage.data.AEStackTypeRegistry;
@@ -25,7 +25,7 @@ public final class ModernContainerInteraction {
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public static MonitorableAction resolveAction(@Nullable IAEStack<?> hovered, @Nullable ItemStack hand,
         int mouseBtn) {
-        if (!Config.modernInteraction) return null;
+        if (!AE2ThingConfig.modernInteraction) return null;
         if (hand == null) return null;
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) return null;
         final boolean all = GuiScreen.isShiftKeyDown();
@@ -56,7 +56,7 @@ public final class ModernContainerInteraction {
 
     @Contract("null, _, _ -> false")
     public static boolean shouldFillFromNetwork(@Nullable IAEStack<?> hovered, @Nullable ItemStack hand, int mouseBtn) {
-        if (!Config.modernInteraction) return false;
+        if (!AE2ThingConfig.modernInteraction) return false;
         if (mouseBtn != 0 || hand != null) return false;
         if (hovered == null || hovered.getStackSize() <= 0) return false;
         if (Keyboard.isKeyDown(Keyboard.KEY_SPACE)) return false;
@@ -76,7 +76,7 @@ public final class ModernContainerInteraction {
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean hidesEntryTooltip() {
-        if (!Config.modernInteraction) return false;
+        if (!AE2ThingConfig.modernInteraction) return false;
         final EntityPlayer player = Minecraft.getMinecraft().thePlayer;
         return player != null && player.inventory.getItemStack() != null;
     }

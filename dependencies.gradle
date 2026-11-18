@@ -141,6 +141,7 @@ dependencies {
     implementation("org.ow2.asm:asm-commons:9.8")
 
     testImplementation("junit:junit:4.13.2")
+    testRuntimeOnly("it.unimi.dsi:fastutil:8.5.18")
 }
 
 configurations.configureEach {

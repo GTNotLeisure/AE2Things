@@ -8,7 +8,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.item.ItemWirelessConnectorTerminal;
 import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.inventory.item.WirelessTerminal;
@@ -125,8 +125,8 @@ public class WirelessObject implements IActionHost {
         if (item == null || item.getItem() == null || gridNode == null || gridNode.getGrid() == null) return false;
 
         Item i = item.getItem();
-        if (i instanceof ItemWirelessConnectorTerminal && Config.wirelessConnectorTerminalInfinityConnectionRange)
-            return true;
+        if (i instanceof ItemWirelessConnectorTerminal
+            && AE2ThingConfig.wirelessConnectorTerminalInfinityConnectionRange) return true;
 
         IWirelessTermHandler handler = AEApi.instance()
             .registries()

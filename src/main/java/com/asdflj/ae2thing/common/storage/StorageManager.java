@@ -20,7 +20,7 @@ import net.minecraft.world.WorldSavedData;
 
 import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.Constants;
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.item.BaseCellItem;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 
@@ -115,7 +115,7 @@ public class StorageManager extends WorldSavedData {
     }
 
     private void addGrid(UUID uid, IGrid grid) {
-        if (!Config.cellLink || grid == null || grid.isEmpty()) return;
+        if (!AE2ThingConfig.cellLink || grid == null || grid.isEmpty()) return;
         this.grids.putIfAbsent(uid, new ObjectOpenHashSet<>());
         this.grids.get(uid)
             .add(grid);
@@ -483,7 +483,7 @@ public class StorageManager extends WorldSavedData {
     }
 
     private void postChanges(final DataStorage storage, IChestOrDrive drive, Consumer<IStorageGrid> postChange) {
-        if (!Config.cellLink || drive == null) return;
+        if (!AE2ThingConfig.cellLink || drive == null) return;
         if (drive instanceof AENetworkInvTile ait) {
             try {
                 IGrid curGrid = ait.getProxy()

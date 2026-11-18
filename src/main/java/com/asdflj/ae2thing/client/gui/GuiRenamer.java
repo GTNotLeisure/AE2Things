@@ -41,7 +41,6 @@ public class GuiRenamer extends AEBaseGui implements IDropToFillTextField {
         this.textField.setMaxStringLength(32);
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void initGui() {
         super.initGui();

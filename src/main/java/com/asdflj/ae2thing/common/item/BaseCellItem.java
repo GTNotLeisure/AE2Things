@@ -11,7 +11,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.asdflj.ae2thing.api.Constants;
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.ItemCellLinkInventory;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
@@ -34,7 +34,7 @@ public abstract class BaseCellItem extends BaseItem implements IItemInventory, I
                 item.setTagCompound(null);
                 player.inventory.setInventorySlotContents(player.inventory.currentItem, item);
             }
-        } else if (Config.cellLink) {
+        } else if (AE2ThingConfig.cellLink) {
             InventoryHandler.openGui(
                 player,
                 w,
@@ -61,7 +61,7 @@ public abstract class BaseCellItem extends BaseItem implements IItemInventory, I
 
     @Override
     public void addToolTips(ItemStack stack, EntityPlayer player, List<String> lines, boolean displayMoreInfo) {
-        if (!Config.cellLink) {
+        if (!AE2ThingConfig.cellLink) {
             lines.add(I18n.format(NameConst.TT_CELL_LINK_DISABLE));
             return;
         }

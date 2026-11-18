@@ -7,7 +7,7 @@ import javax.annotation.Nullable;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.inventory.Container;
 
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.inventory.IModernContainerPickup;
 
 import appeng.api.storage.data.IAEStack;
@@ -61,7 +61,7 @@ public class CPacketContainerInteraction implements IMessage {
         @Nullable
         @Override
         public IMessage onMessage(CPacketContainerInteraction message, MessageContext ctx) {
-            if (!Config.modernInteraction) return null;
+            if (!AE2ThingConfig.modernInteraction) return null;
             final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             if (player == null || message.target == null) return null;
             final Container container = player.openContainer;

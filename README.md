@@ -28,7 +28,7 @@ Four upstream projects are involved. They carry different licenses, so they are 
 | [ramidzkh/Applied Botanics](https://github.com/ramidzkh/Applied-Botanics)             | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | ported code and resource files                                                                |         ✅          |
 | [DancingSnow0517/AE2InfinityCell](https://github.com/DancingSnow0517/AE2InfinityCell) | [MIT](https://mit-license.org/)                        | inspired and reused resource files and part of codes                                          |         ❌          |
 | [rt-game-440/AE2-NEI-Chain](https://github.com/rt-game-440/AE2-NEI-Chain)             | [MIT](https://mit-license.org/)                        | inspired only                                                                                 |         ❌          |
-
+| [GTNewHorizons/GTNHLib](https://github.com/GTNewHorizons/GTNHLib)                     | [LGPL-3.0](https://www.gnu.org/licenses/lgpl-3.0.html) | reused part of codes                                                                          |         ❌          |
 #### Botania (Vazkii) — runtime dependency, nothing bundled
 
 The Applied Botanics module is built on top of Botania and requires it at runtime. It calls Botania's API

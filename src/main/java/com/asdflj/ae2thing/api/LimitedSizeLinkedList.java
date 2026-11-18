@@ -2,13 +2,15 @@ package com.asdflj.ae2thing.api;
 
 import java.util.LinkedList;
 
+import com.asdflj.ae2thing.common.AE2ThingConfig;
+
 public class LimitedSizeLinkedList<E> extends LinkedList<E> {
 
     private final int limit;
 
     public LimitedSizeLinkedList() {
         super();
-        this.limit = AE2ThingAPI.CRAFTING_HISTORY_SIZE;
+        this.limit = AE2ThingConfig.craftingHistorySize;
     }
 
     public LimitedSizeLinkedList(int limit) {

@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.item.Item;
 
 import com.asdflj.ae2thing.AE2Thing;
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.network.CPacketInventoryAction;
 
@@ -22,7 +22,7 @@ public class DualInterfaceTerminal implements IItemTerminal {
 
     @Override
     public boolean supportBaubles() {
-        return Config.isTerminalBaublesEnabled();
+        return AE2ThingConfig.terminalBaubles;
     }
 
     @Override

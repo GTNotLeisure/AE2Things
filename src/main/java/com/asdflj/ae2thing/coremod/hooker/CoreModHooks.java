@@ -3,7 +3,7 @@ package com.asdflj.ae2thing.coremod.hooker;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraftforge.common.util.ForgeDirection;
 
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.parts.PartThaumatoriumInterface;
 import com.asdflj.ae2thing.common.tile.TileExIOPort;
 import com.asdflj.ae2thing.common.tile.TileInfusionInterface;
@@ -49,7 +49,7 @@ public class CoreModHooks {
     public static long getItemsToMove(TileIOPort ioPort, long base) {
         if (ioPort instanceof TileExIOPort) {
             try {
-                return Math.multiplyExact(base, Config.exIOPortTransferContentsRate);
+                return Math.multiplyExact(base, AE2ThingConfig.exIOPortTransferContentsRate);
             } catch (ArithmeticException ignored) {
                 return Long.MAX_VALUE;
             }

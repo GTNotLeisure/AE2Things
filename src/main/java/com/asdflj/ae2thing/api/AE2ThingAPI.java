@@ -16,7 +16,6 @@ import net.minecraft.util.ChatComponentText;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.Tags;
-import com.asdflj.ae2thing.common.Config;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.common.storage.StorageManager;
@@ -41,7 +40,6 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
 
     public static int maxSelectionRows = 5;
     private static final AE2ThingAPI API = new AE2ThingAPI();
-    public static final int CRAFTING_HISTORY_SIZE = Config.craftingHistorySize;
     private static final Set<Class<? extends Item>> backpackItems = new ObjectOpenHashSet<>();
     private StorageManager storageManager = null;
     private static final Object2ObjectOpenHashMap<Class<?>, String> inputFields = new Object2ObjectOpenHashMap<>();

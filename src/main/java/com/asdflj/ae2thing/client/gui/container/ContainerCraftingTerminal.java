@@ -11,7 +11,7 @@ import net.minecraft.item.crafting.CraftingManager;
 
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.client.gui.container.slot.SlotTicCraftingTerm;
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.item.BackpackTerminalInventory;
 import com.asdflj.ae2thing.util.TicUtil;
@@ -91,7 +91,7 @@ public class ContainerCraftingTerminal extends ContainerMonitor {
     public void onCraftMatrixChanged(final IInventory par1IInventory) {
         final ContainerNull cn = new ContainerNull();
         final InventoryCrafting ic = new InventoryCrafting(cn, 3, 3);
-        if (Mods.TINKERS_CONSTRUCT.isModLoaded() && Config.backpackTerminalAddTicSupport) {
+        if (Mods.TINKERS_CONSTRUCT.isModLoaded() && AE2ThingConfig.backpackTerminalAddTicSupport) {
             for (int x = 0; x < 9; x++) {
                 if (TicUtil.isTool(this.craftingSlots[x].getStack())) {
                     ItemStack tool = this.craftingSlots[x].getStack();

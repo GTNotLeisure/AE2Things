@@ -6,7 +6,7 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
 import com.asdflj.ae2thing.api.Constants;
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
@@ -34,7 +34,7 @@ public class EquippableTerminalHandler implements ITerminalHandler {
         if (item == null || !itemType.isInstance(item.getItem())) return;
         if (items.getData()
             .hasKey(Constants.SLOT)) {
-            if (!Config.isTerminalBaublesEnabled() || !Mods.BAUBLES.isModLoaded()) return;
+            if (!AE2ThingConfig.terminalBaubles || !Mods.BAUBLES.isModLoaded()) return;
             int slot = items.getData()
                 .getInteger(Constants.SLOT);
             IInventory baubles = BaublesUtil.getBaublesInv(player);

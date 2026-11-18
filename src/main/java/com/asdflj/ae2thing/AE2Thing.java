@@ -2,7 +2,7 @@ package com.asdflj.ae2thing;
 
 import net.minecraft.util.ResourceLocation;
 
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.storage.CellHandler;
 import com.asdflj.ae2thing.common.storage.UniversalCellHandler;
 import com.asdflj.ae2thing.crossmod.waila.WailaInit;
@@ -27,6 +27,7 @@ import cpw.mods.fml.common.network.NetworkRegistry;
 @Mod(
     modid = AE2Thing.MODID,
     version = Tags.VERSION,
+    guiFactory = "com.asdflj.ae2thing.client.gui.AE2ThingGuiFactory",
     name = AE2Thing.NAME,
     dependencies = "required-after:appliedenergistics2;required-after:ae2fc;required-after:NotEnoughItems;after:ae2stuff;after:thaumicenergistics;after:ic2")
 public class AE2Thing {
@@ -47,7 +48,7 @@ public class AE2Thing {
     // preInit "Run before anything else. Read your config, create blocks, items, etc, and register them with the
     // GameRegistry." (Remove if not needed)
     public void preInit(FMLPreInitializationEvent event) {
-        Config.run();
+        AE2ThingConfig.run();
         ChannelLoader.INSTANCE.run();
         proxy.preInit(event);
         ItemAndBlockHolder.INSTANCE.run();

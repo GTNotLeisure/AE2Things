@@ -6,7 +6,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.util.Ae2Reflect;
 import com.asdflj.ae2thing.util.TicUtil;
@@ -33,7 +33,7 @@ public class SlotTicCraftingTerm extends SlotCraftingTerm {
     }
 
     public void doClick(final InventoryAction action, final EntityPlayer who) {
-        if (Mods.TINKERS_CONSTRUCT.isModLoaded() && Config.backpackTerminalAddTicSupport) {
+        if (Mods.TINKERS_CONSTRUCT.isModLoaded() && AE2ThingConfig.backpackTerminalAddTicSupport) {
             if (this.getStack() == null) {
                 return;
             }

@@ -32,7 +32,7 @@ import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.client.gui.IGuiMonitorTerminal;
-import com.asdflj.ae2thing.common.Config;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemPatternModifier;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
@@ -188,7 +188,7 @@ public class Util {
     private static int findEquippableTerminal(EntityPlayer player, ItemStack is, Class<? extends Item> type) {
         IntObjectPair<ItemStack> found = scanItem(player, PlayerInvType.PLAYER_INV, is, type);
         if (found != null) return found.leftInt();
-        if (!Config.isTerminalBaublesEnabled()) return PlayerInvType.NO_SLOT;
+        if (!AE2ThingConfig.terminalBaubles) return PlayerInvType.NO_SLOT;
         found = scanItem(player, PlayerInvType.PLAYER_BAUBLES, is, type);
         return found != null ? found.leftInt() : PlayerInvType.NO_SLOT;
     }
