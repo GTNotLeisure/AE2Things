@@ -12,6 +12,7 @@ import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.INFUSION_PATTERN_TER
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_CREATIVE_COBBLESTONE_CELL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_CREATIVE_WATER_CELL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_INFINITY_CELL;
+import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_INFINITY_ESSENTIA_CELL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_INFINITY_FLUID_CELL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_INFINITY_UNIVERSAL_CELL;
 import static com.asdflj.ae2thing.loader.ItemAndBlockHolder.ITEM_PATTERN_MODIFIER;
@@ -47,6 +48,7 @@ import com.glodblock.github.common.storage.CellType;
 import appeng.api.AEApi;
 import cpw.mods.fml.common.registry.GameRegistry;
 import thaumcraft.common.config.ConfigBlocks;
+import thaumicenergistics.api.ThEApi;
 
 public class RecipeLoader implements Runnable {
 
@@ -185,11 +187,38 @@ public class RecipeLoader implements Runnable {
                 "CCC",
                 'C',
                 AE2FC_DIGITAL_SINGULARITY_CELL));
-        GameRegistry.addRecipe(
-            new ShapelessOreRecipe(
-                ITEM_INFINITY_UNIVERSAL_CELL.stack(),
-                ITEM_INFINITY_CELL.stack(),
-                ITEM_INFINITY_FLUID_CELL.stack()));
+        if (Mods.THAUMIC_ENERGISTICS.isModLoaded()) {
+            var ThE = ThEApi.instance();
+            final ItemStack AE2TE_DIGITAL_SINGULARITY_CELL;
+            if (ThE != null) {
+                AE2TE_DIGITAL_SINGULARITY_CELL = ThE.items().EssentiaCell_Singularity.getStack();
+            } else {
+                AE2TE_DIGITAL_SINGULARITY_CELL = null;
+            }
+
+            if (AE2TE_DIGITAL_SINGULARITY_CELL != null) {
+                GameRegistry.addRecipe(
+                    new ShapedOreRecipe(
+                        ITEM_INFINITY_ESSENTIA_CELL.stack(),
+                        "CCC",
+                        "CCC",
+                        "CCC",
+                        'C',
+                        AE2TE_DIGITAL_SINGULARITY_CELL));
+                GameRegistry.addRecipe(
+                    new ShapelessOreRecipe(
+                        ITEM_INFINITY_UNIVERSAL_CELL.stack(),
+                        ITEM_INFINITY_CELL.stack(),
+                        ITEM_INFINITY_FLUID_CELL.stack(),
+                        ITEM_INFINITY_ESSENTIA_CELL.stack()));
+            }
+        } else {
+            GameRegistry.addRecipe(
+                new ShapelessOreRecipe(
+                    ITEM_INFINITY_UNIVERSAL_CELL.stack(),
+                    ITEM_INFINITY_CELL.stack(),
+                    ITEM_INFINITY_FLUID_CELL.stack()));
+        }
         ItemStack ae2StuffWireless = Ae2StuffIntegration.wirelessBlockStack();
         if (ae2StuffWireless != null) {
             GameRegistry

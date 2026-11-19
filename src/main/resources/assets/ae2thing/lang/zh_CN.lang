@@ -1,6 +1,7 @@
 item.backpack_terminal.name=背包终端
 item.infinity_cell.name=ME无限存储单元
 item.infinity_fluid_cell.name=ME无限流体存储单元
+item.infinity_essentia_cell.name=ME无限源质存储单元
 item.infinity_universal_cell.name=ME无限通用存储单元
 item.creative_fluid_cell.water.name=创造ME流体存储元件(水)
 item.creative_fluid_cell.lava.name=创造ME流体存储元件(岩浆)
@@ -46,6 +47,7 @@ ae2thing.tooltip.pattern_modifier.desc=潜行右键接口来提取样板,\n潜�
 ae2thing.tooltip.wireless.installed=已安装的卡:
 ae2thing.tooltip.universal_cell.stored=已存 %s，共 %s 种
 ae2thing.tooltip.universal_cell.empty=空
+ae2thing.tooltips.just_material=只是材料
 ae2thing.message.crafting_debug_card.request_type=请求类型: 
 ae2thing.message.crafting_debug_card.request_type.machine=机器
 ae2thing.message.crafting_debug_card.request_type.player=玩家

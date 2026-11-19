@@ -32,6 +32,7 @@ import com.asdflj.ae2thing.common.item.ItemUniversalStorageBus;
 import com.asdflj.ae2thing.common.item.ItemWireCutter;
 import com.asdflj.ae2thing.common.item.ItemWirelessConnectorTerminal;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
+import com.asdflj.ae2thing.common.item.MaterialItem;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.util.NameConst;
 
@@ -55,6 +56,7 @@ public class ItemAndBlockHolder implements Runnable {
     public static BlockWirelessDistributor WIRELESS_DISTRIBUTOR;
     public static ItemInfinityStorageCell ITEM_INFINITY_CELL = new ItemInfinityStorageCell().register();
     public static ItemInfinityStorageFluidCell ITEM_INFINITY_FLUID_CELL = new ItemInfinityStorageFluidCell().register();
+    public static MaterialItem ITEM_INFINITY_ESSENTIA_CELL;
     public static ItemInfinityStorageUniversalCell ITEM_INFINITY_UNIVERSAL_CELL = new ItemInfinityStorageUniversalCell()
         .register();
     public static ItemPartWirelessConnectorTerminal WIRELESS_CONNECTOR_TERMINAL = new ItemPartWirelessConnectorTerminal()
@@ -92,6 +94,7 @@ public class ItemAndBlockHolder implements Runnable {
             INFUSION_INTERFACE = new BlockInfusionInterface().register();
             PHIAL = new ItemPhial().register();
             ESSENTIA_DISCRETIZER = new BlockEssentiaDiscretizer().register();
+            ITEM_INFINITY_ESSENTIA_CELL = new MaterialItem("infinity_essentia_cell", 1).register();
         }
         if (Mods.isLegacyGt5Loaded() || Mods.isGt5UnofficialLoaded()) {
             WIRELESS_DISTRIBUTOR = new BlockWirelessDistributor().register();
