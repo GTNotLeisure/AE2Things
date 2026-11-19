@@ -6,6 +6,7 @@ import appeng.core.localization.Localization;
 
 public enum Tooltips implements Localization {
 
+    for_full_contents,
     just_material;
 
     @Override

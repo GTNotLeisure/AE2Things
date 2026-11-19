@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 
+import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 
 import org.spongepowered.asm.mixin.Final;
@@ -13,6 +14,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.asdflj.ae2thing.api.AE2ThingAPI;
@@ -21,8 +23,9 @@ import com.asdflj.ae2thing.common.item.ItemInfinityStorageUniversalCell;
 import com.asdflj.ae2thing.common.storage.StorageManager;
 import com.asdflj.ae2thing.common.storage.UniversalCellHandler;
 import com.asdflj.ae2thing.common.storage.UniversalCellInventory;
-import com.asdflj.ae2thing.common.storage.UniversalCellInventoryHandler;
+import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
 import com.asdflj.ae2thing.coremod.hooker.CoreModHooks;
+import com.asdflj.ae2thing.util.IOPortTransferUtil;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.Util;
 
@@ -40,14 +43,13 @@ import appeng.api.storage.IMEInventory;
 import appeng.api.storage.IMEMonitor;
 import appeng.api.storage.data.IAEStack;
 import appeng.api.storage.data.IAEStackType;
-import appeng.api.storage.data.IItemList;
 import appeng.me.GridAccessException;
 import appeng.me.storage.CellInventoryHandler;
 import appeng.tile.grid.AENetworkInvTile;
 import appeng.tile.inventory.AppEngInternalInventory;
+import appeng.tile.inventory.InvOperation;
 import appeng.tile.storage.TileIOPort;
 import appeng.util.ConfigManager;
-import appeng.util.IterationCounter;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStackType;
 
@@ -87,13 +89,28 @@ public abstract class MixinTileIOPort extends AENetworkInvTile {
     private final boolean[] ae2t$didWorkBySlot = new boolean[6];
 
     @ModifyVariable(
-        method = "transferContents",
-        at = @At(value = "HEAD"),
+        method = "tickingRequest",
+        at = @At(
+            value = "INVOKE",
+            target = "Lappeng/util/ConfigManager;getSetting(Lappeng/api/config/Settings;)Ljava/lang/Enum;",
+            ordinal = 0),
         remap = false,
-        argsOnly = true,
-        name = "itemsToMove")
-    private long transferContents(long itemsToMove) {
-        return CoreModHooks.getItemsToMove((TileIOPort) (Object) this, itemsToMove);
+        name = "amountToMove")
+    private long ae2t$scaleTransferBudget(long amountToMove) {
+        // Scale before the caller records its budget, not only inside transferContents.
+        return CoreModHooks.getItemsToMove((TileIOPort) (Object) this, amountToMove);
+    }
+
+    @Inject(method = "moveSlot", at = @At("HEAD"), remap = false)
+    private void ae2t$flushBeforeMove(int x, CallbackInfoReturnable<Boolean> cir) {
+        InfinityStorageCellSnapshot.flushNow(this.cells.getStackInSlot(x));
+    }
+
+    @Inject(method = "onChangeInventory", at = @At("HEAD"), remap = false)
+    private void ae2t$flushSnapshot(IInventory inv, int slot, InvOperation mc, ItemStack removed, ItemStack added,
+        CallbackInfo ci) {
+        InfinityStorageCellSnapshot.flushNow(removed);
+        InfinityStorageCellSnapshot.flushNow(added);
     }
 
     @Inject(method = "getInv", at = @At("HEAD"), cancellable = true, remap = false)
@@ -138,9 +155,16 @@ public abstract class MixinTileIOPort extends AENetworkInvTile {
         cir.setReturnValue(!ae2t$hasContent(cellStack));
     }
 
-    @Inject(method = "tickingRequest", at = @At("RETURN"), remap = false)
+    @Inject(
+        method = "tickingRequest",
+        at = @At(
+            value = "INVOKE",
+            target = "Lappeng/util/ConfigManager;getSetting(Lappeng/api/config/Settings;)Ljava/lang/Enum;",
+            ordinal = 0),
+        remap = false)
     private void ae2t$transferOtherTypes(IGridNode node, int ticksSinceLastCall,
         CallbackInfoReturnable<TickRateModulation> cir) {
+        // Run once per enabled tick, before vanilla processes or moves any input cell.
         if (!this.getProxy()
             .isActive()) return;
         if (!this.ae2t$hasUniversalCell()) return;
@@ -257,17 +281,10 @@ public abstract class MixinTileIOPort extends AENetworkInvTile {
         return byType.computeIfAbsent(type.getId(), _ -> UniversalCellHandler.create(cell, null, type));
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+    @SuppressWarnings("rawtypes")
     @Unique
     private static Iterable<? extends IAEStack> ae2t$stacksOf(IMEInventory<?> source) {
-        if (source instanceof UniversalCellInventoryHandler<?>handler) {
-            final IItemList<?> stored = handler.getStoredList();
-            if (stored != null) return stored;
-        }
-        return ((IMEInventory) source).getAvailableItems(
-            source.getStackType()
-                .createList(),
-            IterationCounter.fetchNewId());
+        return IOPortTransferUtil.snapshot(source);
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -281,22 +298,24 @@ public abstract class MixinTileIOPort extends AENetworkInvTile {
             if (stack.getStackSize() <= 0) continue;
 
             final IAEStack request = stack.copy();
-            request.setStackSize(Math.min(stack.getStackSize(), budget));
+            final long requestedAmount = Math.min(stack.getStackSize(), budget);
+            request.setStackSize(requestedAmount);
 
             final IAEStack simulated = Platform
                 .poweredInsert(energy, (IMEInventory) destination, request, this.mySrc, Actionable.SIMULATE);
-            final long possible = request.getStackSize() - (simulated == null ? 0 : simulated.getStackSize());
+            final long possible = requestedAmount - (simulated == null ? 0 : simulated.getStackSize());
             if (possible <= 0) continue;
             request.setStackSize(possible);
 
             final IAEStack extracted = ((IMEInventory) source).extractItems(request, Actionable.MODULATE, this.mySrc);
             if (extracted == null) continue;
 
+            final long extractedAmount = extracted.getStackSize();
             final IAEStack failed = Platform
                 .poweredInsert(energy, (IMEInventory) destination, extracted.setCraftable(false), this.mySrc);
+            final long done = extractedAmount - (failed == null ? 0 : failed.getStackSize());
             if (failed != null) ((IMEInventory) source).injectItems(failed, Actionable.MODULATE, this.mySrc);
 
-            final long done = extracted.getStackSize() - (failed == null ? 0 : failed.getStackSize());
             budget -= done;
             moved += done;
         }

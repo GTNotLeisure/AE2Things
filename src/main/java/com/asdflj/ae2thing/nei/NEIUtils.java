@@ -11,6 +11,7 @@ import com.asdflj.ae2thing.nei.object.OrderStack;
 import com.asdflj.ae2thing.nei.recipes.NEIRecipeUtil;
 import com.asdflj.ae2thing.util.GTUtil;
 
+import codechicken.nei.NEIClientConfig;
 import codechicken.nei.PositionedStack;
 import codechicken.nei.recipe.IRecipeHandler;
 import gregtech.api.util.GTOreDictUnificator;
@@ -186,5 +187,12 @@ public class NEIUtils {
             }
         } catch (Throwable ignored) {}
         return false;
+    }
+
+    public static String getUsageKey() {
+        try {
+            return NEIClientConfig.getKeyName("recipe.usage");
+        } catch (Throwable ignored) {}
+        return "";
     }
 }

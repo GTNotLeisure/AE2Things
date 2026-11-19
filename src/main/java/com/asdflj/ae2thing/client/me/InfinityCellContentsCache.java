@@ -88,6 +88,18 @@ public final class InfinityCellContentsCache {
         return new CellStats(entry.total, entry.count, entry.rev);
     }
 
+    @Nullable
+    public static CellStats displayStats(ItemStack cell, IAEStackType<?> type) {
+        final CellStats live = stats(cell, type);
+        if (live != null) return live;
+        final NBTTagCompound section = InfinityStorageCellSnapshot.section(cell, type);
+        if (section == null) return null;
+        return new CellStats(
+            section.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES),
+            section.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT),
+            -1L);
+    }
+
     public static void requestMore(ItemStack cell, IAEStackType<?> type) {
         final Entry entry = entry(cell, type, false);
         if (entry == null) return;

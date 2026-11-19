@@ -47,6 +47,7 @@ ae2thing.tooltip.pattern_modifier.desc=Sneak right click an interface to extract
 ae2thing.tooltip.wireless.installed=Installed Card:
 ae2thing.tooltip.universal_cell.stored=%s stored, %s types
 ae2thing.tooltip.universal_cell.empty=Empty
+ae2thing.tooltips.for_full_contents=Press [%s] for full contents
 ae2thing.tooltips.just_material=just material
 ae2thing.message.crafting_debug_card.request_type=Request type: 
 ae2thing.message.crafting_debug_card.request_type.machine=Machine

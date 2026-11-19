@@ -11,11 +11,14 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.asdflj.ae2thing.api.Constants;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
+import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.ItemCellLinkInventory;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
 import com.asdflj.ae2thing.inventory.item.IItemInventory;
+import com.asdflj.ae2thing.nei.NEIUtils;
 import com.asdflj.ae2thing.util.BlockPos;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.NameConst;
@@ -71,5 +74,8 @@ public abstract class BaseCellItem extends BaseItem implements IItemInventory, I
             Arrays.asList(
                 I18n.format(NameConst.TT_CELL_LINK_DESC)
                     .split("\\\\n")));
+        if (Mods.NOT_ENOUGH_ITEMS.isModLoaded()) {
+            lines.add(Tooltips.for_full_contents.getLocal(NEIUtils.getUsageKey()));
+        }
     }
 }

@@ -13,7 +13,6 @@ import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.IIcon;
 
@@ -21,7 +20,6 @@ import org.jetbrains.annotations.Nullable;
 
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.client.me.InfinityCellContentsCache;
-import com.asdflj.ae2thing.common.storage.infinityCell.InfinityStorageCellSnapshot;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.NameConst;
@@ -77,18 +75,10 @@ public class ItemInfinityStorageUniversalCell extends BaseInfinityCellItem<ItemI
         for (IAEStackType<?> type : Util.getTypes()) {
             InfinityCellContentsCache.poll(stack, type, 0);
 
-            long types;
-            long count;
-            final InfinityCellContentsCache.CellStats live = InfinityCellContentsCache.stats(stack, type);
-            if (live != null) {
-                types = live.types();
-                count = live.count();
-            } else {
-                final NBTTagCompound section = InfinityStorageCellSnapshot.section(stack, type);
-                if (section == null) continue;
-                types = section.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES);
-                count = section.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT);
-            }
+            final InfinityCellContentsCache.CellStats stats = InfinityCellContentsCache.displayStats(stack, type);
+            if (stats == null) continue;
+            final long types = stats.types();
+            final long count = stats.count();
 
             if (types <= 0 && count <= 0) continue;
             usedTypes += types;
@@ -125,10 +115,9 @@ public class ItemInfinityStorageUniversalCell extends BaseInfinityCellItem<ItemI
 
         if (GuiScreen.isShiftKeyDown()) {
             for (final IAEStackType<?> type : Util.getTypes()) {
-                final NBTTagCompound s = InfinityStorageCellSnapshot.section(stack, type);
-                if (s == null) continue;
-                long count = s.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT),
-                    types = s.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES);
+                final InfinityCellContentsCache.CellStats stats = InfinityCellContentsCache.displayStats(stack, type);
+                if (stats == null) continue;
+                final long count = stats.count(), types = stats.types();
                 if (count <= 0 && types <= 0) continue;
                 final String unit = type.getDisplayUnit();
                 lines.add(type.getDisplayName() + ": " + fmt.format(count) + (unit.isEmpty() ? "" : " " + unit));
