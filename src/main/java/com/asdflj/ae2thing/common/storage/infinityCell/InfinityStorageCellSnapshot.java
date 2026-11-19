@@ -31,6 +31,9 @@ public final class InfinityStorageCellSnapshot {
     public static final String NBT_SNAPSHOT_COUNT = "count";
     public static final String NBT_PAGE_TOTAL = "total";
     public static final String NBT_PAGE_ENTRIES = "entries";
+    public static final String NBT_PAGE_COUNT = "count";
+    public static final String NBT_PAGE_REV = "rev";
+    public static final String NBT_PAGE_LIMIT = "limit";
 
     public static final int PAGE_SIZE = 256;
     public static final int MAX_OFFSET = PAGE_SIZE * 32;
@@ -109,20 +112,33 @@ public final class InfinityStorageCellSnapshot {
     }
 
     @NotNull
-    public static NBTTagCompound emptyPage() {
+    public static NBTTagCompound emptyPage(int limit) {
         final NBTTagCompound out = new NBTTagCompound();
         out.setInteger(NBT_PAGE_TOTAL, 0);
+        out.setLong(NBT_PAGE_COUNT, 0L);
+        out.setLong(NBT_PAGE_REV, 0L);
+        out.setInteger(NBT_PAGE_LIMIT, limit);
         out.setTag(NBT_PAGE_ENTRIES, new NBTTagList());
         return out;
     }
 
     @NotNull
-    public static NBTTagCompound page(DataStorage storage, int offset) {
-        final ObjectList<IAEStack<?>> sorted = storage.getSortedContents(MAX_OFFSET + PAGE_SIZE);
+    public static NBTTagCompound stats(DataStorage storage) {
         final NBTTagCompound out = new NBTTagCompound();
         out.setInteger(NBT_PAGE_TOTAL, (int) Math.min(Integer.MAX_VALUE, storage.getStoredTypes()));
+        out.setLong(NBT_PAGE_COUNT, storage.getStoredCount());
+        out.setLong(NBT_PAGE_REV, storage.revision());
+        out.setInteger(NBT_PAGE_LIMIT, 0);
+        return out;
+    }
+
+    @NotNull
+    public static NBTTagCompound page(DataStorage storage, int offset, int limit) {
+        final ObjectList<IAEStack<?>> sorted = storage.getSortedContents(offset + limit);
+        final NBTTagCompound out = stats(storage);
+        out.setInteger(NBT_PAGE_LIMIT, limit);
         final NBTTagList entries = new NBTTagList();
-        final int end = Math.min(offset + PAGE_SIZE, sorted.size());
+        final int end = Math.min(offset + limit, sorted.size());
         for (int i = Math.max(0, offset); i < end; i++) {
             final NBTTagCompound tag = new NBTTagCompound();
             sorted.get(i)

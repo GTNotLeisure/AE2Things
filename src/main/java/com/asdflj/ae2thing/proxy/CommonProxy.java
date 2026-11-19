@@ -138,7 +138,7 @@ public class CommonProxy {
     @SubscribeEvent
     public void onServerTick(TickEvent.ServerTickEvent event) {
         if (event.phase != TickEvent.Phase.END) return;
-        if (++this.snapshotTick < 20) return;
+        if (++this.snapshotTick < 5) return;
         this.snapshotTick = 0;
         final MinecraftServer server = MinecraftServer.getServer();
         if (server == null || server.getConfigurationManager().playerEntityList.isEmpty()) return;

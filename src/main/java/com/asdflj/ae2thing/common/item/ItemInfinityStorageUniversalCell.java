@@ -75,10 +75,21 @@ public class ItemInfinityStorageUniversalCell extends BaseInfinityCellItem<ItemI
         long usedBytes = 0;
         long usedTypes = 0;
         for (IAEStackType<?> type : Util.getTypes()) {
-            NBTTagCompound section = InfinityStorageCellSnapshot.section(stack, type);
-            if (section == null) continue;
-            long types = section.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES);
-            long count = section.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT);
+            InfinityCellContentsCache.poll(stack, type, 0);
+
+            long types;
+            long count;
+            final InfinityCellContentsCache.CellStats live = InfinityCellContentsCache.stats(stack, type);
+            if (live != null) {
+                types = live.types();
+                count = live.count();
+            } else {
+                final NBTTagCompound section = InfinityStorageCellSnapshot.section(stack, type);
+                if (section == null) continue;
+                types = section.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES);
+                count = section.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT);
+            }
+
             if (types <= 0 && count <= 0) continue;
             usedTypes += types;
             usedBytes += count / Math.max(1, type.getAmountPerByte()) + types * (long) bytesPerType;

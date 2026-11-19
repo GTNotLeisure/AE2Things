@@ -8,6 +8,7 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
+import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.inventory.Container;
@@ -45,6 +46,7 @@ import it.unimi.dsi.fastutil.objects.Reference2ObjectOpenHashMap;
 
 public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
+    public static final int HANDLER_HEIGHT = 160;
     private static final ResourceLocation SLOT_TEXTURE_LOCATION = new ResourceLocation("nei", "textures/slot.png");
     private static final int OFFSET_X = 2;
     private static final int INFO_OFFSET_Y = 4;
@@ -52,66 +54,79 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
     private static final int COLUMNS = 8;
     private static final int SLOT_HEIGHT = 18;
     private static final int BOTTOM_MARGIN = 6;
-    private static final int PAGE_HEADER_HEIGHT = 36;
     private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance();
+    private static final int PAGE_SIZE = InfinityStorageCellSnapshot.PAGE_SIZE;
 
     private final ObjectList<ViewItemStack> entries = new ObjectArrayList<>();
-    private final ObjectList<PositionedStack> positioned = new ObjectArrayList<>();
-    private final Reference2ObjectMap<IAEStack<?>, PositionedStack> positionedCache = new Reference2ObjectOpenHashMap<>();
-
-    private static int cachedScreenHeight = -1;
-    private static int cachedMaxHeight = -1;
-    private static int cachedMaxRows = 1;
+    private final ObjectList<NEIScrollArea.CellStack> positioned = new ObjectArrayList<>();
+    private final ObjectList<PositionedStack> otherStacks = new ObjectArrayList<>();
+    private final Reference2ObjectMap<IAEStack<?>, NEIScrollArea.CellStack> positionedCache = new Reference2ObjectOpenHashMap<>();
 
     private NEIScrollArea scrollArea;
     private ItemStack cell;
-    private long loadedVersion;
+    private long loadedVersion = -1;
     private int rows = 1;
-    private int rowsLimit = 1;
     private long usedTypes;
     private long totalTypes;
     private long usedBytes;
     private long totalBytes;
+    private int bytesPerType;
     private boolean unlimited;
+    private int requestTicker;
 
     @Override
     public IUsageHandler getUsageHandler(String inputId, Object... ingredients) {
         if (ingredients.length == 0 || !(ingredients[0] instanceof ItemStack cellItem)) return null;
-        if (!(cell.getItem() instanceof BaseInfinityCellItem<?>storageCell)) {
+        if (!(cellItem.getItem() instanceof BaseInfinityCellItem<?>storageCell)) {
             return null;
         }
 
         this.cell = cellItem;
         this.scrollArea = null;
+        this.loadedVersion = -1;
+        this.rows = 1;
         this.totalTypes = storageCell.getTotalTypes(cell);
         this.totalBytes = storageCell.getBytesLong(cell);
+        this.bytesPerType = storageCell.getBytesPerType(cell);
         this.unlimited = this.totalTypes >= Integer.MAX_VALUE;
-        final int bytesPerType = storageCell.getBytesPerType(cell);
 
-        this.usedTypes = 0;
-        this.usedBytes = 0;
-        for (final IAEStackType<?> type : Util.getTypes()) {
-            final NBTTagCompound section = InfinityStorageCellSnapshot.section(cell, type);
-            if (section == null) continue;
-
-            final long types = section.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES);
-            final long count = section.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT);
-            if (types <= 0 && count <= 0) continue;
-            this.usedTypes += types;
-            this.usedBytes += count / Math.max(1, type.getAmountPerByte()) + types * (long) bytesPerType;
-        }
-        if (this.totalBytes > 0) this.usedBytes = Math.min(this.usedBytes, this.totalBytes);
-
+        this.refreshStats();
         this.rebuild();
         return this;
     }
 
+    private void refreshStats() {
+        if (this.cell == null) return;
+        long usedTypes = 0;
+        long usedBytes = 0;
+        for (final IAEStackType<?> type : Util.getTypes()) {
+            InfinityCellContentsCache.poll(this.cell, type, PAGE_SIZE, 500L);
+
+            final long types;
+            final long count;
+            final InfinityCellContentsCache.CellStats live = InfinityCellContentsCache.stats(this.cell, type);
+            if (live != null) {
+                types = live.types();
+                count = live.count();
+            } else {
+                final NBTTagCompound section = InfinityStorageCellSnapshot.section(this.cell, type);
+                if (section == null) continue;
+                types = section.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES);
+                count = section.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT);
+            }
+            if (types <= 0 && count <= 0) continue;
+            usedTypes += types;
+            usedBytes += count / Math.max(1, type.getAmountPerByte()) + types * (long) this.bytesPerType;
+        }
+        if (this.totalBytes > 0) usedBytes = Math.min(usedBytes, this.totalBytes);
+        this.usedTypes = usedTypes;
+        this.usedBytes = usedBytes;
+    }
+
     private void rebuild() {
         if (this.cell == null) return;
-        final int keepRow = this.scrollArea == null ? 0 : this.scrollArea.getFirstRow();
         final ObjectList<IAEStack<?>> contents = new ObjectArrayList<>();
         for (final IAEStackType<?> type : Util.getTypes()) {
-            if (!hasEntries(type)) continue;
             contents.addAll(InfinityCellContentsCache.contents(this.cell, type));
         }
         contents.sort(
@@ -120,77 +135,66 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
         this.entries.clear();
         this.positioned.clear();
-        final Reference2ObjectMap<IAEStack<?>, PositionedStack> reused = new Reference2ObjectOpenHashMap<>();
+        this.otherStacks.clear();
+        final Reference2ObjectMap<IAEStack<?>, NEIScrollArea.CellStack> reused = new Reference2ObjectOpenHashMap<>();
         for (final IAEStack<?> aes : contents) {
-            PositionedStack positionedStack = this.positionedCache.get(aes);
-            if (positionedStack == null) {
+            NEIScrollArea.CellStack stack = this.positionedCache.get(aes);
+            if (stack == null) {
                 final ItemStack display = aes.getItemStackForNEI();
                 final ItemStack single = aes.getItemStackForNEI(1);
                 final boolean bakeCount = aes.isFluid() || aes.getStackSize() < Integer.MAX_VALUE;
-                final ItemStack stack = bakeCount ? display : single;
-                if (stack == null) continue;
-                positionedStack = new PositionedStack(stack.copy(), 0, 0, false);
+                final ItemStack item = bakeCount ? display : single;
+                if (item == null) continue;
+                stack = new NEIScrollArea.CellStack(item.copy());
             }
-            reused.put(aes, positionedStack);
+            reused.put(aes, stack);
             this.entries.add(
                 new ViewItemStack(
-                    positionedStack,
+                    stack,
                     aes.isFluid() || aes.getStackSize() < Integer.MAX_VALUE ? 0 : aes.getStackSize(),
                     aes.getStackSize()));
-            this.positioned.add(positionedStack);
+            this.positioned.add(stack);
+            this.otherStacks.add(stack);
         }
         this.positionedCache.clear();
         this.positionedCache.putAll(reused);
-        this.rowsLimit = maxRows();
-        this.rows = Math.clamp((this.entries.size() + COLUMNS - 1) / COLUMNS, 1, this.rowsLimit);
-        this.scrollArea = new NEIScrollArea(OFFSET_X, ITEMS_OFFSET_Y, COLUMNS, this.rows);
+        this.rows = Math.clamp((this.entries.size() + COLUMNS - 1) / COLUMNS, 1, maxRows());
+        this.ensureScrollArea();
         this.scrollArea.setStacks(this.positioned);
-        this.scrollArea.scrollToRow(keepRow);
         this.loadedVersion = InfinityCellContentsCache.version();
     }
 
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    private boolean hasEntries(IAEStackType<?> type) {
-        final NBTTagCompound section = InfinityStorageCellSnapshot.section(this.cell, type);
-        if (section == null) return false;
-        return section.getInteger(InfinityStorageCellSnapshot.NBT_SNAPSHOT_TYPES) > 0
-            || section.getLong(InfinityStorageCellSnapshot.NBT_SNAPSHOT_COUNT) > 0;
-    }
-
-    private void requestMore() {
-        if (this.cell == null) return;
+    private void requestMoreIfNeeded() {
+        if (this.scrollArea == null || this.cell == null) return;
+        if ((this.requestTicker++ & 3) != 0) return;
+        if (this.scrollArea.getFirstRow() + this.scrollArea.getVisibleRows() < this.scrollArea.getTotalRows()) return;
         for (final IAEStackType<?> type : Util.getTypes()) {
-            if (!hasEntries(type)) continue;
             InfinityCellContentsCache.requestMore(this.cell, type);
         }
     }
 
-    private void ensureLayout() {
-        this.rowsLimit = Math.clamp(this.rowsLimit, 1, maxRows());
-        final int desired = Math.clamp((this.entries.size() + COLUMNS - 1) / COLUMNS, 1, this.rowsLimit);
-        if (desired == this.rows && this.scrollArea != null) return;
-        this.rows = desired;
-        this.scrollArea = new NEIScrollArea(OFFSET_X, ITEMS_OFFSET_Y, COLUMNS, desired);
-        this.scrollArea.setStacks(this.positioned);
+    private void ensureScrollArea() {
+        if (this.scrollArea != null && this.scrollArea.getVisibleRows() == this.rows) return;
+        this.scrollArea = new NEIScrollArea(OFFSET_X, ITEMS_OFFSET_Y, COLUMNS, this.rows);
+    }
+
+    private static int viewportHeight() {
+        final Minecraft mc = Minecraft.getMinecraft();
+        final int screenHeight = mc.currentScreen == null ? 240 : mc.currentScreen.height;
+        final int pageChrome = 32 + 4;
+        final int ySize = Math.min(
+            screenHeight - 44 - GuiRecipeTabs.getTabHeight(),
+            NEIClientConfig.getIntSetting("inventory.guirecipe.maxHeight"));
+        final int minimumHeight = ITEMS_OFFSET_Y + BOTTOM_MARGIN + SLOT_HEIGHT;
+        return Math.clamp(ySize - pageChrome, minimumHeight, Math.max(minimumHeight, HANDLER_HEIGHT));
     }
 
     private static int maxRows() {
-        final Minecraft mc = Minecraft.getMinecraft();
-        final int screenHeight = mc.currentScreen == null ? 240 : mc.currentScreen.height;
-        final int maxHeight = NEIClientConfig.getIntSetting("inventory.guirecipe.maxHeight");
-        if (screenHeight != cachedScreenHeight || maxHeight != cachedMaxHeight) {
-            cachedScreenHeight = screenHeight;
-            cachedMaxHeight = maxHeight;
-            final int pageHeight = Math.min(screenHeight - 44 - GuiRecipeTabs.getTabHeight(), maxHeight);
-            cachedMaxRows = Math
-                .max(1, (pageHeight - PAGE_HEADER_HEIGHT - ITEMS_OFFSET_Y - BOTTOM_MARGIN) / SLOT_HEIGHT);
-        }
-        return cachedMaxRows;
+        return Math.max(1, (viewportHeight() - ITEMS_OFFSET_Y - BOTTOM_MARGIN) / SLOT_HEIGHT);
     }
 
     @Override
     public int getRecipeHeight(int recipe) {
-        this.ensureLayout();
         return ITEMS_OFFSET_Y + this.rows * SLOT_HEIGHT + BOTTOM_MARGIN;
     }
 
@@ -206,15 +210,15 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
     @Override
     public void drawBackground(int recipe) {
+        this.refreshStats();
         if (InfinityCellContentsCache.version() != this.loadedVersion) {
             this.rebuild();
         }
-        this.requestMore();
-        this.ensureLayout();
-        if (this.scrollArea == null) return;
-
-        if (NEIClientUtils.getGuiContainer() instanceof GuiRecipe<?>gui && this.scrollArea.isDragging()) {
-            Point mouse = gui.getRecipeMousePosition(recipe);
+        this.ensureScrollArea();
+        this.requestMoreIfNeeded();
+        if (this.scrollArea != null && NEIClientUtils.getGuiContainer() instanceof GuiRecipe<?>gui
+            && this.scrollArea.isDragging()) {
+            final Point mouse = gui.getRecipeMousePosition(recipe);
             this.scrollArea.updateDrag(Mouse.isButtonDown(0), mouse.x, mouse.y);
         }
 
@@ -259,19 +263,22 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
         fontRenderer.drawString(byteLine, OFFSET_X, INFO_OFFSET_Y, color);
         fontRenderer.drawString(typeLine, OFFSET_X, INFO_OFFSET_Y + fontRenderer.FONT_HEIGHT + 2, color);
 
-        for (final ViewItemStack entry : this.entries) {
+        if (this.scrollArea == null) return;
+        final int from = this.scrollArea.visibleFrom();
+        final int to = this.scrollArea.visibleTo(this.entries.size());
+        for (int i = from; i < to; i++) {
+            final ViewItemStack entry = this.entries.get(i);
             if (entry.renderSize() == 0) continue;
-            if (!NEIScrollArea.isShown(entry.stack)) continue;
             StackSizeRenderer.drawStackSize(
-                entry.stack.relx,
-                entry.stack.rely,
-                entry.renderSize,
+                entry.stack().relx,
+                entry.stack().rely,
+                entry.renderSize(),
                 fontRenderer,
                 TerminalFontSize.SMALL);
         }
 
-        if (this.scrollArea != null && NEIClientUtils.getGuiContainer() instanceof GuiRecipe<?>gui) {
-            Point mouse = gui.getRecipeMousePosition(recipe);
+        if (NEIClientUtils.getGuiContainer() instanceof GuiRecipe<?>gui) {
+            final Point mouse = gui.getRecipeMousePosition(recipe);
             this.scrollArea.draw(mouse.x, mouse.y);
         }
     }
@@ -283,7 +290,7 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
     @Override
     public List<PositionedStack> getOtherStacks(int recipe) {
-        return this.positioned;
+        return this.otherStacks;
     }
 
     @Override
@@ -316,12 +323,15 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
 
     @Override
     public List<String> handleItemTooltip(GuiRecipe<?> gui, ItemStack stack, List<String> currenttip, int recipe) {
-        if (stack == null) return currenttip;
-        for (final ViewItemStack entry : this.entries) {
-            if (!NEIScrollArea.isShown(entry.stack)) continue;
-            if (!entry.stack.item.equals(stack)) continue;
-            currenttip
-                .add(1, EnumChatFormatting.GRAY + GuiText.Stored.getLocal() + ": " + NUMBER_FORMAT.format(entry.count));
+        if (stack == null || this.scrollArea == null) return currenttip;
+        final int from = this.scrollArea.visibleFrom();
+        final int to = this.scrollArea.visibleTo(this.entries.size());
+        for (int i = from; i < to; i++) {
+            final ViewItemStack entry = this.entries.get(i);
+            if (!Platform.isSameItem(entry.stack().item, stack)) continue;
+            currenttip.add(
+                1,
+                EnumChatFormatting.GRAY + GuiText.Stored.getLocal() + ": " + NUMBER_FORMAT.format(entry.count()));
             break;
         }
         return currenttip;
@@ -335,8 +345,8 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
     @Override
     public boolean mouseScrolled(final GuiRecipe<?> gui, final int scroll, final int recipe) {
         if (this.scrollArea == null) return false;
-        Point mouse = gui.getRecipeMousePosition(recipe);
-        return this.scrollArea.onMouseWheel(scroll, mouse.x, mouse.y);
+        final int step = (GuiScreen.isShiftKeyDown() ? this.rows : 1) * Math.max(1, Math.abs(scroll));
+        return this.scrollArea.scrollRows(-Integer.signum(scroll) * step);
     }
 
     @Override
@@ -346,5 +356,5 @@ public class InfinityStorageCellUsageHandler implements IUsageHandler {
         return this.scrollArea.onMouseClicked(button, mouse.x, mouse.y);
     }
 
-    public record ViewItemStack(PositionedStack stack, long renderSize, long count) {}
+    public record ViewItemStack(NEIScrollArea.CellStack stack, long renderSize, long count) {}
 }

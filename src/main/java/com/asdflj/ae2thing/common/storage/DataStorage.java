@@ -36,6 +36,7 @@ public class DataStorage implements IDataStorage {
     private long revision;
     private ObjectList<IAEStack<?>> pageCache;
     private long pageCacheRevision = -1;
+    private int pageCacheLimit;
 
     public DataStorage(UUID uuid, IAEStackType<?> stackType) {
         this.uuid = uuid;
@@ -64,7 +65,9 @@ public class DataStorage implements IDataStorage {
     }
 
     public ObjectList<IAEStack<?>> getSortedContents(int limit) {
-        if (this.pageCache != null && this.pageCacheRevision == this.revision) return this.pageCache;
+        if (this.pageCache != null && this.pageCacheRevision == this.revision && this.pageCacheLimit >= limit) {
+            return this.pageCache;
+        }
         final ObjectList<IAEStack<?>> sorted;
         if (this.getStoredTypes() > limit) {
             sorted = topK(this.list(), limit);
@@ -78,6 +81,7 @@ public class DataStorage implements IDataStorage {
         }
         this.pageCache = sorted;
         this.pageCacheRevision = this.revision;
+        this.pageCacheLimit = limit;
         return sorted;
     }
 
@@ -373,5 +377,9 @@ public class DataStorage implements IDataStorage {
         }
 
         return out;
+    }
+
+    public long revision() {
+        return this.revision;
     }
 }

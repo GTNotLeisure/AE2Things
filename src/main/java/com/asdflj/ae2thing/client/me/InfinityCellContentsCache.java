@@ -25,11 +25,12 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public final class InfinityCellContentsCache {
 
-    private static final long REQUEST_INTERVAL = 150L;
-    private static final long REFRESH_INTERVAL = 30000L;
+    private static final long POLL_INTERVAL = 400L;
+    private static final long RESPONSE_TIMEOUT = 2000L;
     private static final long ENTRY_EXPIRE = 120000L;
     private static final long PRUNE_INTERVAL = 30000L;
     private static final int MAX_ENTRIES = 128;
+    private static final int PAGE_SIZE = InfinityStorageCellSnapshot.PAGE_SIZE;
 
     private static final Object2ObjectMap<String, Object2ObjectMap<String, Entry>> CACHE = new Object2ObjectOpenHashMap<>();
 
@@ -44,47 +45,141 @@ public final class InfinityCellContentsCache {
 
     public static void clear() {
         CACHE.clear();
+        version++;
+    }
+
+    // region client
+
+    public static void poll(ItemStack cell, IAEStackType<?> type, int limit) {
+        poll(cell, type, limit, POLL_INTERVAL);
+    }
+
+    public static void poll(ItemStack cell, IAEStackType<?> type, int limit, long interval) {
+        final Entry e = entry(cell, type, true);
+        if (e == null) return;
+        final long now = System.currentTimeMillis();
+        e.lastAccess = now;
+        final int requested = Math.clamp(limit, 0, PAGE_SIZE);
+        e.requestedLimit = Math.max(e.requestedLimit, requested);
+        if (!canRequest(e, now, interval)) return;
+
+        final String uuid = uuid(cell);
+        if (uuid.isEmpty()) return;
+
+        final int effectiveLimit = e.requestedLimit;
+        final long requestRev = effectiveLimit > e.limit ? -1L : e.listRev;
+
+        sendRequest(uuid, type.getId(), e, 0, effectiveLimit, requestRev, now);
     }
 
     public static List<IAEStack<?>> contents(ItemStack cell, IAEStackType<?> type) {
-        final Entry entry = entry(cell, type, true);
-        if (entry == null) return Collections.emptyList();
-        entry.lastAccess = System.currentTimeMillis();
-        if (entry.stale()) request(cell, type, entry, 0);
-        return entry.stacks;
+        final Entry entry = entry(cell, type, false);
+        return entry == null ? Collections.emptyList() : entry.stacks;
+    }
+
+    @Nullable
+    public static CellStats stats(ItemStack cell, IAEStackType<?> type) {
+        final Entry entry = entry(cell, type, false);
+
+        if (entry == null || entry.rev < 0) {
+            return null;
+        }
+
+        return new CellStats(entry.total, entry.count, entry.rev);
     }
 
     public static void requestMore(ItemStack cell, IAEStackType<?> type) {
         final Entry entry = entry(cell, type, false);
-        if (entry == null || entry.complete || entry.stacks.isEmpty()) return;
-        entry.lastAccess = System.currentTimeMillis();
-        if (entry.stacks.size() >= InfinityStorageCellSnapshot.MAX_OFFSET) return;
-        request(cell, type, entry, entry.stacks.size());
-    }
-
-    public static void receive(String uuid, String typeId, int offset, NBTTagCompound payload) {
-        final IAEStackType<?> type = AEStackTypeRegistry.getType(typeId);
-        if (uuid == null || uuid.isEmpty() || type == null) return;
-        final Entry entry = entry(uuid, typeId, true);
         if (entry == null) return;
-        if (offset != 0 && offset != entry.stacks.size()) return;
+
         final long now = System.currentTimeMillis();
         entry.lastAccess = now;
-        final NBTTagList list = payload
-            .getTagList(InfinityStorageCellSnapshot.NBT_PAGE_ENTRIES, Constants.NBT.TAG_COMPOUND);
-        final int replace = offset == 0 ? Math.min(list.tagCount(), entry.stacks.size()) : 0;
-        for (int i = 0; i < list.tagCount(); i++) {
-            final IAEStack<?> stack = type.loadStackFromNBT(list.getCompoundTagAt(i));
-            if (stack == null) continue;
-            if (i < replace) entry.stacks.set(i, stack);
-            else entry.stacks.add(stack);
+        if (entry.listRev < 0 || entry.listRev != entry.rev) {
+            poll(cell, type, PAGE_SIZE);
+            return;
         }
-        entry.total = payload.getInteger(InfinityStorageCellSnapshot.NBT_PAGE_TOTAL);
+
+        if (entry.complete || entry.stacks.isEmpty()) return;
+        if (entry.limit < PAGE_SIZE) return;
+        if (entry.stacks.size() >= entry.total) return;
+        if (entry.stacks.size() >= InfinityStorageCellSnapshot.MAX_OFFSET) return;
+
+        if (!canRequest(entry, now, POLL_INTERVAL)) return;
+
+        final String uuid = uuid(cell);
+        if (uuid.isEmpty()) return;
+
+        sendRequest(uuid, type.getId(), entry, entry.stacks.size(), PAGE_SIZE, entry.listRev, now);
+    }
+
+    // endregion
+
+    public static void receive(String uuid, String typeId, int offset, NBTTagCompound payload) {
+        if (uuid == null || uuid.isEmpty() || payload == null || offset < 0) {
+            return;
+        }
+
+        final IAEStackType<?> type = AEStackTypeRegistry.getType(typeId);
+        if (type == null) return;
+        final Entry entry = entry(uuid, typeId, true);
+        if (entry == null) return;
+
+        final long now = System.currentTimeMillis();
+        final int total = Math.max(0, payload.getInteger(InfinityStorageCellSnapshot.NBT_PAGE_TOTAL));
+        final long count = payload.getLong(InfinityStorageCellSnapshot.NBT_PAGE_COUNT);
+        final long replyRev = payload.getLong(InfinityStorageCellSnapshot.NBT_PAGE_REV);
+        final int replyLimit = Math.clamp(payload.getInteger(InfinityStorageCellSnapshot.NBT_PAGE_LIMIT), 0, PAGE_SIZE);
+        final NBTTagList list = payload.hasKey(InfinityStorageCellSnapshot.NBT_PAGE_ENTRIES, Constants.NBT.TAG_LIST)
+            ? payload.getTagList(InfinityStorageCellSnapshot.NBT_PAGE_ENTRIES, Constants.NBT.TAG_COMPOUND)
+            : null;
+        entry.lastAccess = now;
+        entry.pending = false;
+        if (offset > 0
+            && (list == null || replyLimit == 0 || entry.listRev != replyRev || offset != entry.stacks.size())) {
+            prune(now);
+            return;
+        }
+
+        boolean changed = false;
+        entry.total = total;
+        entry.count = count;
+        entry.rev = replyRev;
+        if (entry.listRev >= 0 && entry.listRev != replyRev) {
+            entry.stacks.clear();
+            entry.listRev = -1;
+            entry.limit = 0;
+            changed = true;
+        }
+
+        if (list != null && replyLimit > 0) {
+            final List<IAEStack<?>> decoded = new ObjectArrayList<>();
+            for (int i = 0; i < list.tagCount(); i++) {
+                final IAEStack<?> stack = type.loadStackFromNBT(list.getCompoundTagAt(i));
+
+                if (stack != null) {
+                    decoded.add(stack);
+                }
+            }
+            if (offset == 0) {
+                if (entry.listRev != replyRev || replyLimit >= entry.limit) {
+                    entry.stacks.clear();
+                    entry.stacks.addAll(decoded);
+
+                    entry.limit = replyLimit;
+                    entry.listRev = replyRev;
+                    entry.requestedLimit = Math.max(entry.requestedLimit, replyLimit);
+                }
+            } else {
+                entry.stacks.addAll(decoded);
+            }
+            changed = true;
+        }
         while (entry.stacks.size() > entry.total) {
             entry.stacks.removeLast();
+            changed = true;
         }
-        entry.complete = entry.stacks.size() >= entry.total;
-        version++;
+        entry.complete = entry.listRev == entry.rev && entry.stacks.size() >= entry.total;
+        if (changed) version++;
         prune(now);
     }
 
@@ -108,16 +203,6 @@ public final class InfinityCellContentsCache {
             if (byType.isEmpty()) outer.remove();
         }
         if (entries > MAX_ENTRIES) CACHE.clear();
-    }
-
-    private static void request(ItemStack cell, IAEStackType<?> type, Entry entry, int offset) {
-        final long now = System.currentTimeMillis();
-        if (now - entry.lastRequest < REQUEST_INTERVAL) return;
-        final String uuid = uuid(cell);
-        if (uuid.isEmpty()) return;
-        entry.lastRequest = now;
-        entry.lastRefresh = now;
-        AE2Thing.proxy.netHandler.sendToServer(new CPacketCellContentsRequest(uuid, type.getId(), offset));
     }
 
     @Nullable
@@ -149,17 +234,39 @@ public final class InfinityCellContentsCache {
         return uuid == null ? "" : uuid;
     }
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private static boolean canRequest(Entry entry, long now, long interval) {
+        if (entry.pending && now - entry.lastRequest < RESPONSE_TIMEOUT) {
+            return false;
+        }
+
+        return now - entry.lastRequest >= Math.max(POLL_INTERVAL, interval);
+    }
+
+    private static void sendRequest(String uuid, String typeId, Entry entry, int offset, int limit, long rev,
+        long now) {
+
+        entry.pending = true;
+        entry.lastRequest = now;
+
+        AE2Thing.proxy.netHandler.sendToServer(new CPacketCellContentsRequest(uuid, typeId, offset, limit, rev));
+    }
+
+    public record CellStats(long types, long count, long rev) {}
+
     private static final class Entry {
 
         private final List<IAEStack<?>> stacks = new ObjectArrayList<>();
         private int total;
+        private long count;
+        private long rev = -1;
+        private long listRev = -1;
+        private int limit;
+        private int requestedLimit;
         private boolean complete;
+        private boolean pending;
         private long lastRequest;
-        private long lastRefresh;
         private long lastAccess = System.currentTimeMillis();
 
-        private boolean stale() {
-            return System.currentTimeMillis() - this.lastRefresh >= REFRESH_INTERVAL;
-        }
     }
 }

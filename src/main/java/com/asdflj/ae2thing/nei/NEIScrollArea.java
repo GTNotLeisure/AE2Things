@@ -1,7 +1,8 @@
 package com.asdflj.ae2thing.nei;
 
-import java.awt.Rectangle;
 import java.util.Collection;
+
+import net.minecraft.item.ItemStack;
 
 import org.lwjgl.opengl.GL11;
 
@@ -24,7 +25,7 @@ public class NEIScrollArea {
     private final int y;
     private final int columns;
     private final int visibleRows;
-    private final ObjectList<PositionedStack> stacks = new ObjectArrayList<>();
+    private final ObjectList<CellStack> stacks = new ObjectArrayList<>();
     private final AreaContainer container;
 
     private int totalRows;
@@ -38,22 +39,34 @@ public class NEIScrollArea {
         this.container = new AreaContainer(x, y, columns * SLOT_SIZE, visibleRows * SLOT_SIZE);
     }
 
-    public NEIScrollArea setStacks(Collection<? extends PositionedStack> newStacks) {
+    public int getVisibleRows() {
+        return this.visibleRows;
+    }
+
+    public int getTotalRows() {
+        return this.totalRows;
+    }
+
+    public int visibleFrom() {
+        return Math.max(0, this.firstRow) * this.columns;
+    }
+
+    public int visibleTo(int size) {
+        return Math.min(size, this.visibleFrom() + this.visibleRows * this.columns);
+    }
+
+    public NEIScrollArea setStacks(Collection<? extends CellStack> newStacks) {
+        final int keep = this.firstRow;
         this.stacks.clear();
         this.stacks.addAll(newStacks);
         this.totalRows = (this.stacks.size() + this.columns - 1) / this.columns;
         this.container.setActualHeight(this.totalRows * SLOT_SIZE);
-        this.firstRow = 0;
-        this.container.setVerticalScrollOffset(0);
-        this.layout();
+        this.firstRow = -1;
+        this.setFirstRow(keep);
         return this;
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public static boolean isShown(PositionedStack stack) {
-        return stack.rely != HIDDEN_POSITION;
-    }
-
     public boolean isScrollable() {
         return this.totalRows > this.visibleRows;
     }
@@ -67,23 +80,11 @@ public class NEIScrollArea {
         return this.firstRow;
     }
 
-    public void scrollToRow(int row) {
-        if (!this.isScrollable()) return;
-        this.setFirstRow(row);
-    }
-
-    private boolean contains(int mouseX, int mouseY) {
-        int width = this.columns * SLOT_SIZE + TRACK_GAP
-            + this.container.getVerticalScroll()
-                .getTrackWidth();
-        return this.isScrollable()
-            && new Rectangle(this.x, this.y, width, this.visibleRows * SLOT_SIZE).contains(mouseX, mouseY);
-    }
-
-    public boolean onMouseWheel(int direction, int mouseX, int mouseY) {
-        if (!this.contains(mouseX, mouseY) || direction == 0) return false;
-        this.setFirstRow(this.firstRow - Integer.signum(direction));
-        return true;
+    public boolean scrollRows(int rows) {
+        if (rows == 0 || !this.isScrollable()) return false;
+        final int before = this.firstRow;
+        this.setFirstRow(this.firstRow + rows);
+        return this.firstRow != before;
     }
 
     public boolean onMouseClicked(int button, int mouseX, int mouseY) {
@@ -95,7 +96,7 @@ public class NEIScrollArea {
     }
 
     public void updateDrag(boolean leftButtonDown, int mouseX, int mouseY) {
-        ScrollBar bar = this.container.getVerticalScroll();
+        final ScrollBar bar = this.container.getVerticalScroll();
         if (leftButtonDown) {
             bar.onMouseDragged(this.container, mouseX, mouseY, 0, 0L);
             this.syncFromContainer();
@@ -114,10 +115,13 @@ public class NEIScrollArea {
     }
 
     private void setFirstRow(int row) {
-        row = Math.clamp(row, 0, this.totalRows - this.visibleRows);
-        this.container.setVerticalScrollOffset(row * SLOT_SIZE);
-        if (row == this.firstRow) return;
-        this.firstRow = row;
+        final int maxRow = Math.max(0, this.totalRows - this.visibleRows);
+        final int nextRow = Math.clamp(row, 0, maxRow);
+        this.container.setVerticalScrollOffset(nextRow * SLOT_SIZE);
+
+        if (nextRow == this.firstRow) return;
+
+        this.firstRow = nextRow;
         this.layout();
     }
 
@@ -127,13 +131,15 @@ public class NEIScrollArea {
 
     private void layout() {
         for (int i = 0; i < this.stacks.size(); i++) {
-            PositionedStack stack = this.stacks.get(i);
-            int visibleRow = i / this.columns - this.firstRow;
-            if (visibleRow >= 0 && visibleRow < this.visibleRows) {
+            final CellStack stack = this.stacks.get(i);
+            final int visibleRow = i / this.columns - this.firstRow;
+            final boolean visible = visibleRow >= 0 && visibleRow < this.visibleRows;
+            stack.visible = visible;
+            if (visible) {
                 stack.relx = this.x + (i % this.columns) * SLOT_SIZE + 1;
                 stack.rely = this.y + visibleRow * SLOT_SIZE + 1;
             } else {
-                stack.relx = HIDDEN_POSITION - i;
+                stack.relx = HIDDEN_POSITION;
                 stack.rely = HIDDEN_POSITION;
             }
         }
@@ -154,6 +160,24 @@ public class NEIScrollArea {
 
         void setActualHeight(int height) {
             this.actualHeight = height;
+        }
+    }
+
+    public static class CellStack extends PositionedStack {
+
+        private boolean visible;
+
+        public CellStack(ItemStack stack) {
+            super(stack, HIDDEN_POSITION, HIDDEN_POSITION, false);
+        }
+
+        public boolean isVisible() {
+            return this.visible;
+        }
+
+        @Override
+        public void draw(int mouseX, int mouseY) {
+            if (this.visible) super.draw(mouseX, mouseY);
         }
     }
 }

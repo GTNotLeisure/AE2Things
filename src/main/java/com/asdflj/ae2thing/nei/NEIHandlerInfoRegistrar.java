@@ -20,7 +20,8 @@ public class NEIHandlerInfoRegistrar {
                 .setShowFavoritesButton(false)
                 .setShowOverlayButton(false)
                 .setMultipleWidgetsAllowed(false)
+                .setAllowOverflowY(true)
                 .setShiftY(0)
-                .setHeight(160));
+                .setHeight(InfinityStorageCellUsageHandler.HANDLER_HEIGHT));
     }
 }

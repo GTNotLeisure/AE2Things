@@ -66,6 +66,18 @@ public class StorageManager extends WorldSavedData {
             .setStorageManager(this);
     }
 
+    public DataStorage findStorage(String uuid, IAEStackType<?> type) {
+        if (uuid == null || uuid.isEmpty() || type == null) return null;
+        final UUID uid;
+        try {
+            uid = UUID.fromString(uuid);
+        } catch (IllegalArgumentException e) {
+            return null;
+        }
+        final Map<String, DataStorage> byType = this.disks.get(uid);
+        return byType == null ? null : byType.get(type.getId());
+    }
+
     public DataStorage getStorage(String uuid, IAEStackType<?> stackType) {
         UUID uid;
         try {

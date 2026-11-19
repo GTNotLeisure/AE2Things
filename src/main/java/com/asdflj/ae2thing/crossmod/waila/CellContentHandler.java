@@ -118,8 +118,9 @@ public class CellContentHandler extends TooltipHandlerWaila {
     }
 
     private void addUniversalCellTooltip(ItemStack cell, List<String> currentToolTip) {
-        ObjectArrayList<IAEStack<?>> contents = new ObjectArrayList<>();
-        for (IAEStackType<?> type : Util.getTypes()) {
+        final ObjectArrayList<IAEStack<?>> contents = new ObjectArrayList<>();
+        for (final IAEStackType<?> type : Util.getTypes()) {
+            InfinityCellContentsCache.poll(cell, type, maxTooltipStacks);
             contents.addAll(InfinityCellContentsCache.contents(cell, type));
         }
         if (contents.isEmpty()) {

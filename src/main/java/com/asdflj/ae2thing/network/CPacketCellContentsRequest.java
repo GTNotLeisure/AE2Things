@@ -24,14 +24,18 @@ public class CPacketCellContentsRequest implements IMessage {
     private String uuid;
     private String typeId;
     private int offset;
+    private int limit;
+    private long rev;
 
     @SuppressWarnings("unused")
     public CPacketCellContentsRequest() {}
 
-    public CPacketCellContentsRequest(String uuid, String typeId, int offset) {
+    public CPacketCellContentsRequest(String uuid, String typeId, int offset, int limit, long rev) {
         this.uuid = uuid;
         this.typeId = typeId;
         this.offset = offset;
+        this.limit = limit;
+        this.rev = rev;
     }
 
     @Override
@@ -39,6 +43,8 @@ public class CPacketCellContentsRequest implements IMessage {
         this.uuid = ByteBufUtils.readUTF8String(buf);
         this.typeId = ByteBufUtils.readUTF8String(buf);
         this.offset = buf.readInt();
+        this.limit = buf.readInt();
+        this.rev = buf.readLong();
     }
 
     @Override
@@ -46,11 +52,13 @@ public class CPacketCellContentsRequest implements IMessage {
         ByteBufUtils.writeUTF8String(buf, this.uuid);
         ByteBufUtils.writeUTF8String(buf, this.typeId);
         buf.writeInt(this.offset);
+        buf.writeInt(this.limit);
+        buf.writeLong(this.rev);
     }
 
     public static class Handler implements IMessageHandler<CPacketCellContentsRequest, IMessage> {
 
-        private static final int MAX_REQUESTS_PER_SECOND = 32;
+        private static final int MAX_REQUESTS_PER_SECOND = 64;
         private static final Reference2ObjectMap<EntityPlayerMP, Limit> LIMITS = new Reference2ObjectOpenHashMap<>();
 
         public static void forget(EntityPlayerMP player) {
@@ -60,17 +68,36 @@ public class CPacketCellContentsRequest implements IMessage {
         @Override
         public IMessage onMessage(CPacketCellContentsRequest message, MessageContext ctx) {
             final EntityPlayerMP player = ctx.getServerHandler().playerEntity;
-            if (player == null || !Handler.acquire(player)) return null;
+            if (player == null || !acquire(player)) return null;
             final IAEStackType<?> type = AEStackTypeRegistry.getType(message.typeId);
             if (type == null) return null;
             final StorageManager manager = AE2ThingAPI.instance()
                 .getStorageManager();
             if (manager == null) return null;
-            final int offset = Math.clamp(message.offset, 0, InfinityStorageCellSnapshot.MAX_OFFSET);
-            NBTTagCompound payload = InfinityStorageCellSnapshot.emptyPage();
-            if (message.uuid != null && manager.hasContent(message.uuid)) {
-                final DataStorage storage = manager.getStorage(message.uuid, type);
-                if (storage != null) payload = InfinityStorageCellSnapshot.page(storage, offset);
+
+            int offset = Math.clamp(message.offset, 0, InfinityStorageCellSnapshot.MAX_OFFSET);
+            final int limit = Math.clamp(message.limit, 0, InfinityStorageCellSnapshot.PAGE_SIZE);
+            NBTTagCompound payload = InfinityStorageCellSnapshot.emptyPage(limit);
+            final DataStorage storage = manager.findStorage(message.uuid, type);
+            if (storage != null) {
+                final long currentRev = storage.revision();
+                if (limit == 0) {
+                    payload = InfinityStorageCellSnapshot.stats(storage);
+                } else {
+                    if (offset > 0 && message.rev != currentRev) {
+                        offset = 0;
+                    }
+
+                    final boolean forceContents = message.rev < 0;
+
+                    if (forceContents || offset > 0 || message.rev != currentRev) {
+                        payload = InfinityStorageCellSnapshot.page(storage, offset, limit);
+                    } else {
+                        payload = InfinityStorageCellSnapshot.stats(storage);
+                    }
+                }
+            } else {
+                offset = 0;
             }
             AE2Thing.proxy.netHandler
                 .sendTo(new SPacketCellContents(message.uuid, message.typeId, offset, payload), player);
