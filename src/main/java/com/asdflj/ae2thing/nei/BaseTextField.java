@@ -22,7 +22,7 @@ public class BaseTextField extends OptionTextField {
     @Override
     public void update() {
         if (getSlot() == null) return;
-        final ConfigTag optionTag = renderTag();
+        final ConfigTag optionTag = getTag();
         if (optionTag.getValue() == null) {
             optionTag.setValue("");
         }

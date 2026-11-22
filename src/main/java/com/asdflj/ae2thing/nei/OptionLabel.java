@@ -84,16 +84,6 @@ public class OptionLabel extends Option {
     }
 
     @Override
-    public boolean showWorldSelector() {
-        return false;
-    }
-
-    @Override
-    public boolean hasWorldOverride() {
-        return false;
-    }
-
-    @Override
     public void draw(int mx, int my, float frame) {
         ensureLayout();
         GL11.glColor4f(1.0F, 1.0F, 1.0F, 1.0F);

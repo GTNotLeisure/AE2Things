@@ -74,6 +74,8 @@ import appeng.util.prioitylist.FuzzyPriorityList;
 import appeng.util.prioitylist.IPartitionList;
 import appeng.util.prioitylist.OreFilteredList;
 import appeng.util.prioitylist.PrecisePriorityList;
+import appeng.util.target.TileTarget;
+import appeng.util.target.TileTargetCache;
 import buildcraft.api.transport.IPipeTile;
 import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
@@ -121,6 +123,8 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
     public boolean needSyncGUI = false;
     public String oreFilterString = "";
     public String previousOreFilterString = "";
+
+    private final TileTargetCache targetCache = new TileTargetCache();
 
     public PartUniversalStorageBus(ItemStack is) {
         super(is);
@@ -266,6 +270,7 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
         final List<IAEStack<?>> result = new ObjectArrayList<>();
         final boolean oreFilter = this.getInstalledUpgrades(Upgrades.ORE_FILTER) > 0;
         for (TypeChannel channel : this.channels.values()) {
+            if (!channel.handler.isValid()) continue;
             // Item config slots are ignored with an ore filter card
             if (oreFilter && channel.type == ITEM_STACK_TYPE) continue;
             if (channel.monitor != null) channel.monitor.onTick();
@@ -283,15 +288,19 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
 
     @Override
     public TickingRequest getTickingRequest(IGridNode node) {
-        return new TickingRequest(
-            TickRates.StorageBus.getMin(),
-            TickRates.StorageBus.getMax(),
-            !this.hasExposedMonitor(),
-            true);
+        return new TickingRequest(TickRates.StorageBus.getMin(), TickRates.StorageBus.getMax(), this.canSleep(), true);
+    }
+
+    private boolean canSleep() {
+        // Every channel can expire, including non-item channels and inventories hidden by the filter.
+        return this.channels.isEmpty() && !this.targetCache.isWaitingForChunk();
     }
 
     @Override
     public TickRateModulation tickingRequest(IGridNode node, int TicksSinceLastCall) {
+        if (this.hasTargetChanged()) {
+            this.resetCacheLogic = 2;
+        }
         if (this.resetCacheLogic != 0) {
             this.resetCache();
         }
@@ -302,11 +311,25 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
             final TickRateModulation rate = channel.monitor.onTick();
             if (result == null || rate.ordinal() > result.ordinal()) result = rate;
         }
-        return result == null ? TickRateModulation.SLEEP : result;
+        if (result != null && result != TickRateModulation.SLEEP) return result;
+        return this.canSleep() ? TickRateModulation.SLEEP : TickRateModulation.SLOWER;
+    }
+
+    private boolean hasTargetChanged() {
+        if (!this.targetCache.isCurrent()) return true;
+        for (TypeChannel channel : this.channels.values()) {
+            if (!channel.handler.isValid()) return true;
+        }
+        return this.channels.isEmpty() && this.targetCache.isWaitingForChunk()
+            && this.targetCache.get(
+                this.getHost()
+                    .getTile(),
+                this.getSide()) != null;
     }
 
     @Override
     public void onNeighborChanged() {
+        this.targetCache.markStale();
         this.resetCache(false);
     }
 
@@ -591,7 +614,7 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
         final boolean fullReset = this.resetCacheLogic == 2;
         this.resetCacheLogic = 0;
 
-        final Map<IAEStackType<?>, IItemList<?>> before = this.snapshotExposed();
+        final Map<IAEStackType<?>, IItemList<?>> before = this.snapshotExposed(true);
         final Set<IMEInventoryHandler<?>> previousHandlers = this.getExposedHandlers();
         final int previousHandlerHash = this.handlerHash;
 
@@ -617,7 +640,7 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
             if (channel.exposed && channel.monitor != null) channel.monitor.onTick();
         }
 
-        final Map<IAEStackType<?>, IItemList<?>> after = this.snapshotExposed();
+        final Map<IAEStackType<?>, IItemList<?>> after = this.snapshotExposed(false);
         final Set<IAEStackType<?>> types = new ObjectOpenHashSet<>(before.keySet());
         types.addAll(after.keySet());
         for (IAEStackType<?> type : types) {
@@ -639,7 +662,8 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
         this.delayedRetries++;
         TickHandler.INSTANCE.addCallable(world, _ -> {
             try {
-                this.resetCache(true);
+                if (this.getProxy()
+                    .getNode() != null) this.resetCache(true);
             } finally {
                 this.pendingDelayedCacheReset = false;
             }
@@ -648,23 +672,60 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
     }
 
     public TileEntity getTarget() {
-        final TileEntity self = this.getHost()
-            .getTile();
-        final ForgeDirection side = this.getSide();
-        return self.getWorldObj()
-            .getTileEntity(self.xCoord + side.offsetX, self.yCoord + side.offsetY, self.zCoord + side.offsetZ);
+        final IPartHost host = this.getHost();
+        if (host == null || host.getTile() == null) return null;
+        final TileTarget target = this.targetCache.get(host.getTile(), this.getSide());
+        return target == null ? null : target.tile();
+    }
+
+    @Override
+    public void removeFromWorld() {
+        // The grid needs the published contents while removing this cell provider.
+        super.removeFromWorld();
+        this.retireChannels();
+        this.readOncePass.clear();
+        this.cached = false;
+        this.handlerHash = 0;
+        this.resetCacheLogic = 0;
+        this.targetCache.markStale();
+    }
+
+    @SuppressWarnings("rawtypes")
+    private void retireChannels() {
+        for (TypeChannel channel : this.channels.values()) {
+            if (channel.exposed && channel.inventory instanceof IMEMonitor monitor) {
+                monitor.removeListener(this);
+            }
+            channel.handler.invalidate();
+        }
+        this.channels.clear();
+    }
+
+    private boolean canReuseChannels(TileTarget target) {
+        if (this.channels.isEmpty()) return false;
+        for (TypeChannel channel : this.channels.values()) {
+            if (channel.handler.getTarget() != target || !channel.handler.isValid()) return false;
+        }
+        return true;
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
     public void refreshChannels() {
-        if (this.cached) return;
+        if (this.cached) {
+            if (this.hasTargetChanged() && this.resetCacheLogic != 2) this.resetCache(true);
+            return;
+        }
 
-        final boolean wasSleeping = !this.hasExposedMonitor();
+        final boolean wasSleeping = this.canSleep();
         this.cached = true;
 
-        final TileEntity target = this.getTarget();
+        final TileTarget targetReference = this.targetCache.get(
+            this.getHost()
+                .getTile(),
+            this.getSide());
+        final TileEntity target = targetReference == null ? null : targetReference.tile();
         final int newHandlerHash = Platform.generateTileHash(target);
-        if (this.handlerHash == newHandlerHash && this.handlerHash != 0 && !this.channels.isEmpty()) {
+        if (this.handlerHash == newHandlerHash && this.handlerHash != 0 && this.canReuseChannels(targetReference)) {
             return;
         }
         if (this.handlerHash != newHandlerHash) {
@@ -672,7 +733,7 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
         }
 
         this.handlerHash = newHandlerHash;
-        this.channels.clear();
+        this.retireChannels();
         this.readOncePass.clear();
         this.readOncePass.addAll(Util.getTypes());
 
@@ -714,7 +775,11 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
                 final boolean hasFilter = type == ITEM_STACK_TYPE && oreList != null ? itemsByOre : filters != null;
                 final boolean exposed = inverted || !anyConfigured || hasFilter;
 
-                final MEInventoryHandler handler = new StorageBusInventoryHandler(inv, type, this::getReshuffleAccess);
+                final StorageBusInventoryHandler handler = new StorageBusInventoryHandler(
+                    inv,
+                    type,
+                    this::getReshuffleAccess,
+                    targetReference);
                 handler.setBaseAccess(access);
                 handler.setWhitelist(inverted ? IncludeExclude.BLACKLIST : IncludeExclude.WHITELIST);
                 handler.setPriority(this.priority);
@@ -755,11 +820,11 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
             this.scheduleDelayedCacheReset();
         }
 
-        if (wasSleeping == this.hasExposedMonitor()) {
+        if (wasSleeping != this.canSleep()) {
             try {
                 final ITickManager tm = this.getProxy()
                     .getTick();
-                if (this.hasExposedMonitor()) {
+                if (!this.canSleep()) {
                     tm.wakeDevice(
                         this.getProxy()
                             .getNode());
@@ -788,12 +853,13 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
     }
 
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    public Map<IAEStackType<?>, IItemList<?>> snapshotExposed() {
+    public Map<IAEStackType<?>, IItemList<?>> snapshotExposed(boolean forRemoval) {
         final Map<IAEStackType<?>, IItemList<?>> result = new Object2ObjectLinkedOpenHashMap<>();
         for (TypeChannel channel : this.channels.values()) {
             if (!channel.exposed) continue;
-            final IItemList list = channel.handler
-                .getAvailableItems(channel.type.createList(), IterationCounter.fetchNewId());
+            final IItemList list = forRemoval
+                ? channel.handler.getItemsForRemoval(channel.type.createList(), IterationCounter.fetchNewId())
+                : channel.handler.getAvailableItems(channel.type.createList(), IterationCounter.fetchNewId());
             result.put(channel.type, list);
         }
         return result;
@@ -859,10 +925,11 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
     }
 
     public record TypeChannel(IAEStackType<?> type, @SuppressWarnings("rawtypes") IMEInventory inventory,
-        @SuppressWarnings("rawtypes") MEInventoryHandler handler, IStorageBusMonitor<?> monitor, boolean exposed) {
+        @SuppressWarnings("rawtypes") StorageBusInventoryHandler handler, IStorageBusMonitor<?> monitor,
+        boolean exposed) {
 
         @SuppressWarnings("rawtypes")
-        public TypeChannel(IAEStackType<?> type, IMEInventory inventory, MEInventoryHandler handler,
+        public TypeChannel(IAEStackType<?> type, IMEInventory inventory, StorageBusInventoryHandler handler,
             IStorageBusMonitor<?> monitor, boolean exposed) {
             this.type = type;
             this.inventory = inventory;

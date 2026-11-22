@@ -6,17 +6,13 @@ import net.minecraftforge.common.util.ForgeDirection;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.parts.PartThaumatoriumInterface;
 import com.asdflj.ae2thing.common.tile.TileExIOPort;
-import com.asdflj.ae2thing.common.tile.TileInfusionInterface;
 import com.asdflj.ae2thing.integration.Mods;
-import com.asdflj.ae2thing.inventory.EssentiaInventoryAdaptor;
-import com.asdflj.ae2thing.inventory.ThaumatoriumInventoryAdapter;
 import com.asdflj.ae2thing.util.IOPortTransferUtil;
 import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.parts.IPart;
 import appeng.api.storage.data.IAEStackType;
 import appeng.tile.storage.TileIOPort;
-import appeng.util.InventoryAdaptor;
 import appeng.util.Platform;
 import thaumcraft.common.tiles.TileThaumatorium;
 
