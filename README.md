@@ -4,12 +4,13 @@ Neat little additions to AE2-GTNH
 This mod adds a new type of cell the DISK: Deep Item Storage disk. This cell has no type limits.
 
 ## Downloads & Requirements
-| GTNH  | AE2T   | Download                                                                                                                   | Maintenance |
-|-------|--------|----------------------------------------------------------------------------------------------------------------------------|:-----------:|
-| 2.7.4 | 1.1.28 | [![1.1.28](https://img.shields.io/badge/release-v1.1.28-orange)](https://github.com/asdflj/AE2Things/releases/v1.1.28)     |     ❌️      |
-| 2.8.0 | 1.2.8  | [![1.2.8](https://img.shields.io/badge/release-v1.2.8-orange)](https://github.com/asdflj/AE2Things/releases/v1.2.8)        |     ❌️️      |
-| 2.8.4 | 1.2.15 | [![1.2.15](https://img.shields.io/badge/release-v1.2.15-orange)](https://github.com/asdflj/AE2Things/releases/v1.2.15)     |     ❌️️      |
-| 2.9.0 | 1.2.16 | [![Latest](https://img.shields.io/github/v/release/ABKQPO/AE2Things)](https://github.com/ABKQPO/AE2Things/releases/latest) |     ✔️      |
+| GTNH  | AE2T   | Download                                                                                                                                   | Maintenance |
+|-------|--------|--------------------------------------------------------------------------------------------------------------------------------------------|:-----------:|
+| 2.7.4 | 1.1.28 | [![1.1.28](https://img.shields.io/badge/release-v1.1.28-orange)](https://github.com/asdflj/AE2Things/releases/v1.1.28)                     |     ❌️      |
+| 2.8.0 | 1.2.8  | [![1.2.8](https://img.shields.io/badge/release-v1.2.8-orange)](https://github.com/asdflj/AE2Things/releases/v1.2.8)                        |     ❌️      |
+| 2.8.4 | 1.2.15 | [![1.2.15](https://img.shields.io/badge/release-v1.2.15-orange)](https://github.com/asdflj/AE2Things/releases/v1.2.15)                     |     ❌      |
+| 2.9.0 | 1.3.7  | [![1.3.7](https://img.shields.io/badge/release-v1.3.7-orange)](https://github.com/GTNotLeisure/AE2Things/releases/v1.3.7)                  |     ❌      |
+| 2.9.1 | 1.4.0  | [![Latest](https://img.shields.io/github/v/release/GTNotLeisure/AE2Things)](https://github.com/GTNotLeisure/AE2Things/releases/latest)     |     ✔      |
 
 ## License & Copyright
 
