@@ -51,7 +51,6 @@ import com.asdflj.ae2thing.network.CPacketInterfaceRecipeMapRequest;
 import com.asdflj.ae2thing.network.CPacketSwitchGuis;
 import com.asdflj.ae2thing.network.CPacketTerminalBtns;
 import com.asdflj.ae2thing.proxy.ClientProxy;
-import com.asdflj.ae2thing.util.GTNLUtil;
 import com.asdflj.ae2thing.util.enhancedsearch.EnhancedSearch;
 import com.asdflj.ae2thing.util.enhancedsearch.InterfacePoolResolver;
 import com.asdflj.ae2thing.util.enhancedsearch.UploadTarget;
@@ -1434,14 +1433,13 @@ public class GuiWirelessDualInterfaceTerminal extends GuiBaseInterfaceWireless i
                 if (craft && !entry.isCraftingPatternProvider) continue;
                 final int slot = entry.firstEmptySlot();
                 if (slot < 0) continue;
-                if (!GTNLUtil.isAssemblerMatrix(entry.dispRep) && gated
-                    && UploadTarget.outcome(
-                        entry.dispRep,
-                        entry.activeRecipeMapId,
-                        entry.dispName,
-                        entry.searchSuffix,
-                        poolIds,
-                        nameHint) == UploadTarget.Outcome.SKIP) {
+                if (gated && UploadTarget.outcome(
+                    entry.dispRep,
+                    entry.activeRecipeMapId,
+                    entry.dispName,
+                    entry.searchSuffix,
+                    poolIds,
+                    nameHint) == UploadTarget.Outcome.SKIP) {
                     continue;
                 }
                 matched.add(new InterfaceWirelessEntryWrapper(entry, slot));
