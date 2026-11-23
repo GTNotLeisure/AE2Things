@@ -230,3 +230,7 @@ ae2thing.config.general.backpackTerminalAddTicSupport=允许背包终端加工�
 ae2thing.config.general.craftingHistorySize=合成历史记录条数
 ae2thing.config.general.modernInteraction=现代容器左/右键交互（无需按住容器交互键）
 ae2thing.config.general.terminalBaubles=允许将二合一接口终端和背包终端放入任意饰品槽
+ae2thing.config.general.multiPagesSupport=二合一接口终端加工样板页数
+ae2thing.config.general.multiPagesSupport.tooltip=设置二合一接口终端的加工样板页数（2–64 页）。\n每页提供 16 个输入槽和 4 个输出槽，反转模式下两者互换。\n调低此值时，已有配方仍可能保留所需的额外页面。
+ae2thing.config.general.replaceHotIngot=替换配方产物中的炽热锭
+ae2thing.config.general.replaceHotIngot.tooltip=向二合一接口终端转移加工配方时，将炽热锭产物替换为对应的冷却后锭。\n根据矿物词典匹配对应物品，保留原有数量；找不到对应物品时保持原样。\n不影响合成配方和 NEI 鼠标滚轮转移。

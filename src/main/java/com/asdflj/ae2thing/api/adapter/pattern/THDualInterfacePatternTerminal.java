@@ -4,11 +4,10 @@ import net.minecraft.inventory.Container;
 
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
-import com.asdflj.ae2thing.integration.Mods;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.nei.NEIUtils;
 import com.asdflj.ae2thing.nei.object.OrderStack;
 import com.asdflj.ae2thing.network.CPacketTransferRecipe;
-import com.science.gtnl.config.OtherConfig;
 
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
@@ -27,8 +26,7 @@ public class THDualInterfacePatternTerminal implements IPatternTerminalAdapter {
     @Override
     public void transfer(Container container, ObjectList<OrderStack<?>> inputs, ObjectList<OrderStack<?>> outputs,
         String identifier, CPacketTransferRecipe message) {
-        if (Mods.SNL.isModLoaded() && OtherConfig.not_enough_items.enableReplaceHotIngotInPattern
-            && !Constants.NEI_MOUSE_WHEEL.equals(identifier)
+        if (AE2ThingConfig.replaceHotIngot && !Constants.NEI_MOUSE_WHEEL.equals(identifier)
             && message != null
             && !message.isCraft) {
             outputs = NEIUtils.replaceHotIngot(outputs);

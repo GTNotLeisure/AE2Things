@@ -78,10 +78,15 @@ public final class AE2ThingConfig {
     public static boolean modernInteraction = false;
 
     @Name("Multi-pages support")
-    @Comment("Allow the 2-in-1 interface terminal to support more pages.")
+    @Comment("Processing pattern pages in the 2-in-1 interface terminal (2-64).")
     @LangKey(GENERAL_LANG_KEY + ".multiPagesSupport")
     @RangeInt(min = 2, max = 64)
     public static int multiPagesSupport = 2;
+
+    @Name("Replace hot ingot during pattern transfer")
+    @Comment("Replace hot ingot outputs with cooled ingots during processing recipe transfer.")
+    @LangKey(GENERAL_LANG_KEY + ".replaceHotIngot")
+    public static boolean replaceHotIngot = true;
 
     private AE2ThingConfig() {}
 
