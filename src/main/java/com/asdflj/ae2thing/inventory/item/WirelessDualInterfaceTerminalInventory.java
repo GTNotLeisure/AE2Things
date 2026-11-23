@@ -10,6 +10,7 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
+import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -18,12 +19,12 @@ import org.jetbrains.annotations.NotNull;
 
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.api.WirelessObject;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.inventory.AEStackItemInventory;
 import com.asdflj.ae2thing.inventory.ItemBiggerAppEngInventory;
 import com.asdflj.ae2thing.inventory.ItemPatternRefillInventory;
 import com.asdflj.ae2thing.inventory.ItemPatternsInventory;
 import com.asdflj.ae2thing.inventory.SlotBackedAEStackInventory;
-import com.asdflj.ae2thing.util.GTNLUtil;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.Util;
 
@@ -70,6 +71,10 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
     private static final int MIN_PANEL_POSITION = -10000;
     private static final int MAX_PANEL_POSITION = 10000;
     private static final long INTERFACE_SCAN_INTERVAL = 1000L;
+    private static final int MIN_PATTERN_PAGES = 2;
+    private static final int MAX_PATTERN_PAGES = 64;
+    private static final int LARGE_PATTERN_PAGE_SLOTS = 16;
+    private static final int SMALL_PATTERN_PAGE_SLOTS = 4;
 
     protected AEStackItemInventory craftingEx;
     protected AEStackItemInventory outputEx;
@@ -100,7 +105,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
             obj.getPlayer(),
             obj.getX(),
             this);
-        final int patternSlots = GTNLUtil.patternSlotCount();
+        final int patternSlots = resolvePatternSlots(obj.getItemStack());
         craftingEx = new AEStackItemInventory(
             obj.getItemStack(),
             Constants.CRAFTING_EX,
@@ -198,7 +203,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
 
     @Override
     public void setActivePage(int value) {
-        this.activePage = value;
+        this.activePage = Math.clamp(value, 0, this.getPatternPageCount() - 1);
     }
 
     @Override
@@ -455,60 +460,49 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
 
     private void applyPatternContents(IAEStack<?>[] inItems, IAEStack<?>[] outItems, boolean craftable,
         boolean canSubstitute, boolean canBeSubstitute) {
+        final int inputCount = Util.countNotNull(inItems);
+        final int outputCount = Util.countNotNull(outItems);
+        final int smallCapacity = SMALL_PATTERN_PAGE_SLOTS * this.getPatternPageCount();
+        final int largeInputCapacity = this.craftingEx.getSizeInventory();
+        final int largeOutputCapacity = this.outputEx.getSizeInventory();
+        final boolean normalFits = inputCount <= largeInputCapacity && outputCount <= smallCapacity;
+        final boolean invertedFits = inputCount <= smallCapacity && outputCount <= largeOutputCapacity;
+        if (!craftable && !normalFits && !invertedFits) {
+            if (this.obj.getPlayer() != null) {
+                this.obj.getPlayer()
+                    .addChatMessage(
+                        new ChatComponentText(
+                            "Pattern exceeds this terminal's capacity; " + "the existing recipe was kept."));
+            }
+            return;
+        }
+
+        final boolean newInverted = !craftable && !normalFits;
         this.setCraftingRecipe(craftable);
-        int inputsCount = 0;
-        int outputCount = 0;
-        for (IAEStack<?> inItem : inItems) {
-            if (inItem != null) {
-                inputsCount++;
-            }
-        }
-        for (IAEStack<?> outItem : outItems) {
-            if (outItem != null) {
-                outputCount++;
-            }
-        }
         this.setSubstitution(canSubstitute);
         this.setBeSubstitute(canBeSubstitute);
-        this.setInverted(inputsCount <= 8 && outputCount > 8);
+        this.setInverted(newInverted);
         this.setActivePage(0);
 
-        for (int i = 0; i < this.craftingEx.getSizeInventory(); i++) {
-            this.craftingEx.putAEStackInSlot(i, null);
-        }
-        for (int i = 0; i < this.outputEx.getSizeInventory(); i++) {
-            this.outputEx.putAEStackInSlot(i, null);
-        }
-        for (int i = 0; i < this.crafting.getSizeInventory(); i++) {
-            this.crafting.setInventorySlotContents(i, null);
-        }
+        Util.clearAEInv(this.craftingEx);
+        Util.clearAEInv(this.outputEx);
+        Util.clearAEInv(this.crafting);
 
-        if (this.isCraftingRecipe()) {
+        if (craftable) {
             for (int i = 0; i < this.crafting.getSizeInventory() && i < inItems.length; i++) {
                 if (inItems[i] instanceof IAEItemStack item) {
                     this.crafting.setInventorySlotContents(i, item.getItemStack());
                 }
             }
-        } else {
-            for (int i = 0; i < this.craftingEx.getSizeInventory() && i < inItems.length; i++) {
-                if (inItems[i] != null) {
-                    this.craftingEx.putAEStackInSlot(i, inItems[i]);
-                }
-            }
-        }
 
-        if (this.inverted) {
             for (int i = 0; i < this.outputEx.getSizeInventory() && i < outItems.length; i++) {
                 if (outItems[i] != null) {
-                    this.outputEx.putAEStackInSlot(i, outItems[i]);
+                    this.outputEx.putAEStackInSlot(i, outItems[i].copy());
                 }
             }
         } else {
-            for (int i = 0; i < outItems.length && i < 8; i++) {
-                if (outItems[i] != null) {
-                    this.outputEx.putAEStackInSlot(i >= 4 ? 12 + i : i, outItems[i]);
-                }
-            }
+            Util.putCompact(this.craftingEx, inItems);
+            Util.putCompact(this.outputEx, outItems);
         }
     }
 
@@ -603,5 +597,39 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
     @Override
     public void saveTypeFilter() {
         this.writeToNBT();
+    }
+
+    private static int resolvePatternSlots(ItemStack owner) {
+        final int configuredPages = Math.clamp(AE2ThingConfig.multiPagesSupport, MIN_PATTERN_PAGES, MAX_PATTERN_PAGES);
+        final ItemStackNBT data = ItemStackNBT.of(owner);
+        final boolean inverted = data.getBoolean("inverted");
+        final int inputSlotsPerPage = inverted ? SMALL_PATTERN_PAGE_SLOTS : LARGE_PATTERN_PAGE_SLOTS;
+        final int outputSlotsPerPage = inverted ? LARGE_PATTERN_PAGE_SLOTS : SMALL_PATTERN_PAGE_SLOTS;
+        final int storedPages = Math.max(
+            requiredStoredPages(data, Constants.CRAFTING_EX, inputSlotsPerPage),
+            requiredStoredPages(data, Constants.OUTPUT_EX, outputSlotsPerPage));
+        final int pages = Math.clamp(Math.max(configuredPages, storedPages), MIN_PATTERN_PAGES, MAX_PATTERN_PAGES);
+        return pages * LARGE_PATTERN_PAGE_SLOTS;
+    }
+
+    private static int requiredStoredPages(ItemStackNBT data, String inventoryName, int slotsPerPage) {
+        final NBTTagCompound stored = data.getCompoundTag(inventoryName);
+        if (stored == null) return 0;
+        final int maximumSlots = MAX_PATTERN_PAGES * LARGE_PATTERN_PAGE_SLOTS;
+        for (int slot = maximumSlots - 1; slot > 0; slot--) {
+            final String key = "#" + slot;
+            if (stored.hasKey(key, NBT.TAG_COMPOUND) && !stored.getCompoundTag(key)
+                .hasNoTags()) {
+                return slot / slotsPerPage + 1;
+            }
+        }
+
+        return 0;
+    }
+
+    public int getPatternPageCount() {
+        final int slots = Math.min(this.craftingEx.getSizeInventory(), this.outputEx.getSizeInventory());
+
+        return Math.max(MIN_PATTERN_PAGES, slots / LARGE_PATTERN_PAGE_SLOTS);
     }
 }

@@ -122,6 +122,11 @@ public final class ItemStackNBT {
             .hasKey(key);
     }
 
+    public boolean hasKey(String key, int type) {
+        return stack.hasTagCompound() && stack.getTagCompound()
+            .hasKey(key, type);
+    }
+
     public ItemStackNBT removeTag(String key) {
         if (stack.hasTagCompound()) {
             final NBTTagCompound nbt = stack.getTagCompound();

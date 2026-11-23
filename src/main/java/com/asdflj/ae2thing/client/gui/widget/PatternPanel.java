@@ -29,7 +29,6 @@ import com.asdflj.ae2thing.nei.ButtonConstants;
 import com.asdflj.ae2thing.nei.NEI_TH_Config;
 import com.asdflj.ae2thing.network.CPacketTerminalBtns;
 import com.asdflj.ae2thing.util.Ae2ReflectClient;
-import com.asdflj.ae2thing.util.GTNLUtil;
 import com.asdflj.ae2thing.util.ModAndClassUtil;
 import com.glodblock.github.client.gui.GuiFCImgButton;
 
@@ -621,7 +620,7 @@ public class PatternPanel implements IAEBasePanel {
         if (this.container.inputsSync == null) return 2;
         final int size = this.container.inputsSync.get()
             .getSizeInventory();
-        return Math.max(2, size / GTNLUtil.largeSideSlots());
+        return Math.max(2, size / 16);
     }
 
     private int inputColumns() {

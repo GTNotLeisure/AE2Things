@@ -77,6 +77,12 @@ public final class AE2ThingConfig {
     @LangKey(GENERAL_LANG_KEY + ".modernInteraction")
     public static boolean modernInteraction = false;
 
+    @Name("Multi-pages support")
+    @Comment("Allow the 2-in-1 interface terminal to support more pages.")
+    @LangKey(GENERAL_LANG_KEY + ".multiPagesSupport")
+    @RangeInt(min = 2, max = 64)
+    public static int multiPagesSupport = 2;
+
     private AE2ThingConfig() {}
 
     private static File resolveConfigFile() {

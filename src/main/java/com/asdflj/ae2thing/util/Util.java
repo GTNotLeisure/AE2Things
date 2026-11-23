@@ -8,8 +8,6 @@ import java.util.Optional;
 import java.util.concurrent.Future;
 import java.util.function.IntFunction;
 
-import javax.annotation.Nonnull;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
@@ -26,6 +24,7 @@ import net.minecraftforge.fluids.FluidRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
 
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.input.Mouse;
 
 import com.asdflj.ae2thing.AE2Thing;
@@ -37,6 +36,7 @@ import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemPatternModifier;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.integration.Mods;
+import com.asdflj.ae2thing.inventory.AEStackItemInventory;
 import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.network.SPacketItemGuiHint;
 import com.glodblock.github.client.gui.FCGuiTextField;
@@ -63,6 +63,7 @@ import appeng.core.sync.packets.PacketCraftingTreeData;
 import appeng.crafting.v2.CraftingJobV2;
 import appeng.integration.modules.NEI;
 import appeng.me.cache.CraftingGridCache;
+import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import codechicken.nei.recipe.StackInfo;
@@ -216,7 +217,7 @@ public class Util {
         }
     }
 
-    @Nonnull
+    @NotNull
     public static String getDisplayName(IAEItemStack item) {
         FluidStack fs = StackInfo.getFluid(item.getItemStack());
         if (fs != null) {
@@ -406,6 +407,37 @@ public class Util {
 
     public static boolean hasEnergyCard(ItemStack is) {
         return ItemStackNBT.getBoolean(is, Constants.INFINITY_ENERGY_CARD);
+    }
+
+    public static int countNotNull(Object[] objects) {
+        int count = 0;
+        for (Object o : objects) {
+            if (o != null) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    public static void clearAEInv(AEStackItemInventory inv) {
+        for (int i = 0; i < inv.getSizeInventory(); i++) {
+            inv.putAEStackInSlot(i, null);
+        }
+    }
+
+    public static void clearAEInv(AppEngInternalInventory inv) {
+        for (int i = 0; i < inv.getSizeInventory(); i++) {
+            inv.setInventorySlotContents(i, null);
+        }
+    }
+
+    public static void putCompact(AEStackItemInventory inventory, IAEStack<?>[] stacks) {
+        int index = 0;
+        for (IAEStack<?> stack : stacks) {
+            if (stack != null) {
+                inventory.putAEStackInSlot(index++, stack.copy());
+            }
+        }
     }
 
     public static class DimensionalCoordSide extends DimensionalCoord {
