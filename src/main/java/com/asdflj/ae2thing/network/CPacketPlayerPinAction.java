@@ -26,6 +26,12 @@ public class CPacketPlayerPinAction implements IMessage {
     public static final int STORE_INVENTORY = 3;
     public static final int REMOVE_SLOT = 4;
 
+    public static boolean isEnabled(int operation, boolean enhancedPins, boolean modernInteraction) {
+        return enhancedPins && operation >= TOGGLE_STACK
+            && operation <= REMOVE_SLOT
+            && (operation == REMOVE_SLOT || modernInteraction);
+    }
+
     private int windowId;
     private int operation;
     private int slotIndex;
@@ -73,7 +79,8 @@ public class CPacketPlayerPinAction implements IMessage {
 
         @Override
         public IMessage onMessage(CPacketPlayerPinAction message, MessageContext ctx) {
-            if (!AE2ThingConfig.enhancedPins || !AE2ThingConfig.modernInteraction) return null;
+            if (!isEnabled(message.operation, AE2ThingConfig.enhancedPins, AE2ThingConfig.modernInteraction))
+                return null;
             EntityPlayerMP player = ctx.getServerHandler().playerEntity;
             if (player == null || !(player.openContainer instanceof ContainerMEMonitorable container)
                 || container.windowId != message.windowId

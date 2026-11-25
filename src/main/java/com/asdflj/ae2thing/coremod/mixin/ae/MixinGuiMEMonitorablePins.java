@@ -1,7 +1,6 @@
 package com.asdflj.ae2thing.coremod.mixin.ae;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,13 +21,14 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.asdflj.ae2thing.api.config.ConfigurationManager;
+import com.asdflj.ae2thing.client.pin.CraftingPinRenderer;
 import com.asdflj.ae2thing.client.pin.IPlayerPinRepo;
 import com.asdflj.ae2thing.client.pin.PinHand;
 import com.asdflj.ae2thing.client.pin.PlayerPinLayout;
 import com.asdflj.ae2thing.client.pin.ScrollingPlayerPinSlot;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
+import com.asdflj.ae2thing.pin.ICraftingPinState;
 
-import appeng.api.config.PinSectionOrder;
 import appeng.api.config.PinsRows;
 import appeng.api.storage.data.IAEStackType;
 import appeng.client.gui.AEBaseGui;
@@ -43,6 +43,7 @@ import appeng.core.AELog;
 import appeng.core.sync.network.NetworkHandler;
 import appeng.core.sync.packets.PacketPinsUpdate;
 import appeng.items.contents.PinList;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 @SuppressWarnings("UnusedMixin")
 @Mixin(GuiMEMonitorable.class)
@@ -107,7 +108,12 @@ public abstract class MixinGuiMEMonitorablePins extends AEBaseGui {
 
     @Unique
     private PlayerPinLayout ae2t$layout() {
-        return new PlayerPinLayout(rows, perRow, Math.min(craftingPinsRows.ordinal(), AEConfig.instance.maxCraftingPinRows), Math.min(playerPinsRows.ordinal(), AEConfig.instance.maxPlayerPinRows), AE2ThingConfig.scrollPlayerPins);
+        return new PlayerPinLayout(
+            rows,
+            perRow,
+            Math.min(craftingPinsRows.ordinal(), AEConfig.instance.maxCraftingPinRows),
+            Math.min(playerPinsRows.ordinal(), AEConfig.instance.maxPlayerPinRows),
+            AE2ThingConfig.scrollPlayerPins);
     }
 
     @Inject(method = "adjustPinsSize", at = @At("HEAD"), cancellable = true, remap = false)
@@ -139,15 +145,9 @@ public abstract class MixinGuiMEMonitorablePins extends AEBaseGui {
         List<VirtualMESlot> registered = ((AccessorAEBaseGuiPins) this).ae2t$getVirtualSlots();
         if (pinSlots != null) registered.removeAll(Arrays.asList(pinSlots));
         if (monitorableSlots != null) registered.removeAll(Arrays.asList(monitorableSlots));
-        List<VirtualMEPinSlot> fixed = new ArrayList<>();
-        boolean playerFirst = !layout.scrolling() && AEConfig.instance.pinSectionOrder == PinSectionOrder.PLAYER_FIRST;
-        if (playerFirst) {
-            ae2t$section(fixed, layout.playerRows(), 0, false);
-            ae2t$section(fixed, layout.craftingRows(), layout.playerRows(), true);
-        } else {
-            ae2t$section(fixed, layout.craftingRows(), 0, true);
-            ae2t$section(fixed, layout.playerRows(), layout.craftingRows(), false);
-        }
+        List<VirtualMEPinSlot> fixed = new ObjectArrayList<>();
+        ae2t$section(fixed, layout.craftingRows(), 0, true);
+        ae2t$section(fixed, layout.playerRows(), layout.craftingRows(), false);
         pinSlots = fixed.toArray(new VirtualMEPinSlot[0]);
         int fixedRows = layout.craftingRows() + layout.playerRows();
         monitorableSlots = new VirtualMEMonitorableSlot[layout.listRows() * layout.width()];
@@ -223,8 +223,11 @@ public abstract class MixinGuiMEMonitorablePins extends AEBaseGui {
         int crafting = Math.min(craftingPinsRows.ordinal(), AEConfig.instance.maxCraftingPinRows);
         int player = Math.min(playerPinsRows.ordinal(), AEConfig.instance.maxPlayerPinRows);
         int delta = Mouse.isButtonDown(1) ? -1 : 1;
-        if (isCtrlKeyDown()) crafting = Math.max(0, Math.min(AEConfig.instance.maxCraftingPinRows, crafting + delta));
-        else player = Math.max(0, Math.min(AEConfig.instance.maxPlayerPinRows, player + delta));
+        if (isCtrlKeyDown()) {
+            ci.cancel();
+            return;
+        }
+        player = Math.max(0, Math.min(AEConfig.instance.maxPlayerPinRows, player + delta));
         try {
             NetworkHandler.instance
                 .sendToServer(new PacketPinsUpdate(PinsRows.fromOrdinal(crafting), PinsRows.fromOrdinal(player)));
@@ -245,7 +248,7 @@ public abstract class MixinGuiMEMonitorablePins extends AEBaseGui {
             VirtualMEPinSlot.drawSlotsBackground(slots, mc, z);
             return;
         }
-        List<VirtualMEPinSlot> visible = new ArrayList<>(Arrays.asList(slots));
+        List<VirtualMEPinSlot> visible = new ObjectArrayList<>(slots);
         for (VirtualMEMonitorableSlot slot : monitorableSlots) {
             if (slot instanceof ScrollingPlayerPinSlot scrolling) {
                 VirtualMEPinSlot pin = scrolling.asPinSlot();
@@ -253,5 +256,11 @@ public abstract class MixinGuiMEMonitorablePins extends AEBaseGui {
             }
         }
         VirtualMEPinSlot.drawSlotsBackground(visible.toArray(new VirtualMEPinSlot[0]), mc, z);
+    }
+
+    @Inject(method = "drawFG", at = @At("TAIL"), remap = false)
+    private void ae2t$craftingBorders(int offsetX, int offsetY, int mouseX, int mouseY, CallbackInfo ci) {
+        if (ae2t$enabled() && inventorySlots instanceof ICraftingPinState state)
+            CraftingPinRenderer.draw(pinSlots, state);
     }
 }

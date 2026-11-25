@@ -16,17 +16,26 @@ public final class PinTooltips {
 
     private PinTooltips() {}
 
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    private static boolean enabled() {
+        return AE2ThingConfig.enhancedPins && Minecraft.getMinecraft().currentScreen instanceof GuiMEMonitorable gui
+            && gui.hasPinHost;
+    }
+
+    private static VirtualMEPinSlot pinSlot(VirtualMEMonitorableSlot slot) {
+        return slot instanceof VirtualMEPinSlot fixed ? fixed
+            : slot instanceof ScrollingPlayerPinSlot scrolling ? scrolling.asPinSlot() : null;
+    }
+
     public static boolean add(VirtualMEMonitorableSlot slot, List<String> lines) {
-        if (!AE2ThingConfig.enhancedPins || !AE2ThingConfig.modernInteraction
-            || !(Minecraft.getMinecraft().currentScreen instanceof GuiMEMonitorable gui)
-            || !gui.hasPinHost) return false;
+        if (!enabled()) return false;
         if (slot instanceof ScrollingPlayerPinSlot scrolling && scrolling.isPadding()) {
             lines.clear();
             return true;
         }
-        VirtualMEPinSlot pin = slot instanceof VirtualMEPinSlot fixed ? fixed
-            : slot instanceof ScrollingPlayerPinSlot scrolling ? scrolling.asPinSlot() : null;
+        VirtualMEPinSlot pin = pinSlot(slot);
         PinHand hand = PinHand.read();
+        if (!AE2ThingConfig.modernInteraction) return false;
         if (pin != null && !pin.isCraftingSlot() && slot.getAEStack() == null && hand.effective() != null) {
             lines.clear();
             lines.add(text("set_body"));
@@ -37,12 +46,20 @@ public final class PinTooltips {
             lines.clear();
             return true;
         }
-        if (hand.isEmpty()) {
-            if (slot.getAEStack() != null) lines.add(text("toggle"));
-            if (pin != null) lines.add(text("remove"));
-            return true;
-        }
-        return false;
+        return hand.isEmpty();
+    }
+
+    public static void addItem(VirtualMEMonitorableSlot slot, List<String> lines) {
+        if (!enabled() || slot.getAEStack() == null
+            || !PinHand.read()
+                .isEmpty())
+            return;
+        addItemHints(lines, AE2ThingConfig.modernInteraction, pinSlot(slot) != null);
+    }
+
+    static void addItemHints(List<String> lines, boolean modern, boolean pin) {
+        if (modern) lines.add(text("toggle"));
+        if (pin) lines.add(text("remove"));
     }
 
     private static String text(String name) {

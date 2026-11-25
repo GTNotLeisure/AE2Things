@@ -58,7 +58,7 @@ public abstract class MixinAEBaseGui extends GuiContainer {
 
     @Inject(method = "handleMouseClick", at = @At(value = "HEAD"), cancellable = true)
     protected void handleMouseClick(Slot slot, int slotIdx, int clickedButton, int clickType, CallbackInfo ci) {
-        //noinspection ConstantValue
+        // noinspection ConstantValue
         if (AE2ThingConfig.enhancedPins && AE2ThingConfig.modernInteraction
             && (Object) this instanceof GuiMEMonitorable gui
             && gui.hasPinHost

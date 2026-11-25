@@ -10,8 +10,10 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.asdflj.ae2thing.client.ModernContainerInteraction;
+import com.asdflj.ae2thing.client.pin.PinTooltips;
 
 import appeng.client.gui.implementations.GuiMEMonitorable;
+import appeng.client.gui.slots.VirtualMEMonitorableSlot;
 
 @SuppressWarnings("UnusedMixin")
 @Mixin(GuiMEMonitorable.class)
@@ -23,5 +25,12 @@ public abstract class MixinGuiMEMonitorableEntryTooltip {
         if (!ModernContainerInteraction.hidesEntryTooltip()) return;
         tooltip.clear();
         cir.setReturnValue(tooltip);
+    }
+
+    @Inject(method = "handleItemTooltip", at = @At("RETURN"), remap = false)
+    private void ae2t$appendPinHints(ItemStack stack, int mouseX, int mouseY, List<String> tooltip,
+        CallbackInfoReturnable<List<String>> cir) {
+        if (((GuiMEMonitorable) (Object) this).getVirtualMESlotUnderMouse() instanceof VirtualMEMonitorableSlot slot)
+            PinTooltips.addItem(slot, cir.getReturnValue());
     }
 }

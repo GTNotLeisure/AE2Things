@@ -11,12 +11,16 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.asdflj.ae2thing.client.gui.container.ContainerMonitor;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
+import com.asdflj.ae2thing.pin.ICraftingPinState;
 
+import appeng.container.implementations.ContainerMEMonitorable;
 import appeng.core.sync.AppEngPacket;
 import appeng.core.sync.network.INetworkInfo;
 import appeng.core.sync.packets.PacketMonitorableAction;
 import appeng.helpers.MonitorableAction;
 
+@SuppressWarnings("UnusedMixin")
 @Mixin(PacketMonitorableAction.class)
 public abstract class MixinPacketMonitorableAction {
 
@@ -30,6 +34,11 @@ public abstract class MixinPacketMonitorableAction {
         if (player.openContainer instanceof ContainerMonitor container) {
             container.doMonitorableAction(this.action, (EntityPlayerMP) player);
             ci.cancel();
-        }
+        } else if (AE2ThingConfig.enhancedPins && this.action == MonitorableAction.AUTO_CRAFT
+            && player.openContainer instanceof ContainerMEMonitorable container
+            && container.getPinsHandler() != null
+            && !((ICraftingPinState) container).ae2t$canCraftTarget()) {
+                ci.cancel();
+            }
     }
 }

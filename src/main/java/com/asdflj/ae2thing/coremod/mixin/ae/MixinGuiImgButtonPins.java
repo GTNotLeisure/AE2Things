@@ -26,12 +26,11 @@ public abstract class MixinGuiImgButtonPins {
             || button.getCurrentValue() != ActionItems.PINS
             || !(Minecraft.getMinecraft().currentScreen instanceof GuiMEMonitorable gui)
             || !gui.hasPinHost) return;
-        String message = cir.getReturnValue();
+        String message = StatCollector.translateToLocal("ae2thing.gui.pin.rows") + "\n"
+            + StatCollector.translateToLocal("ae2thing.gui.pin.crafting_auto");
         String mode = StatCollector.translateToLocal(
             AE2ThingConfig.scrollPlayerPins ? "ae2thing.gui.pin.scrolling" : "ae2thing.gui.pin.fixed");
-        message = (message == null ? "" : message + "\n") + mode
-            + "\n"
-            + StatCollector.translateToLocal("ae2thing.gui.pin.display");
+        message = message + "\n" + mode + "\n" + StatCollector.translateToLocal("ae2thing.gui.pin.display");
         if (AE2ThingConfig.modernInteraction)
             message += "\n" + StatCollector.translateToLocal("ae2thing.gui.pin.inventory");
         cir.setReturnValue(message);

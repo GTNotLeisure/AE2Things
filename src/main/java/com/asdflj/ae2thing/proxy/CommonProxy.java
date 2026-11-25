@@ -47,6 +47,7 @@ import com.asdflj.ae2thing.loader.PatternTerminalLoader;
 import com.asdflj.ae2thing.loader.PatternTerminalMouseWheelLoader;
 import com.asdflj.ae2thing.network.CPacketCellContentsRequest;
 import com.asdflj.ae2thing.network.wrapper.AE2ThingNetworkWrapper;
+import com.asdflj.ae2thing.pin.CraftingPinSessions;
 import com.asdflj.ae2thing.util.AspectUtil;
 import com.asdflj.ae2thing.util.ItemGuiHintCache;
 import com.asdflj.ae2thing.util.ModAndClassUtil;
@@ -97,6 +98,9 @@ public class CommonProxy {
         FMLCommonHandler.instance()
             .bus()
             .register(new ConfigSyncHandler());
+        FMLCommonHandler.instance()
+            .bus()
+            .register(new CraftingPinSessions());
         ModAndClassUtil.init();
 
         EmptyContainerProviders.register(AEFluidStackType.FLUID_STACK_TYPE, FluidContainerProvider.INSTANCE);
@@ -354,6 +358,7 @@ public class CommonProxy {
     }
 
     public void serverStopping(FMLServerStoppingEvent event) {
+        CraftingPinSessions.clear();
         InfinityStorageCellSnapshot.flushAllForce();
         InfinityStorageCellSnapshot.clear();
         StorageManager m = AE2ThingAPI.instance()

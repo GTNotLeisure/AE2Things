@@ -10,23 +10,28 @@ import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.network.SPacketMEItemInvUpdate;
 
+import appeng.api.config.PinsRows;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.crafting.ICraftingJob;
 import appeng.api.storage.ITerminalHost;
 import appeng.api.storage.data.IAEStack;
 import appeng.container.AEBaseContainer;
 import appeng.container.implementations.ContainerCraftConfirm;
+import appeng.items.contents.PinsHandler;
 
+@SuppressWarnings("UnusedMixin")
 @Mixin(ContainerCraftConfirm.class)
 public abstract class MixinContainerCraftConfirm extends AEBaseContainer {
 
     @Shadow(remap = false)
-    protected ICraftingJob result;
+    protected ICraftingJob<?> result;
 
     @Shadow(remap = false)
     public abstract boolean isSimulation();
@@ -35,7 +40,7 @@ public abstract class MixinContainerCraftConfirm extends AEBaseContainer {
     public abstract IGrid getGrid();
 
     @Unique
-    private IAEStack<?> is = null;
+    private IAEStack<?> ae2t$is = null;
 
     public MixinContainerCraftConfirm(InventoryPlayer ip, ITerminalHost anchor) {
         super(ip, anchor);
@@ -44,8 +49,18 @@ public abstract class MixinContainerCraftConfirm extends AEBaseContainer {
     @Inject(method = "setItemToCraft", at = @At("HEAD"), remap = false)
     public void setItemToCraft(IAEStack<?> itemToCraft, CallbackInfo ci) {
         if (itemToCraft != null) {
-            is = itemToCraft.copy();
+            ae2t$is = itemToCraft.copy();
         }
+    }
+
+    @Redirect(
+        method = "pushCraftedItemToPins",
+        at = @At(
+            value = "INVOKE",
+            target = "Lappeng/items/contents/PinsHandler;getCraftingPinsRows()Lappeng/api/config/PinsRows;"),
+        remap = false)
+    private PinsRows ae2t$allowAutomaticCraftingRow(PinsHandler pins) {
+        return AE2ThingConfig.enhancedPins ? PinsRows.ONE : pins.getCraftingPinsRows();
     }
 
     @Inject(
@@ -55,11 +70,11 @@ public abstract class MixinContainerCraftConfirm extends AEBaseContainer {
             target = "Lappeng/container/implementations/ContainerCraftConfirm;switchToOriginalGUI()V"),
         remap = false)
     public void startJob(boolean followCraft, CallbackInfo ci) {
-        if (this.result != null && !this.isSimulation() && getGrid() != null && is != null) {
+        if (this.result != null && !this.isSimulation() && getGrid() != null && ae2t$is != null) {
             SPacketMEItemInvUpdate piu = new SPacketMEItemInvUpdate(ADD_PINNED_ITEM);
-            piu.appendStack(is);
+            piu.appendStack(ae2t$is);
             AE2Thing.proxy.netHandler.sendTo(piu, (EntityPlayerMP) this.getPlayerInv().player);
-            is = null;
+            ae2t$is = null;
         }
     }
 }

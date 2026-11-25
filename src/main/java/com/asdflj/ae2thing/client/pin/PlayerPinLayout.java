@@ -10,8 +10,8 @@ public record PlayerPinLayout(int craftingRows, int playerRows, int listRows, in
         width = Math.max(1, width);
         crafting = Math.clamp(crafting, 0, 16);
         player = Math.clamp(player, 0, 16);
-        int visiblePlayer = scrolling ? 0 : Math.min(player, rows - 1);
-        int visibleCraft = Math.min(crafting, rows - 1 - visiblePlayer);
+        int visibleCraft = Math.min(crafting, rows - 1);
+        int visiblePlayer = scrolling ? 0 : Math.min(player, rows - 1 - visibleCraft);
         this(visibleCraft, visiblePlayer, rows - visiblePlayer - visibleCraft, player * 9, width, scrolling);
     }
 

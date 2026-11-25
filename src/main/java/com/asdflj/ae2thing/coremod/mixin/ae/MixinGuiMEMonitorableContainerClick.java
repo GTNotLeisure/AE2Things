@@ -90,6 +90,26 @@ public abstract class MixinGuiMEMonitorableContainerClick {
             cir.setReturnValue(true);
             return;
         }
+        if (enhanced && !Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
+            PinHand hand = PinHand.read();
+            if (!ae2t$dragging && mouseButton == 1 && GuiScreen.isShiftKeyDown() && hand.isEmpty() && pin != null) {
+                if (!pin.isCraftingSlot()) ae2t$pinAction(CPacketPlayerPinAction.REMOVE_SLOT, pin.getSlotIndex(), null);
+                else ae2t$send(MonitorableAction.UNSET_PIN, null, pin.getSlotIndex());
+                cir.setReturnValue(true);
+                return;
+            }
+            IAEStack<?> hovered = virtualSlot.getAEStack();
+            if (!AE2ThingConfig.modernInteraction && mouseButton == 0
+                && !GuiScreen.isShiftKeyDown()
+                && !GuiScreen.isCtrlKeyDown()
+                && hand.isEmpty()
+                && hovered != null
+                && hovered.getStackSize() == 0
+                && !hovered.isCraftable()) {
+                cir.setReturnValue(true);
+                return;
+            }
+        }
         if (enhanced && AE2ThingConfig.modernInteraction && !Keyboard.isKeyDown(Keyboard.KEY_SPACE)) {
             PinHand hand = PinHand.read();
             IAEStack<?> hovered = virtualSlot.getAEStack();
@@ -111,12 +131,6 @@ public abstract class MixinGuiMEMonitorableContainerClick {
                 cir.setReturnValue(true);
                 return;
             }
-            if (!ae2t$dragging && mouseButton == 1 && shift && hand.isEmpty() && pin != null) {
-                if (playerPin) ae2t$pinAction(CPacketPlayerPinAction.REMOVE_SLOT, pin.getSlotIndex(), null);
-                else ae2t$send(MonitorableAction.UNSET_PIN, null, pin.getSlotIndex());
-                cir.setReturnValue(true);
-                return;
-            }
             if (ae2t$containerAction(hovered, hand.real(), mouseButton)) {
                 cir.setReturnValue(true);
                 return;
@@ -125,8 +139,9 @@ public abstract class MixinGuiMEMonitorableContainerClick {
                 IAEItemStack item = hovered instanceof IAEItemStack ais ? ais : null;
                 if (mouseButton == 0) {
                     if (shift) ae2t$send(MonitorableAction.SHIFT_CLICK, item, -1);
-                    else if (hovered != null && hovered.getStackSize() == 0 && hand.real() == null)
-                        ae2t$send(MonitorableAction.AUTO_CRAFT, hovered, -1);
+                    else if (hovered != null && hovered.isCraftable()
+                        && hovered.getStackSize() == 0
+                        && hand.real() == null) ae2t$send(MonitorableAction.AUTO_CRAFT, hovered, -1);
                     else ae2t$send(MonitorableAction.PICKUP_OR_SET_DOWN, item, -1);
                 } else ae2t$send(
                     shift ? MonitorableAction.PICKUP_SINGLE : MonitorableAction.SPLIT_OR_PLACE_SINGLE,
