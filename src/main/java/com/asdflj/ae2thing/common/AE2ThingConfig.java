@@ -75,7 +75,7 @@ public final class AE2ThingConfig {
     @Name("Modern container interaction in terminal")
     @Comment("Use modern terminal clicks to fill and empty containers.")
     @LangKey(GENERAL_LANG_KEY + ".modernInteraction")
-    public static boolean modernInteraction = false;
+    public static boolean modernInteraction = true;
 
     @Name("Multi-pages support")
     @Comment("Processing pattern pages in the 2-in-1 interface terminal (2-64).")
@@ -91,7 +91,7 @@ public final class AE2ThingConfig {
     @Name("Enhanced pins in terminal")
     @Comment("Enable enhanced native terminal pins. Modern click shortcuts also require modern container interaction.")
     @LangKey(GENERAL_LANG_KEY + ".enhancedPins")
-    public static boolean enhancedPins = false;
+    public static boolean enhancedPins = true;
 
     @Name("Scroll player pins in terminal")
     @Comment("Display player pins at the beginning of the scrolling inventory instead of in a fixed section.")
