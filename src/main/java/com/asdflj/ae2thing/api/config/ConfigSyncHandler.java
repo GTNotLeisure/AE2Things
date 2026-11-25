@@ -1,8 +1,7 @@
 package com.asdflj.ae2thing.api.config;
 
-import java.util.Map;
-
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.network.INetHandler;
 
 import com.asdflj.ae2thing.AE2Thing;
 
@@ -14,11 +13,13 @@ import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 
 public final class ConfigSyncHandler {
 
-    static final Map<String, SyncedConfigElement> syncedElements = new Object2ObjectOpenHashMap<>();
+    static final Object2ObjectMap<String, SyncedConfigElement> syncedElements = new Object2ObjectOpenHashMap<>();
     private static boolean hasSyncedValues;
+    private static INetHandler syncHandler;
 
     static void register(SyncedConfigElement element) {
-        syncedElements.put(element.toString(), element);
+        if (syncedElements.putIfAbsent(element.getId(), element) != null)
+            throw new IllegalArgumentException("Already registered sync element: " + element.getId());
     }
 
     @SubscribeEvent
@@ -29,7 +30,9 @@ public final class ConfigSyncHandler {
         }
     }
 
-    static void onSync(PacketSyncConfig packet) {
+    static void onSync(PacketSyncConfig packet, INetHandler handler) {
+        if (hasSyncedValues && syncHandler != handler) restoreSyncedValues();
+        syncHandler = handler;
         for (Object2ObjectMap.Entry<String, String> entry : packet.syncedElements.object2ObjectEntrySet()) {
             SyncedConfigElement element = syncedElements.get(entry.getKey());
             if (element == null) continue;
@@ -44,9 +47,25 @@ public final class ConfigSyncHandler {
 
     @SubscribeEvent
     public void onClientDisconnect(ClientDisconnectionFromServerEvent event) {
+        AE2Thing.proxy.scheduleClientTask(() -> restoreSyncedValues(event.handler));
+    }
+
+    static void restoreSyncedValues(INetHandler handler) {
+        if (syncHandler == handler) restoreSyncedValues();
+    }
+
+    private static void restoreSyncedValues() {
         if (!hasSyncedValues) return;
         hasSyncedValues = false;
-        for (SyncedConfigElement element : syncedElements.values()) element.restoreValue();
+        for (SyncedConfigElement element : syncedElements.values()) {
+            try {
+                element.restoreValue();
+            } catch (RuntimeException ex) {
+                ConfigLog.error("Failed to restore config element " + element.getId(), ex);
+            }
+            hasSyncedValues |= element.isSynced();
+        }
+        if (!hasSyncedValues) syncHandler = null;
     }
 
     static boolean hasSyncedValues() {

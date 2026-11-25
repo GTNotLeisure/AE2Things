@@ -1,20 +1,25 @@
 package com.asdflj.ae2thing.api.config;
 
-import java.lang.reflect.Field;
-
 final class SyncedConfigElement {
 
-    private final Field field;
+    private final ConfigFieldParser parser;
+    private final String id;
     private final Runnable restore;
     private boolean synced;
 
-    SyncedConfigElement(Field field, Runnable restore) {
-        this.field = field;
+    SyncedConfigElement(ConfigFieldParser parser, Runnable restore) {
+        this.parser = parser;
+        this.id = parser.getField()
+            .toString();
         this.restore = restore;
     }
 
+    String getId() {
+        return id;
+    }
+
     String getValue() throws ConfigException {
-        return ConfigFieldParser.getValueAsString(null, field);
+        return parser.getValueAsString();
     }
 
     boolean isSynced() {
@@ -30,17 +35,12 @@ final class SyncedConfigElement {
     }
 
     void setSyncValue(String value) throws ConfigException {
-        ConfigFieldParser.setValueFromString(null, field, value);
+        parser.setValueFromString(value);
         synced = true;
     }
 
     void restoreValue() {
         if (synced) restore.run();
         synced = false;
-    }
-
-    @Override
-    public String toString() {
-        return field.toString();
     }
 }

@@ -23,9 +23,9 @@ public class PacketSyncConfig implements IMessage {
     PacketSyncConfig(Collection<SyncedConfigElement> elements) {
         for (SyncedConfigElement element : elements) {
             try {
-                syncedElements.put(element.toString(), element.getValue());
+                syncedElements.put(element.getId(), element.getValue());
             } catch (ConfigException ex) {
-                ConfigLog.error("Cannot serialize " + element, ex);
+                ConfigLog.error("Cannot serialize " + element.getId(), ex);
             }
         }
     }
@@ -62,7 +62,7 @@ public class PacketSyncConfig implements IMessage {
 
         @Override
         public IMessage onMessage(PacketSyncConfig message, MessageContext ctx) {
-            ConfigSyncHandler.onSync(message);
+            ConfigSyncHandler.onSync(message, ctx.netHandler);
             return null;
         }
     }

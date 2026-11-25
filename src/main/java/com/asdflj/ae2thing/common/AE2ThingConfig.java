@@ -31,71 +31,58 @@ public final class AE2ThingConfig {
 
     @Name("Enable link cell")
     @Comment("Link cells with the same UUID.")
-    @LangKey(GENERAL_LANG_KEY + ".cellLink")
     public static boolean cellLink = true;
 
     @Name("Backpack terminal magnet range")
     @Comment("Backpack terminal magnet range.")
-    @LangKey(GENERAL_LANG_KEY + ".magnetRange")
     @RangeInt(min = 8, max = 64)
     public static int magnetRange = 32;
 
     @Name("Terminal updateView thread")
     @Comment("Update the terminal view on a separate thread.")
-    @LangKey(GENERAL_LANG_KEY + ".updateViewThread")
     public static boolean updateViewThread = true;
 
     @Name("Wireless connector terminal infinity connection range")
     @Comment("Allow unlimited wireless connector terminal range.")
-    @LangKey(GENERAL_LANG_KEY + ".wirelessConnectorTerminalInfinityConnectionRange")
     public static boolean wirelessConnectorTerminalInfinityConnectionRange = true;
 
     @Name("Ex IO Port Transfer Rate")
     @Comment("Base transfer quantity for the extended IO port.")
-    @LangKey(GENERAL_LANG_KEY + ".exIOPortTransferContentsRate")
     @RangeInt(min = 256)
     public static int exIOPortTransferContentsRate = 256;
 
     @Name("Tic")
     @Comment("Allow the backpack terminal to modify Tinkers' Construct tools.")
-    @LangKey(GENERAL_LANG_KEY + ".backpackTerminalAddTicSupport")
     public static boolean backpackTerminalAddTicSupport = false;
 
     @Name("crafting history size")
     @Comment("Maximum crafting history entries.")
-    @LangKey(GENERAL_LANG_KEY + ".craftingHistorySize")
     @RangeInt(min = 100, max = 300)
     public static int craftingHistorySize = 200;
 
     @Name("Terminal baubles support")
     @Comment("Allow the 2-in-1 interface terminal and backpack terminal in any baubles slot.")
-    @LangKey(GENERAL_LANG_KEY + ".terminalBaubles")
     public static boolean terminalBaubles = true;
 
     @Name("Modern container interaction in terminal")
     @Comment("Use modern terminal clicks to fill and empty containers.")
-    @LangKey(GENERAL_LANG_KEY + ".modernInteraction")
     public static boolean modernInteraction = true;
 
     @Name("Multi-pages support")
     @Comment("Processing pattern pages in the 2-in-1 interface terminal (2-64).")
-    @LangKey(GENERAL_LANG_KEY + ".multiPagesSupport")
     @RangeInt(min = 2, max = 64)
     public static int multiPagesSupport = 2;
 
     @Name("Replace hot ingot during pattern transfer")
     @Comment("Replace hot ingot outputs with cooled ingots during processing recipe transfer.")
-    @LangKey(GENERAL_LANG_KEY + ".replaceHotIngot")
     public static boolean replaceHotIngot = true;
 
     @Name("Enhanced pins in terminal")
     @Comment("Enable enhanced native terminal pins. Modern click shortcuts also require modern container interaction.")
-    @LangKey(GENERAL_LANG_KEY + ".enhancedPins")
     public static boolean enhancedPins = true;
 
     @Name("Scroll player pins in terminal")
     @Comment("Display player pins at the beginning of the scrolling inventory instead of in a fixed section.")
-    @LangKey(GENERAL_LANG_KEY + ".scrollPlayerPins")
     @Sync(false)
     public static boolean scrollPlayerPins = false;
 
