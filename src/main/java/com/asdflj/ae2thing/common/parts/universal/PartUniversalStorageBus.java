@@ -13,6 +13,7 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
+import net.minecraft.tileentity.TileEntityChest;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants;
@@ -25,6 +26,9 @@ import com.asdflj.ae2thing.inventory.gui.GuiType;
 import com.asdflj.ae2thing.loader.ItemAndBlockHolder;
 import com.asdflj.ae2thing.util.BlockPos;
 import com.asdflj.ae2thing.util.Util;
+import com.asdflj.ae2thing.util.target.StorageBusInventoryHandler;
+import com.asdflj.ae2thing.util.target.TileTarget;
+import com.asdflj.ae2thing.util.target.TileTargetCache;
 
 import appeng.api.config.AccessRestriction;
 import appeng.api.config.ExtractionMode;
@@ -65,7 +69,6 @@ import appeng.hooks.TickHandler;
 import appeng.me.GridAccessException;
 import appeng.me.storage.MEInventoryHandler;
 import appeng.me.storage.MEMonitorPassThrough;
-import appeng.me.storage.StorageBusInventoryHandler;
 import appeng.parts.automation.PartUpgradeable;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.IterationCounter;
@@ -74,8 +77,6 @@ import appeng.util.prioitylist.FuzzyPriorityList;
 import appeng.util.prioitylist.IPartitionList;
 import appeng.util.prioitylist.OreFilteredList;
 import appeng.util.prioitylist.PrecisePriorityList;
-import appeng.util.target.TileTarget;
-import appeng.util.target.TileTargetCache;
 import buildcraft.api.transport.IPipeTile;
 import cpw.mods.fml.common.Optional;
 import cpw.mods.fml.relauncher.Side;
@@ -701,6 +702,13 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
         this.channels.clear();
     }
 
+    private static int targetHash(TileEntity target) {
+        // AE2 2.9.0's hash still walks a chest's neighbors, which can load their chunks. 2.9.1 leaves the double chest
+        // pair to TileTarget, so a chest only hashes by its own identity there. The target cache detects a changed
+        // pair either way, so both versions end up with the same hash.
+        return target instanceof TileEntityChest ? target.hashCode() : Platform.generateTileHash(target);
+    }
+
     private boolean canReuseChannels(TileTarget target) {
         if (this.channels.isEmpty()) return false;
         for (TypeChannel channel : this.channels.values()) {
@@ -724,7 +732,7 @@ public class PartUniversalStorageBus extends PartUpgradeable implements IStorage
                 .getTile(),
             this.getSide());
         final TileEntity target = targetReference == null ? null : targetReference.tile();
-        final int newHandlerHash = Platform.generateTileHash(target);
+        final int newHandlerHash = targetHash(target);
         if (this.handlerHash == newHandlerHash && this.handlerHash != 0 && this.canReuseChannels(targetReference)) {
             return;
         }

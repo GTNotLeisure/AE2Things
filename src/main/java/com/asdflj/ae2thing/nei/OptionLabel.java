@@ -83,6 +83,18 @@ public class OptionLabel extends Option {
         return this.cachedHeight;
     }
 
+    // no @Override: NEI 2.9.0 still declares these, 2.9.1 dropped them
+    // TODO : remove later
+    @Deprecated
+    public boolean showWorldSelector() {
+        return false;
+    }
+
+    @Deprecated
+    public boolean hasWorldOverride() {
+        return false;
+    }
+
     @Override
     public void draw(int mx, int my, float frame) {
         ensureLayout();
