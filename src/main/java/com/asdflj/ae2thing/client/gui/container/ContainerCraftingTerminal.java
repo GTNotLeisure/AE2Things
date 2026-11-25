@@ -14,8 +14,8 @@ import com.asdflj.ae2thing.client.gui.container.slot.SlotTicCraftingTerm;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.item.BackpackTerminalInventory;
+import com.asdflj.ae2thing.util.InvUtil;
 import com.asdflj.ae2thing.util.TicUtil;
-import com.asdflj.ae2thing.util.Util;
 import com.glodblock.github.common.item.ItemFluidDrop;
 
 import appeng.api.config.Actionable;
@@ -81,7 +81,7 @@ public class ContainerCraftingTerminal extends ContainerMonitor {
 
     private void lockSlot() {
         this.lockPlayerInventorySlot(this.it.getInventorySlot());
-        for (int s : Util.getBackpackSlot(this.getInventoryPlayer().player)) {
+        for (int s : InvUtil.getBackpackSlot(this.getInventoryPlayer().player)) {
             this.lockPlayerInventorySlot(s);
         }
 

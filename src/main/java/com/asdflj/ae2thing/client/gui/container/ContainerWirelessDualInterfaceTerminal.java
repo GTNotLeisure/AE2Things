@@ -26,8 +26,6 @@ import net.minecraftforge.fluids.FluidContainerRegistry;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
 
-import org.apache.commons.lang3.tuple.ImmutablePair;
-
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.adapter.pattern.DualInterfacePatternTarget;
 import com.asdflj.ae2thing.api.adapter.pattern.DualInterfacePatternValidators;
@@ -100,8 +98,10 @@ import appeng.util.item.AEFluidStackType;
 import appeng.util.item.AEItemStack;
 import appeng.util.item.AEItemStackType;
 import codechicken.nei.recipe.StackInfo;
+import it.unimi.dsi.fastutil.Pair;
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
+import it.unimi.dsi.fastutil.objects.ObjectObjectImmutablePair;
 
 public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
     implements IContainerCraftingPacket, IWidgetPatternContainer, IConfigurableObject, IVirtualSlotSource {
@@ -425,15 +425,15 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
     }
 
     public void doubleStacks(int value, NBTTagCompound tag) {
-        ImmutablePair<World, IInterfaceViewable> result = getWorldAndHost(tag);
+        Pair<World, IInterfaceViewable> result = getWorldAndHost(tag);
         if (result == null) return;
         // The GUI biases the slot by one when packing it into the high bits, so a negative slot means the section's
         // double button was pressed and every pattern in the interface should be scaled instead of a single one.
         final int slot = (value >> 2) - 1;
         if (slot < 0) {
-            doublePatterns(value & 0b11, result.left, result.right);
+            doublePatterns(value & 0b11, result.left(), result.right());
         } else {
-            modifyPatternInSlot(slot, value, result.left, result.right);
+            modifyPatternInSlot(slot, value, result.left(), result.right());
         }
     }
 
@@ -491,8 +491,8 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
     }
 
     public void toggleVisibility(NBTTagCompound tag) {
-        ImmutablePair<World, IInterfaceViewable> result = getWorldAndHost(tag);
-        if (result == null || !(result.right instanceof IInterfaceHost ihost)) {
+        Pair<World, IInterfaceViewable> result = getWorldAndHost(tag);
+        if (result == null || !(result.right() instanceof IInterfaceHost ihost)) {
             return;
         }
         final YesNo current = (YesNo) ihost.getInterfaceDuality()
@@ -505,7 +505,7 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
         this.scheduleInterfaceRefresh();
     }
 
-    private ImmutablePair<World, IInterfaceViewable> getWorldAndHost(NBTTagCompound tag) {
+    private Pair<World, IInterfaceViewable> getWorldAndHost(NBTTagCompound tag) {
         Util.DimensionalCoordSide intMsg = Util.DimensionalCoordSide.readFromNBT(tag);
         World w = DimensionManager.getWorld(intMsg.getDimension());
         if (w == null) return null;
@@ -525,7 +525,7 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
         }
         if (!Ae2Reflect.getTracked(this.delegateContainer)
             .containsKey(host)) return null;
-        return ImmutablePair.of(w, host);
+        return ObjectObjectImmutablePair.of(w, host);
     }
 
     private void sendToClient(IInterfaceViewable host) {
@@ -567,10 +567,10 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
 
     public void setStick(NBTTagCompound tag) {
         Util.DimensionalCoordSide c = Util.DimensionalCoordSide.readFromNBT(tag);
-        ImmutablePair<World, IInterfaceViewable> result = getWorldAndHost(tag);
+        Pair<World, IInterfaceViewable> result = getWorldAndHost(tag);
         if (result == null) return;
         if (Mods.isLegacyGt5Loaded() || Mods.isGt5UnofficialLoaded()) {
-            GTUtil.setDataStick(c.x, c.y, c.z, this.player, result.left);
+            GTUtil.setDataStick(c.x, c.y, c.z, this.player, result.left());
         }
     }
 
@@ -674,7 +674,7 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
     }
 
     public void setModifier(int val, NBTTagCompound tag) {
-        ImmutablePair<World, IInterfaceViewable> result = this.getWorldAndHost(tag);
+        Pair<World, IInterfaceViewable> result = this.getWorldAndHost(tag);
         if (result == null) return;
         ItemStack currentItem = this.player.inventory.getItemStack();
         if (currentItem != null && currentItem.getItem() instanceof ItemPatternModifier) {
@@ -683,11 +683,11 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
             boolean backwards = (val & 2) != 0;
             if (!backwards) {
                 // inject all item to pattern modifier
-                injectPatternToPatternModifier(result.right, slot, shift);
+                injectPatternToPatternModifier(result.right(), slot, shift);
             } else {
-                extractPatternToInterface(result.right);
+                extractPatternToInterface(result.right());
             }
-            this.sendToClient(result.right);
+            this.sendToClient(result.right());
         }
     }
 
@@ -737,9 +737,10 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
     }
 
     public PlaceResult tryPlacePattern(int slot, NBTTagCompound tag) {
-        ImmutablePair<World, IInterfaceViewable> result = getWorldAndHost(tag);
+        Pair<World, IInterfaceViewable> result = getWorldAndHost(tag);
         if (result == null) return PlaceResult.NO_INTERFACE;
-        IInventory patterns = result.right.getPatterns();
+        IInventory patterns = result.right()
+            .getPatterns();
         if (slot < 0 || slot >= patterns.getSizeInventory()) return PlaceResult.INVALID_SLOT;
         ItemStack item = patterns.getStackInSlot(slot);
         if (item != null) return PlaceResult.SLOT_OCCUPIED;
@@ -759,7 +760,7 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
         this.getContainer()
             .getPatternOutputSlot()
             .putStack(null);
-        this.sendToClient(result.right);
+        this.sendToClient(result.right());
         return PlaceResult.OK;
     }
 

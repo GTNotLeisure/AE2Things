@@ -47,10 +47,10 @@ import com.asdflj.ae2thing.common.item.ItemPatternModifier;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.network.CPacketRenamer;
 import com.asdflj.ae2thing.network.CPacketTerminalBtns;
+import com.asdflj.ae2thing.util.DimensionalCoordSide;
 import com.asdflj.ae2thing.util.GTUtil;
 import com.asdflj.ae2thing.util.ModAndClassUtil;
 import com.asdflj.ae2thing.util.NeCharUtil;
-import com.asdflj.ae2thing.util.Util;
 import com.asdflj.ae2thing.util.enhancedsearch.SearchTokens;
 
 import appeng.api.AEApi;
@@ -2134,7 +2134,7 @@ public class GuiBaseInterfaceWireless extends BaseMEGui
         }
 
         private NBTTagCompound getDimensionalCoordSide() {
-            Util.DimensionalCoordSide blockPos = new Util.DimensionalCoordSide(
+            DimensionalCoordSide blockPos = new DimensionalCoordSide(
                 x,
                 y,
                 z,

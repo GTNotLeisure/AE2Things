@@ -14,7 +14,7 @@ import com.asdflj.ae2thing.inventory.gui.GuiType;
 import com.asdflj.ae2thing.inventory.item.IClickableInTerminal;
 import com.asdflj.ae2thing.inventory.item.WirelessTerminal;
 import com.asdflj.ae2thing.util.Ae2Reflect;
-import com.asdflj.ae2thing.util.Util;
+import com.asdflj.ae2thing.util.DimensionalCoordSide;
 
 import appeng.api.util.IInterfaceViewable;
 import appeng.container.AEBaseContainer;
@@ -146,7 +146,7 @@ public class CPacketRenamer implements IMessage {
                         }
 
                         String name = getName(tile, message.side);
-                        Util.DimensionalCoordSide renamingTarget = new Util.DimensionalCoordSide(
+                        DimensionalCoordSide renamingTarget = new DimensionalCoordSide(
                             message.x,
                             message.y,
                             message.z,
@@ -166,7 +166,7 @@ public class CPacketRenamer implements IMessage {
                 }
                 case GET_TEXT -> {
                     if (con instanceof ContainerRenamer renamer) {
-                        Util.DimensionalCoordSide intMsg = renamer.getRenamingTarget();
+                        DimensionalCoordSide intMsg = renamer.getRenamingTarget();
                         if (intMsg == null) break;
                         World world = DimensionManager.getWorld(intMsg.getDimension());
                         if (world == null) break;
@@ -177,7 +177,7 @@ public class CPacketRenamer implements IMessage {
                 }
                 case SET_TEXT -> {
                     if (con instanceof ContainerRenamer renamer) {
-                        Util.DimensionalCoordSide intMsg = renamer.getRenamingTarget();
+                        DimensionalCoordSide intMsg = renamer.getRenamingTarget();
                         if (intMsg == null) break;
                         World world = DimensionManager.getWorld(intMsg.getDimension());
                         if (world == null) break;

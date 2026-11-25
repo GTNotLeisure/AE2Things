@@ -25,6 +25,8 @@ import com.asdflj.ae2thing.inventory.ItemBiggerAppEngInventory;
 import com.asdflj.ae2thing.inventory.ItemPatternRefillInventory;
 import com.asdflj.ae2thing.inventory.ItemPatternsInventory;
 import com.asdflj.ae2thing.inventory.SlotBackedAEStackInventory;
+import com.asdflj.ae2thing.util.DimensionalCoordSide;
+import com.asdflj.ae2thing.util.InvUtil;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.Util;
 
@@ -88,7 +90,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
     protected boolean inverted = false;
     protected boolean beSubstitute = false;
     protected int activePage = 0;
-    private Util.DimensionalCoordSide tile;
+    private DimensionalCoordSide tile;
     private long nextInterfaceScan;
     private final TerminalSettings terminalSettings = new TerminalSettings();
     private final IInventory viewCells = new AppEngInternalInventory(null, 5);
@@ -143,7 +145,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
         this.setCraftingRecipe(data.getBoolean("craftingMode"));
         NBTTagCompound tileMsg = data.getCompoundTag("clickedInterface");
         if (tileMsg != null) {
-            this.tile = Util.DimensionalCoordSide.readFromNBT(tileMsg);
+            this.tile = DimensionalCoordSide.readFromNBT(tileMsg);
         }
         this.terminalSettings.readFromNBT(ItemStackNBT.copy(is));
     }
@@ -484,9 +486,9 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
         this.setInverted(newInverted);
         this.setActivePage(0);
 
-        Util.clearAEInv(this.craftingEx);
-        Util.clearAEInv(this.outputEx);
-        Util.clearAEInv(this.crafting);
+        InvUtil.clearAEInv(this.craftingEx);
+        InvUtil.clearAEInv(this.outputEx);
+        InvUtil.clearAEInv(this.crafting);
 
         if (craftable) {
             for (int i = 0; i < this.crafting.getSizeInventory() && i < inItems.length; i++) {
@@ -501,8 +503,8 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
                 }
             }
         } else {
-            Util.putCompact(this.craftingEx, inItems);
-            Util.putCompact(this.outputEx, outItems);
+            InvUtil.putCompact(this.craftingEx, inItems);
+            InvUtil.putCompact(this.outputEx, outItems);
         }
     }
 
@@ -569,13 +571,13 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
     }
 
     @Override
-    public void setClickedInterface(Util.DimensionalCoordSide tile) {
+    public void setClickedInterface(DimensionalCoordSide tile) {
         this.tile = tile;
         this.writeToNBT();
     }
 
     @Override
-    public Util.DimensionalCoordSide getClickedInterface() {
+    public DimensionalCoordSide getClickedInterface() {
         return this.tile;
     }
 

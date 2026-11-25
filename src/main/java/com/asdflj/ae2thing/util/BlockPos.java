@@ -14,39 +14,18 @@ import net.minecraftforge.common.util.ForgeDirection;
 
 import appeng.api.util.DimensionalCoord;
 
-public class BlockPos {
-
-    private final int x;
-    private final int y;
-    private final int z;
-    private final World w;
+public record BlockPos(int x, int y, int z, World w) {
 
     public BlockPos(int x, int y, int z) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = null;
-    }
-
-    public BlockPos(int x, int y, int z, World w) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        this.w = w;
+        this(x, y, z, null);
     }
 
     public BlockPos(@Nonnull TileEntity te) {
-        this.x = te.xCoord;
-        this.y = te.yCoord;
-        this.z = te.zCoord;
-        this.w = te.getWorldObj();
+        this(te.xCoord, te.yCoord, te.zCoord, te.getWorldObj());
     }
 
     public BlockPos(@Nonnull MovingObjectPosition te, World w) {
-        this.x = te.blockX;
-        this.y = te.blockY;
-        this.z = te.blockZ;
-        this.w = w;
+        this(te.blockX, te.blockY, te.blockZ, w);
     }
 
     public BlockPos(DimensionalCoord dimensionalCoord) {
@@ -59,10 +38,6 @@ public class BlockPos {
 
     public DimensionalCoord getDimensionalCoord() {
         return new DimensionalCoord(this.w, this.x, this.y, this.z);
-    }
-
-    public BlockPos getOffSet(int x, int y, int z) {
-        return new BlockPos(this.x + x, this.y + y, this.z + z, this.w);
     }
 
     public TileEntity getTileEntity() {
@@ -87,13 +62,6 @@ public class BlockPos {
         return null;
     }
 
-    public int getBlockPosMetaData() {
-        if (w != null) {
-            return w.getBlockMetadata(x, y, z);
-        }
-        throw new IllegalArgumentException("world is null");
-    }
-
     public int getX() {
         return x;
     }
@@ -112,8 +80,8 @@ public class BlockPos {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof BlockPos pos) {
-            return pos.x == x && pos.y == y && pos.z == z && Objects.equals(pos.w, w);
+        if (obj instanceof BlockPos(int x1, int y1, int z1, World w1)) {
+            return x1 == x && y1 == y && z1 == z && Objects.equals(w1, w);
         }
         return false;
     }

@@ -48,8 +48,8 @@ public class CraftingStatePreview extends TooltipHandlerWaila {
             if (!cpus.isEmpty()) {
                 int j = 0;
                 for (CPUCraftingPreview cpu : cpus) {
-                    fontRenderer.drawStringWithShadow(cpu.name, x, y + j * HEIGHT, 0xffffff);
-                    new TooltipStackGridRenderer(cpu.itemList, maxStacksPerRow, true)
+                    fontRenderer.drawStringWithShadow(cpu.name(), x, y + j * HEIGHT, 0xffffff);
+                    new TooltipStackGridRenderer(cpu.itemList(), maxStacksPerRow, true)
                         .draw(x, y + fontRenderer.FONT_HEIGHT + j * HEIGHT, 500f);
                     j++;
                 }
@@ -90,7 +90,7 @@ public class CraftingStatePreview extends TooltipHandlerWaila {
         for (int i = 0; i < list.tagCount(); i++) {
             NBTTagCompound data = list.getCompoundTagAt(i);
             CPUCraftingPreview cpu = CPUCraftingPreview.readFromNBT(data);
-            size = Math.max(new TooltipStackGridRenderer(cpu.itemList, maxStacksPerRow, true).getWidth(), size);
+            size = Math.max(new TooltipStackGridRenderer(cpu.itemList(), maxStacksPerRow, true).getWidth(), size);
             cpus.add(cpu);
         }
         width = size;

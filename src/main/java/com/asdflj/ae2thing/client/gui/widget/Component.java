@@ -13,6 +13,7 @@ import org.lwjgl.input.Keyboard;
 import org.lwjgl.opengl.GL11;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.api.MousePos;
 import com.asdflj.ae2thing.client.gui.IInfoTerminal;
 import com.asdflj.ae2thing.client.me.IDisplayRepo;
 import com.asdflj.ae2thing.util.Info;
@@ -150,20 +151,20 @@ public class Component implements IClickable {
         return repo.getInfo(idx);
     }
 
-    public void drawUnbindBtn(Util.MousePos mouse) {
+    public void drawUnbindBtn(MousePos mouse) {
         this.unbind.visible = true;
         this.bind.visible = false;
-        this.unbind.drawButton(this.gui.mc, mouse.x - this.gui.getGuiLeft(), mouse.y - this.gui.getGuiTop());
+        this.unbind.drawButton(this.gui.mc, mouse.x() - this.gui.getGuiLeft(), mouse.y() - this.gui.getGuiTop());
     }
 
-    public void drawBindBtn(Util.MousePos mouse) {
+    public void drawBindBtn(MousePos mouse) {
         this.unbind.visible = false;
         this.bind.visible = true;
-        this.bind.drawButton(this.gui.mc, mouse.x - this.gui.getGuiLeft(), mouse.y - this.gui.getGuiTop());
+        this.bind.drawButton(this.gui.mc, mouse.x() - this.gui.getGuiLeft(), mouse.y() - this.gui.getGuiTop());
     }
 
-    private void drawSelection(Util.MousePos mouse) {
-        this.drawSelection(mouse.x, mouse.y);
+    private void drawSelection(MousePos mouse) {
+        this.drawSelection(mouse.x(), mouse.y());
     }
 
     public void drawSelection(int mouseX, int mouseY) {
@@ -175,7 +176,7 @@ public class Component implements IClickable {
     public void draw() {
         Info info = getInfo();
         if (info == null) return;
-        Util.MousePos mouse = new Util.MousePos();
+        MousePos mouse = new MousePos();
         this.highLightBtn.setWidth(render.getStringWidth(info.getPosString()));
         if (this.textField.isVisible()) {
             this.textField.drawTextBox();

@@ -1,10 +1,10 @@
 package com.asdflj.ae2thing.inventory.item;
 
-import com.asdflj.ae2thing.util.Util;
+import com.asdflj.ae2thing.util.DimensionalCoordSide;
 
 public interface IClickableInTerminal {
 
-    void setClickedInterface(Util.DimensionalCoordSide tile);
+    void setClickedInterface(DimensionalCoordSide tile);
 
-    Util.DimensionalCoordSide getClickedInterface();
+    DimensionalCoordSide getClickedInterface();
 }

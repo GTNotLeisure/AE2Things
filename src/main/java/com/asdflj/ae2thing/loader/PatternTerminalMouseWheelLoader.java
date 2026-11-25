@@ -1,6 +1,5 @@
 package com.asdflj.ae2thing.loader;
 
-import com.asdflj.ae2thing.nei.object.OrderStack;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -14,6 +13,7 @@ import com.asdflj.ae2thing.client.gui.container.ContainerInfusionPatternTerminal
 import com.asdflj.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.IPatternTerminal;
+import com.asdflj.ae2thing.nei.object.OrderStack;
 import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.storage.StorageName;

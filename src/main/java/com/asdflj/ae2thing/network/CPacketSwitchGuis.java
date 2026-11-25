@@ -11,12 +11,14 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
+import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
 import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.inventory.item.WirelessTerminal;
 import com.asdflj.ae2thing.util.BlockPos;
-import com.asdflj.ae2thing.util.Util;
+import com.asdflj.ae2thing.util.InvUtil;
 
 import appeng.client.gui.AEBaseGui;
 import appeng.container.AEBaseContainer;
@@ -79,13 +81,17 @@ public class CPacketSwitchGuis implements IMessage {
             Container cont = player.openContainer;
             World w = player.worldObj;
             if (message.guiType == GuiType.BACKPACK_TERMINAL) {
-                final int found = Util.findBackPackTerminal(player, message.is);
+                final int found = InvUtil
+                    .findEquippableTerminal(player, message.is, item -> item instanceof ItemBackpackTerminal);
                 if (found != PlayerInvType.NO_SLOT) {
                     InventoryHandler.openItemGui(player, w, found, message.guiType);
                 }
                 return null;
             } else if (message.guiType == GuiType.WIRELESS_DUAL_INTERFACE_TERMINAL) {
-                final int found = Util.findDualInterfaceTerminal(player, message.is);
+                final int found = InvUtil.findEquippableTerminal(
+                    player,
+                    message.is,
+                    item -> item instanceof ItemWirelessDualInterfaceTerminal);
                 if (found != PlayerInvType.NO_SLOT) {
                     InventoryHandler.openItemGui(player, w, found, message.guiType);
                 }
@@ -94,7 +100,7 @@ public class CPacketSwitchGuis implements IMessage {
                 InventoryHandler.openGui(player, w, new BlockPos(0, 0, 0), ForgeDirection.UNKNOWN, message.guiType);
                 return null;
             } else if (message.guiType == GuiType.PATTERN_MODIFIER) {
-                int found = Util.findPatternModifier(player);
+                int found = InvUtil.findPatternModifier(player);
                 if (found != PlayerInvType.NO_SLOT) {
                     InventoryHandler.openItemGui(player, w, found, message.guiType);
                 }

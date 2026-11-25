@@ -9,20 +9,9 @@ import com.asdflj.ae2thing.api.Constants;
 import appeng.api.storage.data.IAEStack;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-public class CPUCraftingPreview {
+public record CPUCraftingPreview(String name, long remainingItemCount, long elapsedTime, List<IAEStack<?>> itemList) {
 
-    public final String name;
-    public final long remainingItemCount;
-    public final List<IAEStack<?>> itemList;
-    public final long elapsedTime;
     public static final int maxSize = 5;
-
-    public CPUCraftingPreview(String name, long remainingItemCount, long elapsedTime, List<IAEStack<?>> list) {
-        this.name = name;
-        this.remainingItemCount = remainingItemCount;
-        this.itemList = list;
-        this.elapsedTime = elapsedTime;
-    }
 
     public void writeToNBT(NBTTagCompound data) {
         data.setString(Constants.NAME, this.name);

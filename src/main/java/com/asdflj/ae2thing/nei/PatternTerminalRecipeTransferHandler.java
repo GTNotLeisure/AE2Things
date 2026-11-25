@@ -61,8 +61,8 @@ public class PatternTerminalRecipeTransferHandler implements IOverlayHandler {
         return item.copy();
     }
 
-    private static Object findSameIngredient(ItemStack[] items, Object current,
-        Constants.MouseWheel wheel, boolean skipBoards, boolean allowFluid) {
+    private static Object findSameIngredient(ItemStack[] items, Object current, Constants.MouseWheel wheel,
+        boolean skipBoards, boolean allowFluid) {
         if (items == null || items.length == 0 || current == null) return null;
 
         for (int i = 0; i < items.length; i++) {
@@ -104,28 +104,24 @@ public class PatternTerminalRecipeTransferHandler implements IOverlayHandler {
                 } else if (g instanceof GuiWirelessDualInterfaceTerminal gui
                     && gui.getVirtualMESlotUnderMouse() instanceof DualPatternSlot virtualSlot
                     && virtualSlot.getAEStack() != null) {
-                    slotItem = virtualSlot.getAEStack()
-                        .getItemStackForNEI();
-                }
+                        slotItem = virtualSlot.getAEStack()
+                            .getItemStackForNEI();
+                    }
 
-                final boolean allowFluid = g instanceof GuiWirelessDualInterfaceTerminal dualGui && !dualGui.container.isCraftingMode();
+                final boolean allowFluid = g instanceof GuiWirelessDualInterfaceTerminal dualGui
+                    && !dualGui.container.isCraftingMode();
                 final Object current = toMouseWheelStack(slotItem, allowFluid);
 
                 if (current != null) {
                     final boolean skipBoards = NEIUtils
                         .isCircuitToBoardRecipe(btn.handlerRef.handler, btn.handlerRef.recipeIndex);
-                    final List<PositionedStack> list = btn.handlerRef.handler.getIngredientStacks(btn.handlerRef.recipeIndex);
+                    final List<PositionedStack> list = btn.handlerRef.handler
+                        .getIngredientStacks(btn.handlerRef.recipeIndex);
                     if (list == null) return false;
-                    final Constants.MouseWheel wheel = event.scrollAmount == -1
-                        ? Constants.MouseWheel.NEXT
+                    final Constants.MouseWheel wheel = event.scrollAmount == -1 ? Constants.MouseWheel.NEXT
                         : Constants.MouseWheel.PREVIEW;
                     for (PositionedStack stack : list) {
-                        final Object result = findSameIngredient(
-                            stack.items,
-                            current,
-                            wheel,
-                            skipBoards,
-                            allowFluid);
+                        final Object result = findSameIngredient(stack.items, current, wheel, skipBoards, allowFluid);
                         if (result != null) {
                             final ObjectList<OrderStack<?>> in = new ObjectArrayList<>();
                             final ObjectList<OrderStack<?>> out = new ObjectArrayList<>();

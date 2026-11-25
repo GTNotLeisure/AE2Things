@@ -6,16 +6,10 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Future;
-import java.util.function.IntFunction;
 
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.inventory.IInventory;
-import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.ChatComponentTranslation;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
@@ -25,18 +19,11 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.IFluidContainerItem;
 
 import org.jetbrains.annotations.NotNull;
-import org.lwjgl.input.Mouse;
+import org.jetbrains.annotations.Nullable;
 
 import com.asdflj.ae2thing.AE2Thing;
-import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.client.gui.IGuiMonitorTerminal;
-import com.asdflj.ae2thing.common.AE2ThingConfig;
-import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
-import com.asdflj.ae2thing.common.item.ItemPatternModifier;
-import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
-import com.asdflj.ae2thing.integration.Mods;
-import com.asdflj.ae2thing.inventory.AEStackItemInventory;
 import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.network.SPacketItemGuiHint;
 import com.glodblock.github.client.gui.FCGuiTextField;
@@ -63,23 +50,20 @@ import appeng.core.sync.packets.PacketCraftingTreeData;
 import appeng.crafting.v2.CraftingJobV2;
 import appeng.integration.modules.NEI;
 import appeng.me.cache.CraftingGridCache;
-import appeng.tile.inventory.AppEngInternalInventory;
 import appeng.util.Platform;
 import appeng.util.item.AEItemStack;
 import codechicken.nei.recipe.StackInfo;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.registry.GameRegistry;
-import it.unimi.dsi.fastutil.ints.IntArrayList;
-import it.unimi.dsi.fastutil.ints.IntList;
-import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
-import it.unimi.dsi.fastutil.ints.IntObjectPair;
 
 public class Util {
 
     private static int AE_VERSION = -1;
     private static List<IAEStackType<?>> SORTED_TYPES;
     private static int SORTED_TYPES_SIZE = -1;
+
+    // region information
 
     public static int getAEVersion() {
         if (AE_VERSION == -1) {
@@ -106,17 +90,60 @@ public class Util {
         return AE_VERSION;
     }
 
-    public static List<IAEStackType<?>> getTypes() {
-        final Collection<IAEStackType<?>> all = AEStackTypeRegistry.getAllTypes();
-        if (SORTED_TYPES == null || SORTED_TYPES_SIZE != all.size()) {
-            SORTED_TYPES = Collections.unmodifiableList(AEStackTypeRegistry.getSortedTypes());
-            SORTED_TYPES_SIZE = all.size();
+    public static String getModId(IAEItemStack item) {
+        if (item.getItem() instanceof ItemFluidDrop) {
+            FluidStack fs = ItemFluidDrop.getFluidStack(item.getItemStack());
+            if (fs == null) return GameRegistry.findUniqueIdentifierFor(item.getItem()).modId;
+            return getFluidModID(fs.getFluid());
         }
-        return SORTED_TYPES;
+        return Platform.getModId(item);
     }
 
+    public static String getFluidModID(Fluid fluid) {
+        String name = FluidRegistry.getDefaultFluidName(fluid);
+        try {
+            return name.split(":")[0];
+        } catch (Exception e) {
+            return "";
+        }
+    }
+
+    @NotNull
+    public static String getDisplayName(IAEItemStack item) {
+        FluidStack fs = StackInfo.getFluid(item.getItemStack());
+        if (fs != null) {
+            return fs.getLocalizedName();
+        }
+        return Platform.getItemDisplayName(item);
+    }
+
+    public static FluidStack getFluidFromItem(ItemStack stack) {
+        if (stack != null) {
+            if (stack.getItem() instanceof IFluidContainerItem) {
+                FluidStack fluid = ((IFluidContainerItem) stack.getItem()).getFluid(stack);
+                if (fluid != null) {
+                    FluidStack fluid0 = fluid.copy();
+                    fluid0.amount *= stack.stackSize;
+                    return fluid0;
+                }
+            }
+            if (FluidContainerRegistry.isContainer(stack)) {
+                FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(stack);
+                if (fluid != null) {
+                    FluidStack fluid0 = fluid.copy();
+                    fluid0.amount *= stack.stackSize;
+                    return fluid0;
+                }
+            }
+        }
+        return null;
+    }
+
+    // endregion
+    // region Crafting jobs
+
     @SuppressWarnings("rawtypes")
-    public static boolean replan(EntityPlayer player, appeng.container.implementations.ContainerCraftConfirm c) {
+    public static boolean replan(EntityPlayer player, ContainerCraftConfirm c) {
         if (Ae2Reflect.getJob(c) == null) {
             return false;
         }
@@ -175,99 +202,62 @@ public class Util {
         player.addChatMessage(new ChatComponentTranslation("ae2thing.chat.crafting_tree_unavailable"));
     }
 
-    public static boolean isSameDimensionalCoord(DimensionalCoord a, DimensionalCoord b) {
-        return a != null && b != null && a.x == b.x && a.y == b.y && a.z == b.z && a.getDimension() == b.getDimension();
-    }
+    // endregion
+    // region stack types and conversion
 
-    public static int findBackPackTerminal(EntityPlayer player, ItemStack is) {
-        return findEquippableTerminal(player, is, ItemBackpackTerminal.class);
-    }
-
-    public static int findDualInterfaceTerminal(EntityPlayerMP player, ItemStack is) {
-        return findEquippableTerminal(player, is, ItemWirelessDualInterfaceTerminal.class);
-    }
-
-    private static int findEquippableTerminal(EntityPlayer player, ItemStack is, Class<? extends Item> type) {
-        IntObjectPair<ItemStack> found = scanItem(player, PlayerInvType.PLAYER_INV, is, type);
-        if (found != null) return found.leftInt();
-        if (!AE2ThingConfig.terminalBaubles) return PlayerInvType.NO_SLOT;
-        found = scanItem(player, PlayerInvType.PLAYER_BAUBLES, is, type);
-        return found != null ? found.leftInt() : PlayerInvType.NO_SLOT;
-    }
-
-    public static int findPatternModifier(EntityPlayer player) {
-        IntObjectPair<ItemStack> found = scanItem(player, PlayerInvType.PLAYER_INV, null, ItemPatternModifier.class);
-        return found != null ? found.leftInt() : PlayerInvType.NO_SLOT;
-    }
-
-    public static String getModId(IAEItemStack item) {
-        if (item.getItem() instanceof ItemFluidDrop) {
-            FluidStack fs = ItemFluidDrop.getFluidStack(item.getItemStack());
-            if (fs == null) return GameRegistry.findUniqueIdentifierFor(item.getItem()).modId;
-            return getFluidModID(fs.getFluid());
+    public static List<IAEStackType<?>> getTypes() {
+        final Collection<IAEStackType<?>> all = AEStackTypeRegistry.getAllTypes();
+        if (SORTED_TYPES == null || SORTED_TYPES_SIZE != all.size()) {
+            SORTED_TYPES = Collections.unmodifiableList(AEStackTypeRegistry.getSortedTypes());
+            SORTED_TYPES_SIZE = all.size();
         }
-        return Platform.getModId(item);
+        return SORTED_TYPES;
     }
 
-    public static String getFluidModID(Fluid fluid) {
-        String name = FluidRegistry.getDefaultFluidName(fluid);
-        try {
-            return name.split(":")[0];
-        } catch (Exception e) {
-            return "";
+    public static IAEStack<?> toAEStack(ItemStack is) {
+        if (is == null || is.getItem() == null) return null;
+
+        for (IAEStackType<?> type : getTypes()) {
+            final IAEStack<?> converted = toAEStack(type, is);
+            if (converted != null) return converted;
         }
+        return AEItemStack.create(is);
     }
 
-    @NotNull
-    public static String getDisplayName(IAEItemStack item) {
-        FluidStack fs = StackInfo.getFluid(item.getItemStack());
-        if (fs != null) {
-            return fs.getLocalizedName();
-        }
-        return Platform.getItemDisplayName(item);
+    public static IAEStack<?> toAEStack(IAEStackType<?> type, ItemStack is) {
+        if (type == null || is == null || is.getItem() == null) return null;
+
+        final IAEStack<?> converted = type.convertStackFromItem(is);
+        return converted != null ? converted : type.getStackFromContainerItem(is);
     }
 
-    public static FluidStack getFluidFromItem(ItemStack stack) {
-        if (stack != null) {
-            if (stack.getItem() instanceof IFluidContainerItem) {
-                FluidStack fluid = ((IFluidContainerItem) stack.getItem()).getFluid(stack);
-                if (fluid != null) {
-                    FluidStack fluid0 = fluid.copy();
-                    fluid0.amount *= stack.stackSize;
-                    return fluid0;
-                }
-            }
-            if (FluidContainerRegistry.isContainer(stack)) {
-                FluidStack fluid = FluidContainerRegistry.getFluidForFilledItem(stack);
-                if (fluid != null) {
-                    FluidStack fluid0 = fluid.copy();
-                    fluid0.amount *= stack.stackSize;
-                    return fluid0;
-                }
-            }
+    public static IAEStack<?> toPatternStack(ItemStack is) {
+        if (is == null || is.getItem() == null) return null;
+
+        final IAEStack<?> converted = tryConvertDisplayStack(is);
+        return converted != null ? converted : AEItemStack.create(is);
+    }
+
+    public static IAEStack<?> toPatternStack(IAEStack<?> stack) {
+        if (!(stack instanceof IAEItemStack item)) return stack;
+
+        final ItemStack is = item.getItemStack();
+        if (is == null || is.getItem() == null) return item;
+
+        final IAEStack<?> converted = tryConvertDisplayStack(is);
+        return converted != null ? converted : stack;
+    }
+
+    private static IAEStack<?> tryConvertDisplayStack(ItemStack is) {
+        for (IAEStackType<?> type : getTypes()) {
+            final IAEStack<?> converted = type.convertStackFromItem(is.copy());
+            if (converted != null) return converted;
         }
+
         return null;
     }
 
-    public static IntList getBackpackSlot(EntityPlayer player) {
-        IntList result = new IntArrayList();
-        for (int x = 0; x < player.inventory.mainInventory.length; x++) {
-            ItemStack item = player.inventory.mainInventory[x];
-            if (item == null || item.getItem() == null) continue;
-            if (AE2ThingAPI.instance()
-                .isBackpackItem(item)) {
-                result.add(x);
-            }
-        }
-        return result;
-    }
-
-    public static IDisplayRepo getDisplayRepo(AEBaseGui gui) {
-        if (gui instanceof IGuiMonitorTerminal gmt) {
-            return gmt.getRepo();
-        }
-        return getDisplayRepo(gui, gui.getClass());
-    }
+    // endregion
 
     public static void setSearchFieldText(AEBaseGui gui, String text) {
         String displayName = NEI.searchField.getEscapedSearchText(text);
@@ -288,41 +278,11 @@ public class Util {
         }
     }
 
-    public static IAEStack<?> toAEStack(ItemStack is) {
-        if (is == null || is.getItem() == null) return null;
-        for (IAEStackType<?> type : Util.getTypes()) {
-            final IAEStack<?> converted = toAEStack(type, is);
-            if (converted != null) return converted;
+    public static IDisplayRepo getDisplayRepo(AEBaseGui gui) {
+        if (gui instanceof IGuiMonitorTerminal gmt) {
+            return gmt.getRepo();
         }
-        return AEItemStack.create(is);
-    }
-
-    public static IAEStack<?> toAEStack(IAEStackType<?> type, ItemStack is) {
-        if (type == null || is == null || is.getItem() == null) return null;
-        final IAEStack<?> converted = type.convertStackFromItem(is);
-        return converted != null ? converted : type.getStackFromContainerItem(is);
-    }
-
-    public static IAEStack<?> toPatternStack(ItemStack is) {
-        if (is == null || is.getItem() == null) return null;
-
-        for (IAEStackType<?> type : Util.getTypes()) {
-            final IAEStack<?> converted = type.convertStackFromItem(is.copy());
-            if (converted != null) return converted;
-        }
-
-        return AEItemStack.create(is);
-    }
-
-    public static IAEStack<?> toPatternStack(IAEStack<?> stack) {
-        if (!(stack instanceof IAEItemStack item)) return stack;
-        final ItemStack is = item.getItemStack();
-        if (is == null || is.getItem() == null) return item;
-        for (final IAEStackType<?> type : Util.getTypes()) {
-            final IAEStack<?> converted = type.convertStackFromItem(is);
-            if (converted != null) return converted;
-        }
-        return item;
+        return getDisplayRepo(gui, gui.getClass());
     }
 
     @SuppressWarnings("unchecked")
@@ -377,35 +337,6 @@ public class Util {
         if (stack != null) AE2Thing.proxy.netHandler.sendTo(new SPacketItemGuiHint(x, stack), player);
     }
 
-    private static IntObjectPair<ItemStack> scanItem(EntityPlayer player, PlayerInvType type, ItemStack stack,
-        Class<? extends Item> target) {
-        if (type == PlayerInvType.PLAYER_BAUBLES && !Mods.BAUBLES.isModLoaded()) return null;
-        int size = player.inventory.mainInventory.length;
-        IntFunction<ItemStack> accessor = i -> player.inventory.getStackInSlot(i);
-        if (type == PlayerInvType.PLAYER_BAUBLES) {
-            final IInventory baubles = BaublesUtil.getBaublesInv(player);
-            if (baubles == null) return null;
-            size = baubles.getSizeInventory();
-            accessor = baubles::getStackInSlot;
-        }
-
-        int fallbackSlot = PlayerInvType.NO_SLOT;
-        ItemStack fallback = null;
-        for (int i = 0; i < size; i++) {
-            ItemStack item = accessor.apply(i);
-            if (item == null || !(target.isInstance(item.getItem()))) continue;
-            if (stack != null && Platform.isSameItemPrecise(item, stack)) {
-                return new IntObjectImmutablePair<>(PlayerInvType.encode(i, type), item);
-            }
-            if (fallback == null) {
-                fallbackSlot = i;
-                fallback = item;
-            }
-        }
-        return fallback == null ? null
-            : new IntObjectImmutablePair<>(PlayerInvType.encode(fallbackSlot, type), fallback);
-    }
-
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public static boolean sameStackType(ItemStack first, ItemStack second) {
         return first != null && second != null
@@ -431,78 +362,7 @@ public class Util {
         return count;
     }
 
-    public static void clearAEInv(AEStackItemInventory inv) {
-        for (int i = 0; i < inv.getSizeInventory(); i++) {
-            inv.putAEStackInSlot(i, null);
-        }
-    }
-
-    public static void clearAEInv(AppEngInternalInventory inv) {
-        for (int i = 0; i < inv.getSizeInventory(); i++) {
-            inv.setInventorySlotContents(i, null);
-        }
-    }
-
-    public static void putCompact(AEStackItemInventory inventory, IAEStack<?>[] stacks) {
-        int index = 0;
-        for (IAEStack<?> stack : stacks) {
-            if (stack != null) {
-                inventory.putAEStackInSlot(index++, stack.copy());
-            }
-        }
-    }
-
-    public static class DimensionalCoordSide extends DimensionalCoord {
-
-        private final ForgeDirection side;
-        private final String name;
-
-        public DimensionalCoordSide(final int _x, final int _y, final int _z, final int _dim, ForgeDirection side,
-            String name) {
-            super(_x, _y, _z, _dim);
-            this.side = side;
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public ForgeDirection getSide() {
-            return this.side;
-        }
-
-        @Override
-        public void writeToNBT(NBTTagCompound data) {
-            data.setInteger(Constants.SIDE, this.side.ordinal());
-            data.setString(Constants.NAME, this.name);
-            super.writeToNBT(data);
-        }
-
-        public static DimensionalCoordSide readFromNBT(final NBTTagCompound data) {
-            return new DimensionalCoordSide(
-                data.getInteger("x"),
-                data.getInteger("y"),
-                data.getInteger("z"),
-                data.getInteger("dim"),
-                ForgeDirection.getOrientation(data.getInteger(Constants.SIDE)),
-                data.getString(Constants.NAME));
-        }
-
-    }
-
-    public static class MousePos {
-
-        public final int x;
-        public final int y;
-
-        public MousePos() {
-            Minecraft mc = Minecraft.getMinecraft();
-            final ScaledResolution scaledresolution = new ScaledResolution(mc, mc.displayWidth, mc.displayHeight);
-            int i = scaledresolution.getScaledWidth();
-            int j = scaledresolution.getScaledHeight();
-            x = Mouse.getX() * i / mc.displayWidth;
-            y = j - Mouse.getY() * j / mc.displayHeight - 1;
-        }
+    public static boolean isSameDimensionalCoord(@Nullable DimensionalCoord a, @Nullable DimensionalCoord b) {
+        return a != null && b != null && a.x == b.x && a.y == b.y && a.z == b.z && a.getDimension() == b.getDimension();
     }
 }
