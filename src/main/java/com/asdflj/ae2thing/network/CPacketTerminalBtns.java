@@ -7,12 +7,12 @@ import java.io.IOException;
 import net.minecraft.inventory.Container;
 import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.ChatComponentTranslation;
 
 import com.asdflj.ae2thing.client.gui.container.ContainerWirelessConnectorTerminal;
 import com.asdflj.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.client.gui.container.IPatternContainer;
 import com.asdflj.ae2thing.client.gui.container.widget.IWidgetPatternContainer;
+import com.asdflj.ae2thing.client.localization.Messages;
 import com.asdflj.ae2thing.util.Util;
 
 import appeng.container.implementations.ContainerCraftConfirm;
@@ -190,8 +190,7 @@ public class CPacketTerminalBtns implements IMessage {
             }
             if (name.equals("GuiCraftConfirm.replan") && c instanceof ContainerCraftConfirm ccc) {
                 if (!Util.replan(ctx.getServerHandler().playerEntity, ccc)) {
-                    ctx.getServerHandler().playerEntity
-                        .addChatMessage(new ChatComponentTranslation("ae2thing.chat.replan_failed"));
+                    ctx.getServerHandler().playerEntity.addChatMessage(Messages.replan_failed.toChat());
                 }
             }
             if (name.equals("GuiCraftConfirm.requestTree") && c instanceof ContainerCraftConfirm ccc) {

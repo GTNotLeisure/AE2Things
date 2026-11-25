@@ -5,13 +5,13 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.ResourceLocation;
-import net.minecraft.util.StatCollector;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 
 import com.vcwdfca.appbot.client.ManaIcons;
+import com.vcwdfca.appbot.client.localization.Tooltips;
 import com.vcwdfca.appbot.item.ItemManaMarker;
 import com.vcwdfca.appbot.util.ManaContainer;
 
@@ -26,8 +26,6 @@ public class AEManaStackType implements IAEStackType<AEManaStack> {
 
     public static final AEManaStackType MANA_STACK_TYPE = new AEManaStackType();
     public static final String MANA_STACK_ID = "mana";
-    private static final String unlocalized = "ab.mana.name";
-    private static final String unlocalized_unit = "ab.mana.unit";
 
     public static final int AMOUNT_PER_UNIT = 1_000_000;
     public static final int AMOUNT_PER_BYTE = 500;
@@ -39,12 +37,12 @@ public class AEManaStackType implements IAEStackType<AEManaStack> {
 
     @Override
     public String getDisplayName() {
-        return StatCollector.translateToLocal(unlocalized);
+        return Tooltips.name.getLocal();
     }
 
     @Override
     public String getDisplayUnit() {
-        return StatCollector.translateToLocal(unlocalized_unit);
+        return Tooltips.unit.getLocal();
     }
 
     @Override

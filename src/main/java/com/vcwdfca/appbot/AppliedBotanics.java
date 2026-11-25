@@ -24,6 +24,7 @@ import cpw.mods.fml.common.event.FMLPreInitializationEvent;
 public class AppliedBotanics {
 
     public static final String MODID = "ae2thing_ab";
+    public static final String ID = "ab";
     public static final String NAME = "Applied Botanics";
 
     @SidedProxy(

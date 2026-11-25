@@ -2,7 +2,6 @@ package com.asdflj.ae2thing.crossmod.waila;
 
 import java.util.List;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
@@ -10,8 +9,8 @@ import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.world.World;
 
+import com.asdflj.ae2thing.client.localization.Messages;
 import com.asdflj.ae2thing.common.tile.TileWirelessDistributor;
-import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.core.localization.WailaText;
 import appeng.integration.modules.waila.BaseWailaDataProvider;
@@ -39,7 +38,7 @@ public class WirelessDistributor extends BaseWailaDataProvider {
                 tile.getColor()
                     .toString());
             if (data.getBoolean(SCANNING)) {
-                currentToolTip.add(EnumChatFormatting.GREEN + I18n.format(NameConst.MESSAGE_SCANNING));
+                currentToolTip.add(EnumChatFormatting.GREEN + Messages.scanning.getLocal());
             }
 
         }

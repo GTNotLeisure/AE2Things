@@ -4,8 +4,8 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.StatCollector;
 
+import com.asdflj.ae2thing.client.localization.ButtonTooltips;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 
 import appeng.client.gui.implementations.GuiMEMonitorable;
@@ -38,8 +38,8 @@ public final class PinTooltips {
         if (!AE2ThingConfig.modernInteraction) return false;
         if (pin != null && !pin.isCraftingSlot() && slot.getAEStack() == null && hand.effective() != null) {
             lines.clear();
-            lines.add(text("set_body"));
-            lines.add(text("set_content"));
+            lines.add(ButtonTooltips.set_body.getLocal(EnumChatFormatting.DARK_GRAY));
+            lines.add(ButtonTooltips.set_content.getLocal(EnumChatFormatting.DARK_GRAY));
             return true;
         }
         if (hand.ghost() != null) {
@@ -58,11 +58,22 @@ public final class PinTooltips {
     }
 
     static void addItemHints(List<String> lines, boolean modern, boolean pin) {
-        if (modern) lines.add(text("toggle"));
-        if (pin) lines.add(text("remove"));
+        if (modern) lines.add(ButtonTooltips.toggle.getLocal(EnumChatFormatting.DARK_GRAY));
+        if (pin) lines.add(ButtonTooltips.remove.getLocal(EnumChatFormatting.DARK_GRAY));
     }
 
-    private static String text(String name) {
-        return EnumChatFormatting.DARK_GRAY + StatCollector.translateToLocal("ae2thing.gui.pin." + name);
+    public static String buttonMode(boolean scrolling) {
+        final ButtonTooltips mode = scrolling ? ButtonTooltips.scrolling : ButtonTooltips.fixed;
+        return mode.getLocal();
+    }
+
+    public static String buttonDetails(boolean altHeld, boolean modern) {
+        if (!altHeld) return ButtonTooltips.hold_alt.getLocal();
+        String details = ButtonTooltips.rows.getLocal() + "\n"
+            + ButtonTooltips.display.getLocal()
+            + "\n"
+            + ButtonTooltips.remove.getLocal();
+        if (modern) details += "\n" + ButtonTooltips.inventory.getLocal();
+        return details.replace("\\n", "\n");
     }
 }

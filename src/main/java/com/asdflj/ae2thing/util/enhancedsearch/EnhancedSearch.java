@@ -3,7 +3,8 @@ package com.asdflj.ae2thing.util.enhancedsearch;
 import java.util.List;
 
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
+
+import com.asdflj.ae2thing.client.localization.SearchTooltips;
 
 import codechicken.nei.recipe.IRecipeHandler;
 import codechicken.nei.recipe.RecipeCatalysts;
@@ -144,16 +145,13 @@ public final class EnhancedSearch {
     }
 
     public static String summary(int visible) {
-        return visible == 0 ? StatCollector.translateToLocal("ae2thing.interface_terminal.search.empty")
-            : StatCollector.translateToLocalFormatted("ae2thing.interface_terminal.search.hits", visible);
+        return visible == 0 ? SearchTooltips.empty.getLocal() : SearchTooltips.hits.getLocal(visible);
     }
 
     public static String summary(int visible, int modeMismatched) {
         final String summary = summary(visible);
         if (modeMismatched <= 0) return summary;
-        return summary + '\n'
-            + StatCollector
-                .translateToLocalFormatted("ae2thing.interface_terminal.search.mode_mismatch", modeMismatched);
+        return summary + '\n' + SearchTooltips.mode_mismatch.getLocal(modeMismatched);
     }
 
     public static boolean looksLikeQuery(String text) {
@@ -175,16 +173,16 @@ public final class EnhancedSearch {
         final String text = rawText == null ? "" : rawText.trim();
         if (!text.isEmpty()) {
             tooltip.append('\n')
-                .append(StatCollector.translateToLocalFormatted("ae2thing.interface_terminal.search.current", text));
+                .append(SearchTooltips.current.getLocal(text));
         }
         if (!enabled && looksLikeQuery(text)) {
             tooltip.append('\n')
-                .append(StatCollector.translateToLocal("ae2thing.interface_terminal.search.disabled"));
+                .append(SearchTooltips.disabled.getLocal());
         }
         final String pool = debug ? describe(query) : null;
         if (pool != null) {
             tooltip.append('\n')
-                .append(StatCollector.translateToLocalFormatted("ae2thing.interface_terminal.search.pool", pool));
+                .append(SearchTooltips.pool.getLocal(pool));
         }
         return tooltip.toString();
     }
@@ -203,13 +201,8 @@ public final class EnhancedSearch {
         if (poolIds.isEmpty()) {
             final List<String> suggestions = RecipeSearchAlias.suggestions(head, 5);
             return Query.invalid(
-                suggestions.isEmpty()
-                    ? StatCollector
-                        .translateToLocalFormatted("ae2thing.interface_terminal.search.invalid.category_only", head)
-                    : StatCollector.translateToLocalFormatted(
-                        "ae2thing.interface_terminal.search.invalid.category_hint",
-                        head,
-                        String.join(", ", suggestions)));
+                suggestions.isEmpty() ? SearchTooltips.category_only.getLocal(head)
+                    : SearchTooltips.category_hint.getLocal(head, String.join(", ", suggestions)));
         }
 
         final List<String> hints = new ObjectArrayList<>();

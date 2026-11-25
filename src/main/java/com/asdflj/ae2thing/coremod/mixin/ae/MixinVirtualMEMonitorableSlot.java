@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.StatCollector;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -15,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.asdflj.ae2thing.client.ModernContainerInteraction;
+import com.asdflj.ae2thing.client.localization.ButtonTooltips;
 import com.asdflj.ae2thing.client.pin.PinTooltips;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 
@@ -23,13 +23,6 @@ import appeng.client.gui.slots.VirtualMEMonitorableSlot;
 @SuppressWarnings("UnusedMixin")
 @Mixin(VirtualMEMonitorableSlot.class)
 public abstract class MixinVirtualMEMonitorableSlot {
-
-    @Unique
-    private static final String KEY_STORE_ACTION = "ae2thing.gui.terminal.store_action";
-    @Unique
-    private static final String KEY_LEFT_CLICK = "ae2thing.gui.terminal.left_click";
-    @Unique
-    private static final String KEY_RIGHT_CLICK = "ae2thing.gui.terminal.right_click";
 
     @Inject(method = "addTooltip", at = @At("HEAD"), cancellable = true, remap = false)
     private void ae2t$modernInteractionTooltip(List<String> lines, CallbackInfo ci) {
@@ -45,8 +38,8 @@ public abstract class MixinVirtualMEMonitorableSlot {
             final ItemStack hand = player.inventory.getItemStack();
             final String contained = ModernContainerInteraction.getContainedDisplayName(hand);
             if (contained != null) {
-                lines.add(storeAction(KEY_LEFT_CLICK, hand.getDisplayName()));
-                lines.add(storeAction(KEY_RIGHT_CLICK, contained));
+                lines.add(storeAction(ButtonTooltips.left_click, hand.getDisplayName()));
+                lines.add(storeAction(ButtonTooltips.right_click, contained));
             }
         }
         ci.cancel();
@@ -54,10 +47,10 @@ public abstract class MixinVirtualMEMonitorableSlot {
 
     @SuppressWarnings("AddedMixinMembersNamePattern")
     @Unique
-    private static String storeAction(String clickKey, String displayName) {
-        return EnumChatFormatting.DARK_GRAY + StatCollector.translateToLocalFormatted(
-            KEY_STORE_ACTION,
-            StatCollector.translateToLocal(clickKey),
+    private static String storeAction(ButtonTooltips click, String displayName) {
+        return ButtonTooltips.store_action.getLocal(
+            EnumChatFormatting.DARK_GRAY,
+            click.getLocal(),
             EnumChatFormatting.GRAY + displayName + EnumChatFormatting.DARK_GRAY);
     }
 }

@@ -4,7 +4,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
@@ -21,7 +20,6 @@ import com.asdflj.ae2thing.inventory.item.IItemInventory;
 import com.asdflj.ae2thing.nei.NEIUtils;
 import com.asdflj.ae2thing.util.BlockPos;
 import com.asdflj.ae2thing.util.ItemStackNBT;
-import com.asdflj.ae2thing.util.NameConst;
 
 public abstract class BaseCellItem extends BaseItem implements IItemInventory, IBaseCellItem, IItemInventoryHandler {
 
@@ -58,21 +56,21 @@ public abstract class BaseCellItem extends BaseItem implements IItemInventory, I
         if (GuiScreen.isShiftKeyDown()) {
             addToolTips(stack, player, lines, displayMoreInfo);
         } else {
-            lines.add(I18n.format(NameConst.TT_SHIFT_FOR_MORE));
+            lines.add(Tooltips.shift_for_more.getLocal());
         }
     }
 
     @Override
     public void addToolTips(ItemStack stack, EntityPlayer player, List<String> lines, boolean displayMoreInfo) {
         if (!AE2ThingConfig.cellLink) {
-            lines.add(I18n.format(NameConst.TT_CELL_LINK_DISABLE));
+            lines.add(Tooltips.cell_link_disabled.getLocal());
             return;
         }
         ItemStackNBT data = ItemStackNBT.of(stack);
-        if (data.getBoolean(Constants.LINKED)) lines.add(I18n.format(NameConst.TT_LINKED));
+        if (data.getBoolean(Constants.LINKED)) lines.add(Tooltips.linked.getLocal());
         lines.addAll(
             Arrays.asList(
-                I18n.format(NameConst.TT_CELL_LINK_DESC)
+                Tooltips.cell_link_desc.getLocal()
                     .split("\\\\n")));
         if (Mods.NOT_ENOUGH_ITEMS.isModLoaded()) {
             lines.add(Tooltips.for_full_contents.getLocal(NEIUtils.getUsageKey()));

@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderHelper;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.nbt.NBTTagCompound;
 
 import org.lwjgl.opengl.GL11;
@@ -16,9 +15,9 @@ import org.lwjgl.opengl.GL12;
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.Constants;
+import com.asdflj.ae2thing.client.localization.GuiTexts;
 import com.asdflj.ae2thing.network.CPacketTerminalBtns;
 import com.asdflj.ae2thing.util.Info;
-import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.api.util.AEColor;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
@@ -55,7 +54,7 @@ public class THGuiSelection extends BaseGuiButton implements IScrollable {
                 .collect(Collectors.toCollection(ObjectArrayList::new));
             drawHistorySelection(
                 this.component.getX() + this.component.getRender()
-                    .getStringWidth(I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_COLOR) + ": "),
+                    .getStringWidth(GuiTexts.color.getLocal() + ": "),
                 this.component.getY() - 1,
                 info.getColor(),
                 50,

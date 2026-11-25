@@ -3,12 +3,12 @@ package com.vcwdfca.appbot.ae;
 import net.minecraft.client.Minecraft;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import org.jetbrains.annotations.Nullable;
 
 import com.vcwdfca.appbot.AppliedBotanics;
+import com.vcwdfca.appbot.client.localization.Tooltips;
 
 import appeng.api.config.FuzzyMode;
 import appeng.api.storage.StorageChannel;
@@ -21,7 +21,7 @@ import io.netty.buffer.ByteBuf;
 
 public class AEManaStack extends AEStack<AEManaStack> {
 
-    private static final String unlocalized = "ab.mana.name";
+    private static final Tooltips unlocalized = Tooltips.name;
 
     private static final String TAG_AMOUNT = "Cnt";
     private static final String TAG_REQUESTABLE = "Req";
@@ -127,12 +127,12 @@ public class AEManaStack extends AEStack<AEManaStack> {
 
     @Override
     public String getUnlocalizedName() {
-        return unlocalized;
+        return unlocalized.getUnlocalized();
     }
 
     @Override
     public String getDisplayName() {
-        return StatCollector.translateToLocal(unlocalized);
+        return unlocalized.getLocal();
     }
 
     @Override

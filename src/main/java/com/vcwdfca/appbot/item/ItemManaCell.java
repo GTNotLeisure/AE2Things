@@ -6,7 +6,6 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.StatCollector;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -15,6 +14,7 @@ import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.vcwdfca.appbot.AppBotTabs;
 import com.vcwdfca.appbot.AppliedBotanics;
 import com.vcwdfca.appbot.ae.AEManaStackType;
+import com.vcwdfca.appbot.client.localization.Tooltips;
 import com.vcwdfca.appbot.util.ManaFormat;
 
 import appeng.api.AEApi;
@@ -149,8 +149,8 @@ public class ItemManaCell extends BaseItem implements IStorageCell {
     @Override
     protected void addCheckedInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advanced) {
         list.add(
-            EnumChatFormatting.GRAY + StatCollector.translateToLocalFormatted(
-                "ab.mana.cell.stored",
+            Tooltips.cell_stored.getLocal(
+                EnumChatFormatting.GRAY,
                 ManaFormat.format(this.getStoredMana(stack)),
                 ManaFormat.format(this.getMaxMana())));
     }

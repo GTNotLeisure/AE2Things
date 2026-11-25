@@ -5,19 +5,18 @@ import static net.minecraft.client.gui.GuiScreen.isShiftKeyDown;
 import java.util.Arrays;
 import java.util.List;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
 import net.minecraft.network.play.server.S29PacketSoundEffect;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.Vec3;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.PatternModifierModeObject;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
@@ -57,9 +56,7 @@ public class ItemPatternModifier extends BaseItem implements IItemInventory {
             if (!PatternModifierModeObject.isBlockUseFallback(player)) {
                 PatternModifierModeObject.Mode mode = PatternModifierModeObject.nextMode(item);
                 if (Platform.isClient()) {
-                    player.addChatComponentMessage(
-                        new ChatComponentText(
-                            I18n.format(NameConst.PATTERN_MODIFIER_CURRENT_MODE) + " " + I18n.format(mode.langKey)));
+                    player.addChatComponentMessage(Tooltips.pattern_modifier_mode.toChat(mode.toChat()));
                 }
             }
         } else {
@@ -77,15 +74,16 @@ public class ItemPatternModifier extends BaseItem implements IItemInventory {
     protected void addCheckedInformation(ItemStack stack, EntityPlayer player, List<String> lines,
         boolean displayMoreInfo) {
         lines.add(
-            I18n.format(NameConst.PATTERN_MODIFIER_CURRENT_MODE) + " "
-                + I18n.format(PatternModifierModeObject.getMode(stack).langKey));
+            Tooltips.pattern_modifier_mode.getLocal(
+                PatternModifierModeObject.getMode(stack)
+                    .getLocal()));
         if (isShiftKeyDown()) {
             lines.addAll(
                 Arrays.asList(
-                    I18n.format(NameConst.TT_PATTERN_MODIFIER_DESC)
+                    Tooltips.pattern_modifier_desc.getLocal()
                         .split("\\\\n")));
         } else {
-            lines.add(I18n.format(NameConst.TT_SHIFT_FOR_MORE));
+            lines.add(Tooltips.shift_for_more.getLocal());
         }
     }
 

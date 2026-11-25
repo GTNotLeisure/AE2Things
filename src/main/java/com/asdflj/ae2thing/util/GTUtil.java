@@ -13,11 +13,11 @@ import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 import net.minecraftforge.oredict.OreDictionary;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.client.localization.Messages;
 import com.asdflj.ae2thing.integration.Compat;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.nei.ButtonConstants;
@@ -149,7 +149,7 @@ public class GTUtil {
                 dataStick.setTagCompound(tag);
                 dataStick
                     .setStackDisplayName("Crafting Input Buffer Link Data Stick (" + x + ", " + y + ", " + z + ")");
-                player.addChatMessage(new ChatComponentText("Saved Link Data to Data Stick"));
+                player.addChatMessage(Messages.data_stick_link_saved.toChat());
                 SPacketMEItemInvUpdate packet = new SPacketMEItemInvUpdate(UPDATE_PLAYER_ITEM);
                 packet.appendItem(AEItemStack.create(dataStick));
                 AE2Thing.proxy.netHandler.sendTo(packet, (EntityPlayerMP) player);

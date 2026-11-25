@@ -7,10 +7,10 @@ import javax.annotation.Nullable;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.common.parts.PartInfusionPatternTerminal;
 import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
 import com.asdflj.ae2thing.util.NameConst;
@@ -69,7 +69,7 @@ public class ItemPartInfusionPatternTerminal extends BaseItem implements IPartIt
         boolean displayMoreInfo) {
         super.addCheckedInformation(stack, player, lines, displayMoreInfo);
         if (Util.getAEVersion() >= 1080) {
-            lines.add(StatCollector.translateToLocal("item.deprecation"));
+            lines.add(Tooltips.deprecation.getLocal());
         }
     }
 }

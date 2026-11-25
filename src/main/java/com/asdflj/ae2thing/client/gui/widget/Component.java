@@ -6,7 +6,6 @@ import static com.asdflj.ae2thing.api.Constants.SELECTED_COLOR;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.FontRenderer;
 import net.minecraft.client.gui.GuiTextField;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.util.ResourceLocation;
 
 import org.lwjgl.input.Keyboard;
@@ -15,9 +14,10 @@ import org.lwjgl.opengl.GL11;
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.MousePos;
 import com.asdflj.ae2thing.client.gui.IInfoTerminal;
+import com.asdflj.ae2thing.client.localization.ButtonTooltips;
+import com.asdflj.ae2thing.client.localization.GuiTexts;
 import com.asdflj.ae2thing.client.me.IDisplayRepo;
 import com.asdflj.ae2thing.util.Info;
-import com.asdflj.ae2thing.util.NameConst;
 import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.util.AEColor;
@@ -54,8 +54,7 @@ public class Component implements IClickable {
         this.render = gui.getFontRenderer();
         this.x = x;
         this.y = y + offsetY * idx;
-        this.textField.x = x
-            + this.render.getStringWidth(I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_NAME) + ": ");
+        this.textField.x = x + this.render.getStringWidth(GuiTexts.name.getLocal() + ": ");
         this.textField.y = this.y - 2;
         this.textField.setVisible(false);
         this.bind = new THGuiButton(
@@ -63,7 +62,7 @@ public class Component implements IClickable {
             this.y + 18,
             40,
             20,
-            I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_BIND),
+            ButtonTooltips.bind.getLocal(),
             gui.getGuiLeft(),
             gui.getGuiTop(),
             this,
@@ -73,14 +72,14 @@ public class Component implements IClickable {
             this.y + 18,
             40,
             20,
-            I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_UNBIND),
+            ButtonTooltips.unbind.getLocal(),
             gui.getGuiLeft(),
             gui.getGuiTop(),
             this,
             "WirelessConnectorTerminal.Unbind");
 
         this.highLightBtn = new HighLightButton(
-            this.x + render.getStringWidth(I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_POS) + ": "),
+            this.x + render.getStringWidth(GuiTexts.pos.getLocal() + ": "),
             this.y + 10 * 2,
             0,
             render.FONT_HEIGHT,
@@ -115,7 +114,7 @@ public class Component implements IClickable {
     }
 
     private String getName(Info info) {
-        String name = I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_NAME) + ": ";
+        String name = GuiTexts.name.getLocal() + ": ";
         String fullNmae = this.textField.isVisible() ? name : name + info.getName();
         String drawString = fullNmae;
         // if (this.getRender().getStringWidth(fullNmae) > this.textField.w) {
@@ -198,21 +197,10 @@ public class Component implements IClickable {
             this.bind.visible = false;
         }
         this.render.drawString(this.getName(info), x, y, 4210752);
-        this.render.drawString(
-            I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_COLOR) + ": " + info.getColor(),
-            x,
-            y + 10,
-            4210752);
-        this.render.drawString(
-            I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_POS) + ": " + info.getPosString(),
-            x,
-            y + 10 * 2,
-            4210752);
-        this.render.drawString(
-            I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_CHANNELS_USED) + ": " + info.getChannelsUsed(),
-            x,
-            y + 10 * 3,
-            4210752);
+        this.render.drawString(GuiTexts.color.getLocal() + ": " + info.getColor(), x, y + 10, 4210752);
+        this.render.drawString(GuiTexts.pos.getLocal() + ": " + info.getPosString(), x, y + 10 * 2, 4210752);
+        this.render
+            .drawString(GuiTexts.channels_used.getLocal() + ": " + info.getChannelsUsed(), x, y + 10 * 3, 4210752);
         drawWirelessConnector(info);
         this.drawSelection(mouse);
     }

@@ -5,7 +5,6 @@ import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -14,9 +13,9 @@ import org.lwjgl.input.Keyboard;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.client.gui.container.ContainerFluidPacketEncoder;
+import com.asdflj.ae2thing.client.localization.GuiTexts;
 import com.asdflj.ae2thing.common.tile.TileFluidPacketEncoder;
 import com.asdflj.ae2thing.network.CPacketValueConfig;
-import com.asdflj.ae2thing.util.NameConst;
 import com.glodblock.github.util.Util;
 
 import appeng.client.gui.AEBaseGui;
@@ -96,8 +95,7 @@ public class GuiFluidPacketEncoder extends AEBaseGui implements INEIGuiHandler {
 
     @Override
     public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
-        this.fontRendererObj
-            .drawString(getGuiDisplayName(I18n.format(NameConst.GUI_FLUID_PACKET_ENCODER)), 8, 6, 4210752);
+        this.fontRendererObj.drawString(getGuiDisplayName(GuiTexts.fluid_packet_encoder.getLocal()), 8, 6, 4210752);
         this.fontRendererObj.drawString(GuiText.inventory.getLocal(), 8, this.ySize - 96 + 3, 4210752);
         this.level.drawTextBox();
         if (isShiftKeyDown() && !isMul) {

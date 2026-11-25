@@ -6,7 +6,6 @@ import java.util.List;
 import net.minecraft.block.Block;
 import net.minecraft.block.material.Material;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.creativetab.CreativeTabs;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
@@ -20,6 +19,7 @@ import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.client.render.WirelessOverlayRender;
 import com.asdflj.ae2thing.client.textures.BlockTexture;
 import com.asdflj.ae2thing.common.item.BaseItemBlock;
@@ -88,10 +88,10 @@ public class BlockWirelessDistributor extends BaseTileBlock implements IRegister
         if (GuiScreen.isShiftKeyDown()) {
             toolTip.addAll(
                 Arrays.asList(
-                    I18n.format(NameConst.TT_WIRELESS_DISTRIBUTOR_DESC)
+                    Tooltips.wireless_distributor_desc.getLocal()
                         .split("\\\\n")));
         } else {
-            toolTip.add(I18n.format(NameConst.TT_SHIFT_FOR_MORE));
+            toolTip.add(Tooltips.shift_for_more.getLocal());
         }
     }
 

@@ -3,7 +3,6 @@ package com.asdflj.ae2thing.coremod.mixin.ae;
 import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.Container;
 
 import org.spongepowered.asm.mixin.Final;
@@ -16,8 +15,8 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.client.localization.ButtonTooltips;
 import com.asdflj.ae2thing.network.CPacketTerminalBtns;
-import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.api.AEApi;
 import appeng.api.storage.data.IAEStack;
@@ -112,7 +111,7 @@ public abstract class MixinGuiCraftConfirm extends AEBaseGui {
                 start.yPosition,
                 start.width,
                 start.height,
-                I18n.format(NameConst.GUI_BUTTON_REPLAN),
+                ButtonTooltips.replan.getLocal(),
                 ""));
         this.replan.visible = false;
     }

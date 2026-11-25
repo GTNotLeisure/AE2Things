@@ -10,7 +10,6 @@ import java.util.concurrent.Future;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentTranslation;
 import net.minecraftforge.common.util.ForgeDirection;
 import net.minecraftforge.fluids.Fluid;
 import net.minecraftforge.fluids.FluidContainerRegistry;
@@ -24,6 +23,7 @@ import org.jetbrains.annotations.Nullable;
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.client.gui.IGuiMonitorTerminal;
+import com.asdflj.ae2thing.client.localization.Messages;
 import com.asdflj.ae2thing.inventory.gui.PlayerInvType;
 import com.asdflj.ae2thing.network.SPacketItemGuiHint;
 import com.glodblock.github.client.gui.FCGuiTextField;
@@ -199,7 +199,7 @@ public class Util {
             }
             return;
         }
-        player.addChatMessage(new ChatComponentTranslation("ae2thing.chat.crafting_tree_unavailable"));
+        player.addChatMessage(Messages.crafting_tree_unavailable.toChat());
     }
 
     // endregion

@@ -2,9 +2,8 @@ package com.vcwdfca.appbot.util;
 
 import java.text.DecimalFormat;
 
-import net.minecraft.util.StatCollector;
-
 import com.vcwdfca.appbot.ae.AEManaStackType;
+import com.vcwdfca.appbot.client.localization.Tooltips;
 
 public final class ManaFormat {
 
@@ -17,7 +16,7 @@ public final class ManaFormat {
     }
 
     public static String unit() {
-        return StatCollector.translateToLocal("ab.mana.unit");
+        return Tooltips.unit.getLocal();
     }
 
     public static String format(long mana) {

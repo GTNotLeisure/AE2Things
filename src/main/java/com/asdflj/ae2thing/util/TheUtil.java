@@ -1,8 +1,8 @@
 package com.asdflj.ae2thing.util;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
 
+import com.asdflj.ae2thing.client.localization.GuiTexts;
 import com.asdflj.ae2thing.common.item.ItemPhial;
 import com.asdflj.ae2thing.common.parts.PartThaumatoriumInterface;
 import com.asdflj.ae2thing.common.tile.TileInfusionInterface;
@@ -41,9 +41,9 @@ public class TheUtil {
     public static String getGuiDualInterfaceDisplayName(String displayName, GuiFluidInterface gui) {
         IDualHost host = Ae2ReflectClient.getHost(gui);
         if (host instanceof TileInfusionInterface) {
-            return I18n.format(NameConst.GUI_INFUSION_INTERFACE);
+            return GuiTexts.infusion_interface.getLocal();
         } else if (host instanceof PartThaumatoriumInterface) {
-            return I18n.format(NameConst.GUI_PART_THAUMATORIUM_INTERFACE);
+            return GuiTexts.part_thaumatorium_interface.getLocal();
         } else {
             return displayName;
         }

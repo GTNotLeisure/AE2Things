@@ -5,11 +5,11 @@ import java.util.List;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraft.util.StatCollector;
 
 import com.asdflj.ae2thing.common.item.BaseItem;
 import com.vcwdfca.appbot.AppBotTabs;
 import com.vcwdfca.appbot.AppliedBotanics;
+import com.vcwdfca.appbot.client.localization.Tooltips;
 
 import cpw.mods.fml.common.registry.GameRegistry;
 
@@ -35,6 +35,6 @@ public class ItemManaMarker extends BaseItem {
 
     @Override
     protected void addCheckedInformation(ItemStack stack, EntityPlayer player, List<String> list, boolean advanced) {
-        list.add(EnumChatFormatting.GRAY + StatCollector.translateToLocal("ab.mana.marker.tooltip"));
+        list.add(Tooltips.marker.getLocal(EnumChatFormatting.GRAY));
     }
 }

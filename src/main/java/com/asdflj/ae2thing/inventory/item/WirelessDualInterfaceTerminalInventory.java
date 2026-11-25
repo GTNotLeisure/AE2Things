@@ -10,7 +10,6 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.Constants.NBT;
 import net.minecraftforge.common.util.ForgeDirection;
@@ -19,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.api.WirelessObject;
+import com.asdflj.ae2thing.client.localization.Messages;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.inventory.AEStackItemInventory;
 import com.asdflj.ae2thing.inventory.ItemBiggerAppEngInventory;
@@ -472,9 +472,7 @@ public class WirelessDualInterfaceTerminalInventory extends WirelessTerminal
         if (!craftable && !normalFits && !invertedFits) {
             if (this.obj.getPlayer() != null) {
                 this.obj.getPlayer()
-                    .addChatMessage(
-                        new ChatComponentText(
-                            "Pattern exceeds this terminal's capacity; " + "the existing recipe was kept."));
+                    .addChatMessage(Messages.pattern_capacity_exceeded.toChat());
             }
             return;
         }

@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -17,8 +16,9 @@ import com.asdflj.ae2thing.api.InventoryActionExtend;
 import com.asdflj.ae2thing.client.gui.container.ContainerPatternModifier;
 import com.asdflj.ae2thing.client.gui.container.slot.SlotEncodedPatternInput;
 import com.asdflj.ae2thing.client.gui.widget.PatternValueSlot;
+import com.asdflj.ae2thing.client.localization.ButtonTooltips;
+import com.asdflj.ae2thing.client.localization.GuiTexts;
 import com.asdflj.ae2thing.network.CPacketInventoryActionExtend;
-import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.api.implementations.ICraftingPatternItem;
 import appeng.api.networking.crafting.ICraftingPatternDetails;
@@ -49,7 +49,7 @@ public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
 
     @Override
     public void drawFG(int offsetX, int offsetY, int mouseX, int mouseY) {
-        fontRendererObj.drawString(getGuiDisplayName(I18n.format(NameConst.GUI_PATTERN_MODIFIER)), 8, 6, 0x404040);
+        fontRendererObj.drawString(getGuiDisplayName(GuiTexts.pattern_modifier.getLocal()), 8, 6, 0x404040);
         fontRendererObj.drawString(GuiText.inventory.getLocal(), 8, ySize - 94, 0x404040);
     }
 
@@ -70,7 +70,7 @@ public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
                 this.guiTop + 92,
                 50,
                 20,
-                I18n.format(NameConst.GUI_PATTERN_MODIFIER_REPLACE)));
+                ButtonTooltips.replace.getLocal()));
         this.buttonList.add(
             this.clear = new GuiButton(
                 0,
@@ -78,7 +78,7 @@ public class GuiPatternModifier extends AEBaseGui implements INEIGuiHandler {
                 this.guiTop + 92,
                 50,
                 20,
-                I18n.format(NameConst.GUI_PATTERN_MODIFIER_CLEAR)));
+                ButtonTooltips.clear.getLocal()));
     }
 
     private void initReplaceSlots() {

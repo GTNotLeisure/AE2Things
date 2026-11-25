@@ -1,13 +1,12 @@
 package com.asdflj.ae2thing.client.gui;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.util.ResourceLocation;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.client.gui.container.ContainerCellLink;
+import com.asdflj.ae2thing.client.localization.GuiTexts;
 import com.asdflj.ae2thing.inventory.ItemCellLinkInventory;
-import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.client.gui.AEBaseGui;
 import appeng.core.localization.GuiText;
@@ -20,7 +19,7 @@ public class GuiCellLink extends AEBaseGui {
 
     @Override
     public void drawFG(int offsetX, int offsetY, int mouseX, int mouseY) {
-        fontRendererObj.drawString(getGuiDisplayName(I18n.format(NameConst.GUI_CELL_LINK)), 8, 6, 0x404040);
+        fontRendererObj.drawString(getGuiDisplayName(GuiTexts.cell_link.getLocal()), 8, 6, 0x404040);
         fontRendererObj.drawString(GuiText.inventory.getLocal(), 8, ySize - 94, 0x404040);
     }
 

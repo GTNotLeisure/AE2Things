@@ -7,10 +7,10 @@ import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
-import net.minecraft.util.ChatComponentTranslation;
 
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.client.gui.container.slot.SlotEncodedPatternInput;
+import com.asdflj.ae2thing.client.localization.Messages;
 import com.asdflj.ae2thing.inventory.item.PatternModifierInventory;
 import com.asdflj.ae2thing.util.ItemStackNBT;
 import com.asdflj.ae2thing.util.Util;
@@ -184,9 +184,9 @@ public class ContainerPatternModifier extends AEBaseContainer implements IPatter
             }
         }
         if (skipped > 0) {
-            player.addChatMessage(new ChatComponentTranslation("ae2thing.chat.pattern_modifier.skipped", skipped));
+            player.addChatMessage(Messages.pattern_modifier_skipped.toChat(skipped));
         } else if (rewritten == 0) {
-            player.addChatMessage(new ChatComponentTranslation("ae2thing.chat.pattern_modifier.no_match"));
+            player.addChatMessage(Messages.pattern_modifier_no_match.toChat());
         }
     }
 

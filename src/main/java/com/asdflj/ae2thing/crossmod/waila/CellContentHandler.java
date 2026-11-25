@@ -13,17 +13,16 @@ import java.util.Set;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
 
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.client.me.InfinityCellContentsCache;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageCell;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageFluidCell;
 import com.asdflj.ae2thing.common.item.ItemInfinityStorageUniversalCell;
-import com.asdflj.ae2thing.util.NameConst;
 import com.asdflj.ae2thing.util.Util;
 
 import appeng.api.AEApi;
@@ -71,7 +70,7 @@ public class CellContentHandler extends TooltipHandlerWaila {
         public void draw(int x, int y) {
             if (!upgradeCard.isEmpty()) {
                 Minecraft.getMinecraft().fontRenderer
-                    .drawStringWithShadow(I18n.format(NameConst.TT_INSTALLED_CARD), x, y, 0xA8A8A8);
+                    .drawStringWithShadow(Tooltips.installed_card.getLocal(), x, y, 0xA8A8A8);
                 new TooltipStackGridRenderer(upgradeCard, maxStacksPerRow, false)
                     .draw(x, y + fontRenderer.FONT_HEIGHT, 500f);
             }

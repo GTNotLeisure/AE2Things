@@ -5,9 +5,9 @@ import java.util.List;
 import net.minecraft.block.material.Material;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.common.item.BaseItemBlock;
 import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
 import com.asdflj.ae2thing.common.tile.TileEssentiaDiscretizer;
@@ -49,7 +49,7 @@ public class BlockEssentiaDiscretizer extends BaseTileBlock implements IRegister
     public void addInformation(ItemStack stack, EntityPlayer player, List<String> lines, boolean displayMoreInfo) {
         super.addInformation(stack, player, lines, displayMoreInfo);
         if (Util.getAEVersion() >= 1080) {
-            lines.add(StatCollector.translateToLocal("item.deprecation"));
+            lines.add(Tooltips.deprecation.getLocal());
         }
     }
 

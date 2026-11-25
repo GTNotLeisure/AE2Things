@@ -11,12 +11,12 @@ import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.IIcon;
 import net.minecraft.util.MathHelper;
 import net.minecraft.util.Vec3;
 import net.minecraftforge.common.util.ForgeDirection;
 
+import com.asdflj.ae2thing.client.localization.Messages;
 import com.asdflj.ae2thing.client.textures.BlockTexture;
 import com.asdflj.ae2thing.inventory.InventoryHandler;
 import com.asdflj.ae2thing.inventory.gui.GuiType;
@@ -254,7 +254,7 @@ public abstract class THPart extends AEBasePart implements IPowerChannelState, I
                 || Util.hasPermission(player, SecurityPermissions.EXTRACT, (IGridHost) this)) {
                 InventoryHandler.openGui(player, te.getWorldObj(), tePos, Objects.requireNonNull(getSide()), getGui());
             } else {
-                player.addChatComponentMessage(new ChatComponentText("You don't have permission to view."));
+                player.addChatComponentMessage(Messages.permission_view_denied.toChat());
             }
         }
         return true;

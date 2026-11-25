@@ -17,7 +17,6 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.IChatComponent;
 import net.minecraft.world.World;
 import net.minecraftforge.common.DimensionManager;
@@ -32,6 +31,7 @@ import com.asdflj.ae2thing.api.adapter.pattern.DualInterfacePatternValidators;
 import com.asdflj.ae2thing.client.gui.container.slot.SlotPatternFake;
 import com.asdflj.ae2thing.client.gui.container.widget.IWidgetPatternContainer;
 import com.asdflj.ae2thing.client.gui.container.widget.PatternContainer;
+import com.asdflj.ae2thing.client.localization.Messages;
 import com.asdflj.ae2thing.common.item.ItemPatternModifier;
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.IPatternTerminal;
@@ -766,13 +766,13 @@ public class ContainerWirelessDualInterfaceTerminal extends ContainerMonitor
 
     public void notifyAutoUploadFailure(PlaceResult result) {
         if (this.player == null) return;
-        String key = switch (result) {
-            case NO_PATTERN -> "ae2thing.chat.auto_upload.no_blank_pattern";
-            case SLOT_OCCUPIED -> "ae2thing.chat.auto_upload.slot_occupied";
-            case DUPLICATE -> "ae2thing.chat.auto_upload.duplicate";
-            default -> "ae2thing.chat.auto_upload.failed";
+        Messages message = switch (result) {
+            case NO_PATTERN -> Messages.auto_upload_no_blank_pattern;
+            case SLOT_OCCUPIED -> Messages.auto_upload_slot_occupied;
+            case DUPLICATE -> Messages.auto_upload_duplicate;
+            default -> Messages.auto_upload_failed;
         };
-        this.player.addChatMessage(new ChatComponentTranslation(key));
+        this.player.addChatMessage(message.toChat());
     }
 
     @Override

@@ -1,13 +1,14 @@
 package com.asdflj.ae2thing.coremod.mixin.ae;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.util.StatCollector;
 
+import org.lwjgl.input.Keyboard;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.asdflj.ae2thing.client.pin.PinTooltips;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 
 import appeng.api.config.ActionItems;
@@ -26,13 +27,11 @@ public abstract class MixinGuiImgButtonPins {
             || button.getCurrentValue() != ActionItems.PINS
             || !(Minecraft.getMinecraft().currentScreen instanceof GuiMEMonitorable gui)
             || !gui.hasPinHost) return;
-        String message = StatCollector.translateToLocal("ae2thing.gui.pin.rows") + "\n"
-            + StatCollector.translateToLocal("ae2thing.gui.pin.crafting_auto");
-        String mode = StatCollector.translateToLocal(
-            AE2ThingConfig.scrollPlayerPins ? "ae2thing.gui.pin.scrolling" : "ae2thing.gui.pin.fixed");
-        message = message + "\n" + mode + "\n" + StatCollector.translateToLocal("ae2thing.gui.pin.display");
-        if (AE2ThingConfig.modernInteraction)
-            message += "\n" + StatCollector.translateToLocal("ae2thing.gui.pin.inventory");
-        cir.setReturnValue(message);
+        boolean altHeld = Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU);
+        String mode = PinTooltips.buttonMode(AE2ThingConfig.scrollPlayerPins);
+        String details = PinTooltips.buttonDetails(altHeld, AE2ThingConfig.modernInteraction);
+        cir.setReturnValue(
+            mode + "\n"
+                + String.join("\n", Minecraft.getMinecraft().fontRenderer.listFormattedStringToWidth(details, 250)));
     }
 }

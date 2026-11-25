@@ -2,14 +2,11 @@ package com.asdflj.ae2thing.client.gui;
 
 import static com.asdflj.ae2thing.api.Constants.MODE_CRAFTING;
 import static com.asdflj.ae2thing.api.Constants.MODE_PROCESSING;
-import static com.asdflj.ae2thing.util.NameConst.GUI_INFUSION_TERMINAL_CRAFTING;
-import static com.asdflj.ae2thing.util.NameConst.GUI_INFUSION_TERMINAL_PROCESSING;
 import static thaumicenergistics.common.blocks.BlockEnum.DISTILLATION_ENCODER;
 
 import java.util.List;
 
 import net.minecraft.client.gui.GuiButton;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
@@ -20,6 +17,7 @@ import org.lwjgl.input.Mouse;
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.InventoryActionExtend;
 import com.asdflj.ae2thing.client.gui.container.ContainerInfusionPatternTerminal;
+import com.asdflj.ae2thing.client.localization.ButtonTooltips;
 import com.asdflj.ae2thing.network.CPacketInventoryActionExtend;
 import com.asdflj.ae2thing.network.CPacketTerminalBtns;
 import com.asdflj.ae2thing.util.ModAndClassUtil;
@@ -151,14 +149,14 @@ public class GuiInfusionPatternTerminal extends GuiMonitor implements IGuiMonito
                 this.guiLeft + 173,
                 this.guiTop + this.ySize - 177,
                 RUNIC_MATRIX,
-                I18n.format(GUI_INFUSION_TERMINAL_CRAFTING),
+                ButtonTooltips.crafting_pattern.getLocal(),
                 itemRender));
         this.buttonList.add(
             this.tabProcessButton = new GuiTabButton(
                 this.guiLeft + 173,
                 this.guiTop + this.ySize - 177,
                 THE_DISTILLATION_ENCODER,
-                I18n.format(GUI_INFUSION_TERMINAL_PROCESSING),
+                ButtonTooltips.processing_pattern.getLocal(),
                 itemRender));
         this.buttonList.add(
             this.clearBtn = new GuiImgButton(

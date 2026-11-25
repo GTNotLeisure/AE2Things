@@ -6,7 +6,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityPlayerSP;
 import net.minecraft.client.renderer.Tessellator;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.util.ChatComponentTranslation;
 import net.minecraft.util.MathHelper;
 import net.minecraftforge.client.event.RenderWorldLastEvent;
 
@@ -14,6 +13,7 @@ import org.lwjgl.opengl.GL11;
 
 import appeng.api.util.DimensionalCoord;
 import appeng.api.util.WorldCoord;
+import appeng.core.localization.Localization;
 import cpw.mods.fml.common.eventhandler.SubscribeEvent;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
@@ -26,18 +26,18 @@ public class BlockPosHighlighter {
     private static final int MIN_TIME = 3000;
     private static final int MAX_TIME = MIN_TIME * 10;
 
-    public static void highlightBlocks(EntityPlayer player, List<DimensionalCoord> interfaces, String foundMsg,
-        String wrongDimMsg) {
+    public static void highlightBlocks(EntityPlayer player, List<DimensionalCoord> interfaces, Localization foundMsg,
+        Localization wrongDimMsg) {
         clear();
         int highlightDuration = MIN_TIME;
         for (DimensionalCoord coord : interfaces) {
             if (player.worldObj.provider.dimensionId == coord.getDimension()) {
                 if (foundMsg != null) {
-                    player.addChatMessage(new ChatComponentTranslation(foundMsg, coord.x, coord.y, coord.z));
+                    player.addChatMessage(foundMsg.toChat(coord.x, coord.y, coord.z, coord.getDimension()));
                 }
             } else {
                 if (wrongDimMsg != null) {
-                    player.addChatMessage(new ChatComponentTranslation(wrongDimMsg, coord.getDimension()));
+                    player.addChatMessage(wrongDimMsg.toChat(coord.getDimension()));
                 }
             }
             highlightedBlocks.add(coord);

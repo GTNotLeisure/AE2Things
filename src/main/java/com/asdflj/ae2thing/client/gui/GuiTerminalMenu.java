@@ -12,7 +12,6 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.item.ItemStack;
 
 import org.lwjgl.BufferUtils;
@@ -26,8 +25,8 @@ import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.api.TerminalMenu;
 import com.asdflj.ae2thing.client.gui.container.ContainerTerminalMenu;
+import com.asdflj.ae2thing.client.localization.GuiTexts;
 import com.asdflj.ae2thing.client.render.Shader;
-import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.util.Platform;
 import codechicken.nei.VisiblityData;
@@ -250,14 +249,10 @@ public class GuiTerminalMenu extends GuiContainer implements INEIGuiHandler {
         GL11.glEnable(GL11.GL_LIGHTING);
         GL11.glColor4f(1f, 1f, 1f, 1f);
         drawItem();
+        this.fontRendererObj.drawStringWithShadow(GuiTexts.page.getLocal(page + 1), 0, this.ySize - 20, 0xffffff);
         this.fontRendererObj.drawStringWithShadow(
-            I18n.format(NameConst.GUI_TERMINAL_MENU_PAGE, page + 1),
-            0,
-            this.ySize - 20,
-            0xffffff);
-        this.fontRendererObj.drawStringWithShadow(
-            I18n.format(NameConst.GUI_TERMINAL_MENU_MAX_PAGE, maxPage + 1),
-            this.xSize - fontRendererObj.getStringWidth(I18n.format(NameConst.GUI_TERMINAL_MENU_MAX_PAGE, maxPage + 1)),
+            GuiTexts.max_page.getLocal(maxPage + 1),
+            this.xSize - fontRendererObj.getStringWidth(GuiTexts.max_page.getLocal(maxPage + 1)),
             this.ySize - 20,
             0xffffff);
         if (rx == -1) {

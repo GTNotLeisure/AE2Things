@@ -1,9 +1,8 @@
 package com.vcwdfca.appbot.client;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 
-import com.asdflj.ae2thing.util.NameConst;
+import com.vcwdfca.appbot.client.localization.GuiTexts;
 import com.vcwdfca.appbot.part.PartManaImportBus;
 import com.vcwdfca.appbot.part.SharedManaBus;
 
@@ -44,8 +43,8 @@ public class GuiManaIO extends GuiUpgradeable {
     public void drawFG(final int offsetX, final int offsetY, final int mouseX, final int mouseY) {
         this.fontRendererObj.drawString(
             this.getGuiDisplayName(
-                I18n.format(
-                    this.bus instanceof PartManaImportBus ? NameConst.GUI_MANA_IMPORT : NameConst.GUI_MANA_EXPORT)),
+                (this.bus instanceof PartManaImportBus ? GuiTexts.part_mana_import : GuiTexts.part_mana_export)
+                    .getLocal()),
             8,
             6,
             4210752);

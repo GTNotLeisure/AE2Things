@@ -4,13 +4,11 @@ import static net.minecraft.client.gui.GuiScreen.isShiftKeyDown;
 
 import java.util.List;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
@@ -19,6 +17,7 @@ import org.jetbrains.annotations.NotNull;
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.MagnetObject;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.storage.CellInventory;
 import com.asdflj.ae2thing.common.storage.CellInventoryHandler;
@@ -72,14 +71,12 @@ public class ItemBackpackTerminal extends BaseItem
         return !(new MagnetObject(itemStack)).isOff();
     }
 
-    private String getMagnetMode(MagnetObject object) {
-        String text;
-        switch (object.getMode()) {
-            case Inv -> text = I18n.format(NameConst.MAGNET_INV);
-            case Backpack -> text = I18n.format(NameConst.MAGNET_BACKPACK);
-            default -> text = I18n.format(NameConst.MAGNET_OFF);
-        }
-        return text;
+    private Tooltips getMagnetMode(MagnetObject object) {
+        return switch (object.getMode()) {
+            case Inv -> Tooltips.magnet_inv;
+            case Backpack -> Tooltips.magnet_backpack;
+            default -> Tooltips.magnet_off;
+        };
     }
 
     @Override
@@ -88,7 +85,7 @@ public class ItemBackpackTerminal extends BaseItem
             MagnetObject object = new MagnetObject(item);
             object.setNextMode();
             if (Platform.isClient()) {
-                player.addChatMessage(new ChatComponentText(getMagnetMode(object)));
+                player.addChatMessage(getMagnetMode(object).toChat());
             }
         } else {
             InventoryHandler.openGui(
@@ -204,11 +201,11 @@ public class ItemBackpackTerminal extends BaseItem
         boolean displayMoreInfo) {
         super.addCheckedInformation(stack, player, toolTip, displayMoreInfo);
         MagnetObject magnetObject = new MagnetObject(stack);
-        toolTip.add(I18n.format(NameConst.MAGNET_CURRENT_MODE) + " " + getMagnetMode(magnetObject));
+        toolTip.add(Tooltips.magnet_current_mode.getLocal(getMagnetMode(magnetObject).getLocal()));
         if (isShiftKeyDown()) {
-            toolTip.add(I18n.format(NameConst.TT_BACKPACK_TERMINAL_DESC));
+            toolTip.add(Tooltips.backpack_terminal_desc.getLocal());
         } else {
-            toolTip.add(I18n.format(NameConst.TT_SHIFT_FOR_MORE));
+            toolTip.add(Tooltips.shift_for_more.getLocal());
         }
     }
 

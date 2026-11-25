@@ -15,6 +15,7 @@ import net.minecraft.tileentity.TileEntity;
 import org.jetbrains.annotations.NotNull;
 
 import com.asdflj.ae2thing.api.AE2ThingAPI;
+import com.asdflj.ae2thing.client.localization.Messages;
 import com.asdflj.ae2thing.client.render.BlockPosHighlighter;
 import com.gtnh.findit.FindIt;
 import com.gtnh.findit.FindItConfig;
@@ -70,8 +71,8 @@ public class FindITUtil implements Runnable {
         BlockPosHighlighter.highlightBlocks(
             Minecraft.getMinecraft().thePlayer,
             list,
-            NameConst.NEI_FIND_CELL_ITEM_HIGHLIGHT,
-            NameConst.NEI_FIND_CELL_ITEM_IN_OTHER_DIM);
+            Messages.find_cell_highlight,
+            Messages.find_cell_in_other_dim);
         if (Minecraft.getMinecraft().currentScreen != null && closeGui) {
             Minecraft.getMinecraft().thePlayer.closeScreen();
         }

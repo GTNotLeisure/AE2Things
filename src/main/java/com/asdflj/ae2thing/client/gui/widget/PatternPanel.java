@@ -14,7 +14,6 @@ import net.minecraft.client.gui.GuiButton;
 import net.minecraft.init.Blocks;
 import net.minecraft.inventory.Slot;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.common.MinecraftForge;
 
 import org.lwjgl.input.Keyboard;
@@ -25,6 +24,7 @@ import com.asdflj.ae2thing.client.event.EncodeEvent;
 import com.asdflj.ae2thing.client.gui.IWidgetGui;
 import com.asdflj.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.client.gui.container.slot.SlotPatternFake;
+import com.asdflj.ae2thing.client.localization.ButtonTooltips;
 import com.asdflj.ae2thing.nei.ButtonConstants;
 import com.asdflj.ae2thing.nei.NEI_TH_Config;
 import com.asdflj.ae2thing.network.CPacketTerminalBtns;
@@ -715,8 +715,8 @@ public class PatternPanel implements IAEBasePanel {
             String base = super.getMessage();
             FontRenderer fontRenderer = Minecraft.getMinecraft().fontRenderer;
             List<String> lines = fontRenderer.listFormattedStringToWidth(
-                StatCollector.translateToLocal("ae2thing.tooltip.encode_auto_upload") + "\n"
-                    + StatCollector.translateToLocal("ae2thing.tooltip.encode_auto_upload.desc_short"),
+                ButtonTooltips.encode_auto_upload_title.getLocal() + "\n"
+                    + ButtonTooltips.encode_auto_upload_desc.getLocal(),
                 250);
             String extra = String.join("\n", lines);
             return base == null || base.isEmpty() ? extra : base + "\n" + extra;

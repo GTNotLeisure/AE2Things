@@ -5,13 +5,13 @@ import static net.minecraft.client.gui.GuiScreen.isShiftKeyDown;
 import java.util.List;
 
 import net.minecraft.block.material.Material;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.world.World;
 import net.minecraftforge.common.util.ForgeDirection;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.common.item.BaseItemBlock;
 import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
 import com.asdflj.ae2thing.common.tile.TileFluidPacketEncoder;
@@ -79,9 +79,9 @@ public class BlockFluidPacketEncoder extends BaseTileBlock implements IRegister<
     public void addInformation(final ItemStack itemStack, final EntityPlayer player, final List<String> toolTip,
         final boolean advancedToolTips) {
         if (isShiftKeyDown()) {
-            toolTip.addAll(RenderUtil.listFormattedStringToWidth(I18n.format(NameConst.TT_FLUID_PACKET_ENCODER_DESC)));
+            toolTip.addAll(RenderUtil.listFormattedStringToWidth(Tooltips.fluid_packet_encoder_desc.getLocal()));
         } else {
-            toolTip.add(I18n.format(NameConst.TT_SHIFT_FOR_MORE));
+            toolTip.add(Tooltips.shift_for_more.getLocal());
         }
     }
 }

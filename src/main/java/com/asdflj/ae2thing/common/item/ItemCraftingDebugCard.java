@@ -5,16 +5,15 @@ import static net.minecraft.client.gui.GuiScreen.isShiftKeyDown;
 import java.util.Arrays;
 import java.util.List;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.ChatComponentText;
 import net.minecraft.world.World;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.CraftingDebugCardObject;
 import com.asdflj.ae2thing.api.CraftingDebugHelper;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
 import com.asdflj.ae2thing.util.NameConst;
 
@@ -60,35 +59,29 @@ public class ItemCraftingDebugCard extends BaseItem {
             obj.setMode(obj.getNextMode());
             if (Platform.isClient()) {
                 player.addChatComponentMessage(
-                    new ChatComponentText(
-                        I18n.format(NameConst.CRAFTING_DEBUG_CARD_CURRENT_MODE) + " " + getMode(obj)));
+                    Tooltips.crafting_debug_card_mode.toChat(
+                        obj.getMode()
+                            .toChat()));
             }
         }
         return item;
-    }
-
-    private String getMode(CraftingDebugCardObject object) {
-        String text;
-        switch (object.getMode()) {
-            case Player -> text = I18n.format(NameConst.MESSAGE_CRAFTING_DEBUG_CARD_REQUEST_TYPE_PLAYER);
-            case Machine -> text = I18n.format(NameConst.MESSAGE_CRAFTING_DEBUG_CARD_REQUEST_TYPE_MACHINE);
-            default -> text = I18n.format(NameConst.MESSAGE_CRAFTING_DEBUG_CARD_REQUEST_TYPE_EVERYTHING);
-        }
-        return text;
     }
 
     @Override
     protected void addCheckedInformation(ItemStack stack, EntityPlayer player, List<String> lines,
         boolean displayMoreInfo) {
         CraftingDebugCardObject obj = CraftingDebugHelper.getObject(stack);
-        lines.add(I18n.format(NameConst.CRAFTING_DEBUG_CARD_CURRENT_MODE) + " " + getMode(obj));
+        lines.add(
+            Tooltips.crafting_debug_card_mode.getLocal(
+                obj.getMode()
+                    .getLocal()));
         if (isShiftKeyDown()) {
             lines.addAll(
                 Arrays.asList(
-                    I18n.format(NameConst.TT_CRAFTING_DEBUG_CARD_DESC)
+                    Tooltips.crafting_debug_card_desc.getLocal()
                         .split("\\\\n")));
         } else {
-            lines.add(I18n.format(NameConst.TT_SHIFT_FOR_MORE));
+            lines.add(Tooltips.shift_for_more.getLocal());
         }
     }
 }

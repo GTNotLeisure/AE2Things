@@ -8,12 +8,12 @@ import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Items;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
 import net.minecraftforge.fluids.FluidStack;
 
 import org.jetbrains.annotations.NotNull;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.common.storage.FluidCellInventoryHandler;
 import com.asdflj.ae2thing.common.storage.ITFluidCellInventory;
 import com.asdflj.ae2thing.common.storage.ITFluidCellInventoryHandler;
@@ -187,17 +187,17 @@ public class ItemCreativeFluidCell extends BaseCellItem implements IStorageCell 
 
             if (GuiScreen.isCtrlKeyDown()) {
                 if (!cellInventory.getContents().isEmpty()) {
-                    lines.add(StatCollector.translateToLocal(NameConst.TT_CELL_CONTENTS));
+                    lines.add(Tooltips.cell_contents.getLocal());
                     for (IAEFluidStack fluid : cellInventory.getContents()) {
                         if (fluid != null) {
                             lines.add(String.format("  %s", fluid.getFluidStack().getLocalizedName()));
                         }
                     }
                 } else {
-                    lines.add(StatCollector.translateToLocal(NameConst.TT_CELL_EMPTY));
+                    lines.add(Tooltips.cell_empty.getLocal());
                 }
             } else {
-                lines.add(StatCollector.translateToLocal(NameConst.TT_CTRL_FOR_MORE));
+                lines.add(Tooltips.ctrl_for_more.getLocal());
             }
         }
     }

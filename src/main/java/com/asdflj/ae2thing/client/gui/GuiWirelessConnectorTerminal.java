@@ -2,7 +2,6 @@ package com.asdflj.ae2thing.client.gui;
 
 import java.util.List;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.InventoryPlayer;
 import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.nbt.NBTTagList;
@@ -18,10 +17,10 @@ import com.asdflj.ae2thing.client.gui.widget.IClickable;
 import com.asdflj.ae2thing.client.gui.widget.IScrollable;
 import com.asdflj.ae2thing.client.gui.widget.METextField;
 import com.asdflj.ae2thing.client.gui.widget.THGuiTextField;
+import com.asdflj.ae2thing.client.localization.SearchTooltips;
 import com.asdflj.ae2thing.client.me.IDisplayRepo;
 import com.asdflj.ae2thing.client.me.WirelessConnectorRepo;
 import com.asdflj.ae2thing.util.Info;
-import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.api.config.Settings;
 import appeng.api.config.TerminalStyle;
@@ -149,7 +148,7 @@ public class GuiWirelessConnectorTerminal extends AEBaseGui implements IInfoTerm
                 this.guiLeft,
                 this.ySize,
                 0,
-                I18n.format(NameConst.GUI_WIRELESS_CONNECTOR_TERMINAL_SEARCH_TOOLTIP)
+                SearchTooltips.wireless_connector.getLocal()
                     .replace("\\n", "\n"));
         }
     }

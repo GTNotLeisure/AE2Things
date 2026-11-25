@@ -8,7 +8,6 @@ import static net.minecraft.client.gui.GuiScreen.isShiftKeyDown;
 import java.util.EnumSet;
 import java.util.List;
 
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
 import net.minecraft.item.ItemStack;
@@ -17,6 +16,7 @@ import net.minecraft.world.World;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.WirelessObject;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
 import com.asdflj.ae2thing.integration.snl.YogIntegration;
@@ -80,12 +80,12 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
         boolean displayMoreInfo) {
         super.addCheckedInformation(stack, player, toolTip, displayMoreInfo);
         if (isShiftKeyDown()) {
-            toolTip.add(I18n.format(NameConst.TT_INTERFACE_TERMINAL_DESC));
+            toolTip.add(Tooltips.wireless_dual_interface_terminal_desc.getLocal());
         } else {
-            toolTip.add(I18n.format(NameConst.TT_SHIFT_FOR_MORE));
+            toolTip.add(Tooltips.shift_for_more.getLocal());
         }
         if (isCtrlKeyDown()) {
-            toolTip.add(I18n.format(NameConst.TT_WIRELESS_INSTALLED));
+            toolTip.add(Tooltips.wireless_installed.getLocal());
             if (Util.hasInfinityBoosterCard(stack) && getInfinityBoosterCard() != null) {
                 toolTip.add("  " + EnumChatFormatting.GOLD + getInfinityBoosterCard().getDisplayName());
             }
@@ -93,7 +93,7 @@ public class ItemWirelessDualInterfaceTerminal extends ItemBaseWirelessTerminal
                 toolTip.add("  " + EnumChatFormatting.GOLD + getEnergyCard().getDisplayName());
             }
         } else {
-            toolTip.add(I18n.format(NameConst.TT_CTRL_FOR_MORE));
+            toolTip.add(Tooltips.ctrl_for_more.getLocal());
         }
 
     }

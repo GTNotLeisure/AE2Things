@@ -6,20 +6,27 @@ import java.util.WeakHashMap;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
 
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.util.ItemStackNBT;
-import com.asdflj.ae2thing.util.NameConst;
+
+import appeng.core.localization.Localization;
 
 public class PatternModifierModeObject {
 
-    public enum Mode {
+    public enum Mode implements Localization {
 
-        INSERT(NameConst.PATTERN_MODIFIER_MODE_INSERT),
-        SWAP(NameConst.PATTERN_MODIFIER_MODE_SWAP);
+        INSERT(Tooltips.pattern_modifier_insert),
+        SWAP(Tooltips.pattern_modifier_swap);
 
         public final String langKey;
 
-        Mode(String langKey) {
-            this.langKey = langKey;
+        Mode(Tooltips tooltip) {
+            this.langKey = tooltip.getUnlocalized();
+        }
+
+        @Override
+        public String getUnlocalized() {
+            return this.langKey;
         }
 
         public Mode next() {

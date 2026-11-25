@@ -20,15 +20,15 @@ import appeng.client.gui.slots.VirtualMEMonitorableSlot;
 public abstract class MixinGuiMEMonitorableEntryTooltip {
 
     @Inject(method = "handleItemTooltip", at = @At("HEAD"), cancellable = true, remap = false)
-    private void ae2t$hideEntryTooltip(ItemStack stack, int mouseX, int mouseY, List<String> tooltip,
+    private void ae2t$hideEntryTooltip(ItemStack stack, int mouseX, int mouseY, List<String> currentToolTip,
         CallbackInfoReturnable<List<String>> cir) {
         if (!ModernContainerInteraction.hidesEntryTooltip()) return;
-        tooltip.clear();
-        cir.setReturnValue(tooltip);
+        currentToolTip.clear();
+        cir.setReturnValue(currentToolTip);
     }
 
     @Inject(method = "handleItemTooltip", at = @At("RETURN"), remap = false)
-    private void ae2t$appendPinHints(ItemStack stack, int mouseX, int mouseY, List<String> tooltip,
+    private void ae2t$appendPinHints(ItemStack stack, int mouseX, int mouseY, List<String> currentToolTip,
         CallbackInfoReturnable<List<String>> cir) {
         if (((GuiMEMonitorable) (Object) this).getVirtualMESlotUnderMouse() instanceof VirtualMEMonitorableSlot slot)
             PinTooltips.addItem(slot, cir.getReturnValue());

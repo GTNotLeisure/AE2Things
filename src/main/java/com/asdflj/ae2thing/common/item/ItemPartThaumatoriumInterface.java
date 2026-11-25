@@ -5,12 +5,12 @@ import java.util.List;
 import net.minecraft.client.renderer.texture.IIconRegister;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.StatCollector;
 import net.minecraft.world.World;
 
 import org.jetbrains.annotations.Nullable;
 
 import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.common.parts.PartThaumatoriumInterface;
 import com.asdflj.ae2thing.common.tabs.AE2ThingTabs;
 import com.asdflj.ae2thing.util.NameConst;
@@ -70,7 +70,7 @@ public class ItemPartThaumatoriumInterface extends BaseItem implements IPartItem
         boolean displayMoreInfo) {
         super.addCheckedInformation(stack, player, lines, displayMoreInfo);
         if (Util.getAEVersion() >= 1080) {
-            lines.add(StatCollector.translateToLocal("item.deprecation"));
+            lines.add(Tooltips.deprecation.getLocal());
         }
     }
 }

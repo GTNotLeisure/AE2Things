@@ -5,9 +5,9 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.inventory.GuiContainer;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentTranslation;
 
 import com.asdflj.ae2thing.client.gui.IBookmarkGroupDropTarget;
+import com.asdflj.ae2thing.client.localization.Messages;
 
 import codechicken.nei.ItemPanels;
 import codechicken.nei.bookmark.BookmarkItem;
@@ -61,8 +61,7 @@ public class BookmarkGroupDropHandler implements IContainerInputHandler {
 
         final int skipped = group.size() - placed;
         if (skipped > 0 && MC.thePlayer != null) {
-            MC.thePlayer
-                .addChatMessage(new ChatComponentTranslation("ae2thing.chat.universal_bus.config_full", skipped));
+            MC.thePlayer.addChatMessage(Messages.universal_bus_config_full.toChat(skipped));
         }
     }
 

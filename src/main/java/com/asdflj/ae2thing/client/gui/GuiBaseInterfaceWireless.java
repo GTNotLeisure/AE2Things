@@ -2189,8 +2189,8 @@ public class GuiBaseInterfaceWireless extends BaseMEGui
                 BlockPosHighlighter.highlightBlocks(
                     mc.thePlayer,
                     ObjectLists.singleton(new NamedDimensionalCoord(x, y, z, dim, dispName)),
-                    PlayerMessages.InterfaceHighlighted.getUnlocalized(),
-                    PlayerMessages.InterfaceInOtherDim.getUnlocalized());
+                    PlayerMessages.InterfaceHighlighted,
+                    PlayerMessages.InterfaceInOtherDim);
 
                 mc.thePlayer.closeScreen();
                 return true;

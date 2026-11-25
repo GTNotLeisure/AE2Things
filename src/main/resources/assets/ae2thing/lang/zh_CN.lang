@@ -1,249 +1,290 @@
-item.backpack_terminal.name=背包终端
-item.infinity_cell.name=ME无限存储单元
-item.infinity_fluid_cell.name=ME无限流体存储单元
-item.infinity_essentia_cell.name=ME无限源质存储单元
-item.infinity_universal_cell.name=ME无限通用存储单元
-item.creative_fluid_cell.water.name=创造ME流体存储元件(水)
-item.creative_fluid_cell.lava.name=创造ME流体存储元件(岩浆)
-item.creative_cell.cobblestone.name=创造ME存储元件(圆石)
-item.part_infusion_pattern_terminal.name=ME注魔样板终端
-item.part_thaumatorium_interface.name=ME炼金接口
-item.part_wireless_connector_terminal.name=ME无线连接终端
-item.part_universal_storage.name=ME通用存储总线
-item.part_universal_import.name=ME通用输入总线
-item.part_universal_export.name=ME通用输出总线
-item.wireless_dual_interface_terminal.name=ME无线二合一接口终端
-item.wireless_connector_terminal.name=ME无线连接终端
-item.crafting_debug_card.name=合成DEBUG卡
-item.toggleable_view_cell.name=可切换显示元件
-item.pattern_modifier.name=样板修改器
-item.wire_cutter.name=ME剪线钳(WIP)
-tile.fishbig.name=鱼大
-tile.MDDyue.name=猫蛋蛋
-tile.essentia_discretizer.name=源质离散器
-tile.infusion_interface.name=ME注魔接口
-tile.ex_io_port.name=ME扩展IO端口
-tile.fluid_packet_encoder.name=ME流体封包编码器
-tile.wireless_distributor.name=ME无线网络分配器(GT ME仓室)
 fluid.botania.mana=魔力
 
-item.deprecation=§4该物品/方块已弃用§r
+item.backpack_terminal.name=背包终端
+item.crafting_debug_card.name=合成DEBUG卡
+item.creative_cell.cobblestone.name=创造ME存储元件(圆石)
+item.creative_fluid_cell.lava.name=创造ME流体存储元件(岩浆)
+item.creative_fluid_cell.water.name=创造ME流体存储元件(水)
+item.infinity_cell.name=ME无限存储单元
+item.infinity_essentia_cell.name=ME无限源质存储单元
+item.infinity_fluid_cell.name=ME无限流体存储单元
+item.infinity_universal_cell.name=ME无限通用存储单元
+item.part_infusion_pattern_terminal.name=ME注魔样板终端
+item.part_thaumatorium_interface.name=ME炼金接口
+item.part_universal_export.name=ME通用输出总线
+item.part_universal_import.name=ME通用输入总线
+item.part_universal_storage.name=ME通用存储总线
+item.part_wireless_connector_terminal.name=ME无线连接终端
+item.pattern_modifier.name=样板修改器
+item.toggleable_view_cell.name=可切换显示元件
+item.wire_cutter.name=ME剪线钳(WIP)
+item.wireless_connector_terminal.name=ME无线连接终端
+item.wireless_dual_interface_terminal.name=ME无线二合一接口终端
 
-ae2thing.tooltip.shift_for_more=§r> 按 §3Shift§r 显示更多信息
-ae2thing.tooltip.ctrl_for_more=§r> 按 §3Ctrl§r 显示更多信息
-ae2thing.tooltip.toggleable_view_cell.desc=在显示元件槽位上右击以切换
-ae2thing.tooltip.linked=已链接
-ae2thing.tooltip.installed_card=已安装的卡
-ae2thing.tooltip.backpack_terminal.desc=一个新终端?
-ae2thing.tooltip.wireless_distributor.desc=右击切换工作范围\nShift右击开始扫描GT ME仓室
-ae2thing.tooltip.wireless_dual_interface_terminal.desc=二合一接口终端,支持编写样板
-ae2thing.tooltip.cell_link.desc=你可以右键打开GUI去链接其他硬盘,\n它会链接所有相同uuid的元件,\n滥用元件链接可能导致tps低下.
-ae2thing.tooltip.cell_link.disable=链接功能已禁用
-ae2thing.tooltip.cell_contents=内容物:
-ae2thing.tooltip.cell_empty=空
-ae2thing.tooltip.fluid_packet_encoder.desc=流体封包编码器可以编码液体数据包.使用管道来导出液体数据包.它必须与ME系统连接，并且网络内可以储存流体，否则它就无法工作.
-ae2thing.tooltip.crafting_debug_card.desc=右击ME控制器来显示合成历史记录,\nShift右击切换请求类型.
-ae2thing.tooltip.pattern_modifier.desc=潜行右键接口来提取样板,\n潜行右键空气切换提取模式
-ae2thing.tooltip.wireless.installed=已安装的卡:
-ae2thing.tooltip.universal_cell.stored=已存 %s，共 %s 种
-ae2thing.tooltip.universal_cell.empty=空
+tile.essentia_discretizer.name=源质离散器
+tile.ex_io_port.name=ME扩展IO端口
+tile.fishbig.name=鱼大
+tile.fluid_packet_encoder.name=ME流体封包编码器
+tile.infusion_interface.name=ME注魔接口
+tile.MDDyue.name=猫蛋蛋
+tile.wireless_distributor.name=ME无线网络分配器(GT ME仓室)
+
+ae2thing.tooltips.cell_contents=内容物:
+ae2thing.tooltips.cell_empty=空
+ae2thing.tooltips.ctrl_for_more=§r> 按 §3Ctrl§r 显示更多信息
+ae2thing.tooltips.deprecation=§4该物品/方块已弃用§r
 ae2thing.tooltips.for_full_contents=按 [%s] 查看全部存储内容
+ae2thing.tooltips.installed_card=已安装的卡
 ae2thing.tooltips.just_material=只是材料
-ae2thing.message.crafting_debug_card.request_type=请求类型: 
-ae2thing.message.crafting_debug_card.request_type.machine=机器
-ae2thing.message.crafting_debug_card.request_type.player=玩家
-ae2thing.message.crafting_debug_card.request_type.everything=所有
-ae2thing.message.crafting_debug_card.state=模拟状态: 
-ae2thing.message.crafting_debug_card.finish=结束
-ae2thing.message.crafting_debug_card.cancel=取消
-ae2thing.message.crafting_debug_card.running=运行中
-ae2thing.message.crafting_debug_card.error_message=错误信息: %s
-ae2thing.message.crafting_debug_card.simulation=模拟缺少合成物品
-ae2thing.message.crafting_debug_card.start_time=开始时间: 
-ae2thing.message.crafting_debug_card.usage_time=模拟耗时: 
-ae2thing.message.crafting_debug_card.name=名字: 
-ae2thing.message.crafting_debug_card.network_id=网络ID: 
-ae2thing.message.crafting_debug_card.pos=位置: %s, %s, %s 维度: %s
-ae2thing.message.crafting_debug_card.stack=物品名字: %s 数量: %s
-ae2thing.message.crafting_debug_card.no_history=当前模式ME网络没有合成记录
-ae2thing.message.scanning=搜索中
-ae2thing.crafting_debug_card.current_mode=模式: 
-ae2thing.crafting_debug_card.export_file=所有合成历史记录导出到 §4%s§r
-ae2thing.pattern_modifier.current_mode=提取模式：
-ae2thing.pattern_modifier.mode.insert=只放入
-ae2thing.pattern_modifier.mode.swap=对调
+ae2thing.tooltips.linked=已链接
+ae2thing.tooltips.shift_for_more=§r> 按 §3Shift§r 显示更多信息
 
-ae2thing.magnet.off=关闭
-ae2thing.magnet.inv=拾取到物品栏
-ae2thing.magnet.backpack=拾取到背包
-ae2thing.magnet.current_mode=磁铁模式:
+ae2thing.tooltips.backpack_terminal.desc=一个新终端?
+
+ae2thing.tooltips.cell_link.desc=你可以右键打开GUI去链接其他硬盘,\n它会链接所有相同uuid的元件,\n滥用元件链接可能导致tps低下.
+ae2thing.tooltips.cell_link.disabled=链接功能已禁用
+
+ae2thing.tooltips.crafting_debug_card.current_mode=模式: %s
+ae2thing.tooltips.crafting_debug_card.desc=右击ME控制器来显示合成历史记录,\nShift右击切换请求类型.
+
+ae2thing.tooltips.fluid_packet_encoder.desc=流体封包编码器可以编码液体数据包.使用管道来导出液体数据包.它必须与ME系统连接，并且网络内可以储存流体，否则它就无法工作.
+
+ae2thing.tooltips.magnet.backpack=拾取到背包
+ae2thing.tooltips.magnet.current_mode=磁铁模式: %s
+ae2thing.tooltips.magnet.inv=拾取到物品栏
+ae2thing.tooltips.magnet.off=关闭
+
+ae2thing.tooltips.pattern_modifier.current_mode=提取模式：%s
+ae2thing.tooltips.pattern_modifier.desc=潜行右键接口来提取样板,\n潜行右键空气切换提取模式
+
+ae2thing.tooltips.pattern_modifier.mode.insert=只放入
+ae2thing.tooltips.pattern_modifier.mode.swap=对调
+
+ae2thing.tooltips.toggleable_view_cell.desc=在显示元件槽位上右击以切换
+
+ae2thing.tooltips.universal_cell.empty=空
+ae2thing.tooltips.universal_cell.stored=已存 %s，共 %s 种
+
+ae2thing.tooltips.wireless.installed=已安装的卡:
+
+ae2thing.tooltips.wireless_distributor.desc=右击切换工作范围\nShift右击开始扫描GT ME仓室
+
+ae2thing.tooltips.wireless_dual_interface_terminal.desc=二合一接口终端,支持编写样板
 
 ae2thing.gui.cell_link=元件链接
-ae2thing.gui.pattern_modifier=样板修改器
-ae2thing.gui.pattern_modifier.replace=替换
-ae2thing.gui.pattern_modifier.clear=清除
-ae2thing.chat.pattern_modifier.no_match=没有样板被修改：没有任何样板匹配替换源
-ae2thing.chat.pattern_modifier.skipped=已跳过 %s 个样板（无法解析，或替换后结果为空）
-ae2thing.gui.terminal.store_action=%s：存入 %s
-ae2thing.gui.terminal.left_click=左键点击
-ae2thing.gui.terminal.right_click=右键点击
-ae2thing.gui.wireless_connector_terminal.name=名字
-ae2thing.gui.wireless_connector_terminal.pos=位置
-ae2thing.gui.wireless_connector_terminal.color=颜色
-ae2thing.gui.wireless_connector_terminal.channels_used=已使用频道
-ae2thing.gui.wireless_connector_terminal.bind=绑定
-ae2thing.gui.wireless_connector_terminal.unbind=解绑
-ae2thing.gui.wireless_connector_terminal.search_tooltip=§b§n标签分类§r \n§d#§r - 搜索位置 \n§6~§r - 搜索颜色 \n§a@b§r - 只显示已绑定的无线连接器 \n§4@u§r - 只显示未绑定的无线连接器 \n§9@c§r - 只显示已点击的无线连接器 \n标签以空格分隔,并使用 AND 运算符组合.
-ae2thing.gui.wireless_connector_terminal.highlight=无线连接器已高亮，坐标：%d, %d, %d 世界:%d
-ae2thing.gui.wireless_connector_terminal.in_other_dim=无线连接器位于 %d 世界，无法高亮显示
+ae2thing.gui.fluid_packet_encoder=ME流体封包编码器
 ae2thing.gui.infusion_interface=ME注魔接口
 ae2thing.gui.part_thaumatorium_interface=ME炼金接口
+ae2thing.gui.pattern_modifier=样板修改器
+ae2thing.gui.pattern_rename=自定义名称
+
+ae2thing.gui.button.replan=重新规划合成任务
+
+ae2thing.gui.encode_auto_upload.desc_short=§7详细信息请查看 nei configs - AE2 Thing - 二合一接口终端
+ae2thing.gui.encode_auto_upload.title=§7[AE2Things]§r 自动上传样板
+
 ae2thing.gui.infusion_terminal.crafting_pattern=注魔和坩埚样板
 ae2thing.gui.infusion_terminal.processing_pattern=蒸馏样板
-ae2thing.gui.fluid_packet_encoder=ME流体封包编码器
-ae2thing.gui.pattern_rename=自定义名称
-ae2thing.gui.button.replan=重新规划合成任务
-ae2thing.chat.replan_failed=当前没有可重新规划的合成计划。
-ae2thing.chat.crafting_tree_unavailable=无法显示合成树：AE2 已启用精简合成模式（isLiteCraftingEnabled），该模式不会计算合成树。
-ae2thing.gui.terminal_menu.page=当前页数: %s
+
+ae2thing.gui.pattern_modifier.clear=清除
+ae2thing.gui.pattern_modifier.replace=替换
+
+ae2thing.gui.pin.display=§6ALT + LMB§8 - §7切换固定 / 滚动§r
+ae2thing.gui.pin.fixed=玩家置顶：固定
+ae2thing.gui.pin.hold_alt=§7按住 §6ALT§7 查看按键§r
+ae2thing.gui.pin.inventory=§6CTRL + LMB§8 - §7切换物品置顶§r\n§6CTRL + SHIFT + LMB§8 - §7存入并置顶§r
+ae2thing.gui.pin.remove=§6SHIFT + RMB§8 - §7取消置顶§r
+ae2thing.gui.pin.rows=§6LMB§8 - §7增加玩家行§r\n§6RMB§8 - §7减少玩家行§r
+ae2thing.gui.pin.scrolling=玩家置顶：滚动
+ae2thing.gui.pin.set_body=左键：在此空槽位置顶物品本体
+ae2thing.gui.pin.set_content=右键：在此空槽位置顶容器内容
+ae2thing.gui.pin.toggle=§6CTRL + LMB§8 - §7切换物品置顶§r
+
+ae2thing.gui.terminal.left_click=左键点击
+ae2thing.gui.terminal.right_click=右键点击
+ae2thing.gui.terminal.store_action=%s：存入 %s
+
 ae2thing.gui.terminal_menu.max_page=最大页数: %s
-ae2thing.nei.find_cell_item.highlight=存储方块已高亮，坐标：%d, %d, %d
-ae2thing.nei.find_cell_item.in_other_dim=存储方块位于 %d 世界，无法高亮显示
+ae2thing.gui.terminal_menu.page=当前页数: %s
+
+ae2thing.gui.wireless_connector_terminal.bind=绑定
+ae2thing.gui.wireless_connector_terminal.channels_used=已使用频道
+ae2thing.gui.wireless_connector_terminal.color=颜色
+ae2thing.gui.wireless_connector_terminal.name=名字
+ae2thing.gui.wireless_connector_terminal.pos=位置
+ae2thing.gui.wireless_connector_terminal.unbind=解绑
+
+ae2thing.tooltips.search.current=§7当前查询：§f%1$s
+ae2thing.tooltips.search.disabled=§c强化搜索未开启：请先在 NEI 选项里打开「强化搜索」，@ 开头的查询才会生效
+ae2thing.tooltips.search.empty=§7增强搜索：没有能运行该配方池的接口，也没有名称匹配的接口
+ae2thing.tooltips.search.hits=§7增强搜索：§a%1$s§7 个接口
+ae2thing.tooltips.search.mode_mismatch=§7另有 §e%1$s§7 个接口的机器能切换到该配方池，但当前模式不是它，已隐藏
+ae2thing.tooltips.search.pool=§7实际查询的配方池：§b%1$s
+ae2thing.tooltips.search.wireless_connector=§b§n标签分类§r \n§d#§r - 搜索位置 \n§6~§r - 搜索颜色 \n§a@b§r - 只显示已绑定的无线连接器 \n§4@u§r - 只显示未绑定的无线连接器 \n§9@c§r - 只显示已点击的无线连接器 \n标签以空格分隔,并使用 AND 运算符组合.
+
+ae2thing.tooltips.search.invalid.category_hint=§c未知配方池：%1$s（是否想输入：%2$s？）
+ae2thing.tooltips.search.invalid.category_only=§c未知配方池：%1$s
+
+ae2thing.message.auto_upload.duplicate=自动上传：目标接口已有该样板
+ae2thing.message.auto_upload.failed=自动上传失败
+ae2thing.message.auto_upload.no_blank_pattern=自动上传：没有空白样板
+ae2thing.message.auto_upload.slot_occupied=自动上传：目标槽位已被占用
+
+ae2thing.message.crafting_debug_card.cancel=取消
+ae2thing.message.crafting_debug_card.error_message=错误信息: %s
+ae2thing.message.crafting_debug_card.export_file=所有合成历史记录导出到 §4%s§r
+ae2thing.message.crafting_debug_card.finish=结束
+ae2thing.message.crafting_debug_card.name=名字: %s
+ae2thing.message.crafting_debug_card.network_id=网络ID: %s
+ae2thing.message.crafting_debug_card.no_history=当前模式ME网络没有合成记录
+ae2thing.message.crafting_debug_card.pos=位置: %s, %s, %s 维度: %s
+ae2thing.message.crafting_debug_card.request_type=请求类型: %s
+ae2thing.message.crafting_debug_card.request_type.everything=所有
+ae2thing.message.crafting_debug_card.request_type.machine=机器
+ae2thing.message.crafting_debug_card.request_type.player=玩家
+ae2thing.message.crafting_debug_card.running=运行中
+ae2thing.message.crafting_debug_card.simulation=模拟缺少合成物品
+ae2thing.message.crafting_debug_card.stack=物品名字: %s 数量: %s
+ae2thing.message.crafting_debug_card.start_time=开始时间: %s
+ae2thing.message.crafting_debug_card.state=模拟状态: %s
+ae2thing.message.crafting_debug_card.usage_time=模拟耗时: %s
+
+ae2thing.message.data_stick.link_saved=已将链接数据保存到数据棒
+
+ae2thing.message.dual_interface_terminal.pattern_capacity_exceeded=样板超出终端容量，已保留原配方。
+
+ae2thing.message.crafting_tree_unavailable=无法显示合成树：AE2 已启用精简合成模式（isLiteCraftingEnabled），该模式不会计算合成树。
+
+ae2thing.message.find_cell_item.highlight=存储方块已高亮，坐标：%s, %s, %s
+ae2thing.message.find_cell_item.in_other_dim=存储方块位于 %s 世界，无法高亮显示
+
+ae2thing.message.pattern_modifier.no_match=没有样板被修改：没有任何样板匹配替换源
+ae2thing.message.pattern_modifier.skipped=已跳过 %s 个样板（无法解析，或替换后结果为空）
+
+ae2thing.message.replan_failed=当前没有可重新规划的合成计划。
+
+ae2thing.message.scanning=搜索中
+
+ae2thing.message.security.view_denied=你没有查看权限。
+
+ae2thing.message.universal_bus.config_full=§e书签组中有 %s 个条目没能放入：配置槽已满。安装容量卡可解锁更多槽位。
+
+ae2thing.message.wireless_connector_terminal.highlight=无线连接器已高亮，坐标：%s, %s, %s 世界:%s
+ae2thing.message.wireless_connector_terminal.in_other_dim=无线连接器位于 %s 世界，无法高亮显示
+
 ae2thing.key.open_backpack_terminal=打开背包终端
 ae2thing.key.open_dual_interface_terminal=打开二合一接口终端
 ae2thing.key.open_terminal=打开选择终端菜单
 
 itemGroup.ae2thing=AE2 Thing
 
+nei.gui.terminal.fill_search_text=将物品名称填入搜索栏
+nei.gui.terminal.fill_search_text.key=ALT + MMB
+nei.gui.terminal.take_stack_single=取出单个物品
+nei.gui.terminal.take_stack_single.key=CTRL + MMB
+nei.gui.terminal.take_stack.key=MMB
+
 nei.options.ae2thing=AE2 Thing
-nei.options.ae2thing.history=终端历史记录(AE2Thing)
-nei.options.ae2thing.history.true=显示
-nei.options.ae2thing.history.false=隐藏
-
-nei.options.ae2thing.state=终端库存状态
-nei.options.ae2thing.state.true=显示
-nei.options.ae2thing.state.false=隐藏
-
-nei.options.ae2thing.pinned_bar=终端合成固定栏
-nei.options.ae2thing.pinned_bar.true=显示
-nei.options.ae2thing.pinned_bar.false=隐藏
-
-nei.options.ae2thing.pinned_bar_remove=固定栏移除合成结束物品
-nei.options.ae2thing.pinned_bar_remove.true=默认
-nei.options.ae2thing.pinned_bar_remove.false=溢出移除
 
 nei.options.ae2thing.block_render=样板终端编码时忽略功能仓室
-nei.options.ae2thing.block_render.true=是
 nei.options.ae2thing.block_render.false=否
-
-nei.options.ae2thing.ultra_terminal_mode=终端菜单中通用无线终端支持选择模式
-nei.options.ae2thing.ultra_terminal_mode.true=是
-nei.options.ae2thing.ultra_terminal_mode.false=否
-
-nei.options.ae2thing.pinned_bar_crafting_state=固定栏中预览当前物品合成状态
-nei.options.ae2thing.pinned_bar_crafting_state.true=是
-nei.options.ae2thing.pinned_bar_crafting_state.false=否
+nei.options.ae2thing.block_render.true=是
 
 nei.options.ae2thing.dual_interface_terminal=二合一接口终端
 
-nei.options.ae2thing.dual_interface_terminal.fill_search_names=自动填充合成菜单名字
-nei.options.ae2thing.dual_interface_terminal.fill_search_names.true=是
-nei.options.ae2thing.dual_interface_terminal.fill_search_names.false=否
-
-nei.options.ae2thing.dual_interface_terminal.fill_circuit=自动填充合成菜单名字时,忽略电路编号
-nei.options.ae2thing.dual_interface_terminal.fill_circuit.true=是
-nei.options.ae2thing.dual_interface_terminal.fill_circuit.false=否
-
 nei.options.ae2thing.dual_interface_terminal.append_circuit_damage=将不消耗电路板追加到配方名称
-nei.options.ae2thing.dual_interface_terminal.append_circuit_damage.true=是
 nei.options.ae2thing.dual_interface_terminal.append_circuit_damage.false=否
+nei.options.ae2thing.dual_interface_terminal.append_circuit_damage.true=是
 
 nei.options.ae2thing.dual_interface_terminal.append_non_consumed_items=将不消耗物品（模头等）追加到配方名称
-nei.options.ae2thing.dual_interface_terminal.append_non_consumed_items.true=是
 nei.options.ae2thing.dual_interface_terminal.append_non_consumed_items.false=否
-
-nei.options.ae2thing.dual_interface_terminal.include_non_consumed=把不消耗原料（电路板、模头等）写入样板
-nei.options.ae2thing.dual_interface_terminal.include_non_consumed.true=是
-nei.options.ae2thing.dual_interface_terminal.include_non_consumed.false=否
-
-nei.options.ae2thing.dual_interface_terminal.no_merge_identifiers=不合并的配方 id：
-nei.options.ae2thing.dual_interface_terminal.no_merge_identifiers.tip=用英文逗号分隔配方 id（例如 gt.recipe.centrifuge）。gt.recipe.fakeAssemblylineProcess 始终排除。
+nei.options.ae2thing.dual_interface_terminal.append_non_consumed_items.true=是
 
 nei.options.ae2thing.dual_interface_terminal.auto_upload=自动上传样板
-nei.options.ae2thing.dual_interface_terminal.auto_upload.true=是
 nei.options.ae2thing.dual_interface_terminal.auto_upload.false=否
-
-nei.options.ae2thing.dual_interface_terminal.enhanced_search=增强配方搜索（@配方池 后接过滤词）
-nei.options.ae2thing.dual_interface_terminal.enhanced_search.true=是
-nei.options.ae2thing.dual_interface_terminal.enhanced_search.false=否
-
-nei.options.ae2thing.dual_interface_terminal.enhanced_search_debug=增强搜索 debug
-nei.options.ae2thing.dual_interface_terminal.enhanced_search_debug.true=是
-nei.options.ae2thing.dual_interface_terminal.enhanced_search_debug.false=否
-
-nei.options.ae2thing.dual_interface_terminal.hide_encode_button_tooltip=隐藏编码按钮的提示
-nei.options.ae2thing.dual_interface_terminal.hide_encode_button_tooltip.true=是
-nei.options.ae2thing.dual_interface_terminal.hide_encode_button_tooltip.false=否
+nei.options.ae2thing.dual_interface_terminal.auto_upload.true=是
 
 nei.options.ae2thing.dual_interface_terminal.encode_auto_upload=§7[AE2Things]§r 自动上传样板
 nei.options.ae2thing.dual_interface_terminal.encode_auto_upload.desc=§7开启「自动上传样板」后，NEI 配方转移后将自动编码样板。
-nei.options.ae2thing.dual_interface_terminal.encode_auto_upload.desc_sum=§7若只有唯一接口能处理该配方，样板会自动放入该接口。
 nei.options.ae2thing.dual_interface_terminal.encode_auto_upload.desc_click=§7否则高亮第一个匹配的接口，按 Alt 点击即可放入。
 nei.options.ae2thing.dual_interface_terminal.encode_auto_upload.desc_scroll=§7在编码按钮上 Alt+滚轮 可切换高亮的接口。
+nei.options.ae2thing.dual_interface_terminal.encode_auto_upload.desc_sum=§7若只有唯一接口能处理该配方，样板会自动放入该接口。
+
+nei.options.ae2thing.dual_interface_terminal.enhanced_search=增强配方搜索（@配方池 后接过滤词）
 nei.options.ae2thing.dual_interface_terminal.enhanced_search.desc=若默认的配方填充找不到指定接口可以尝试开启增强配方搜索（@配方池 后接过滤词，可填页标题、配方分类名或 id；纯数字按完整数值匹配，词前加 - 表示排除）
+nei.options.ae2thing.dual_interface_terminal.enhanced_search.false=否
+nei.options.ae2thing.dual_interface_terminal.enhanced_search.true=是
+
+nei.options.ae2thing.dual_interface_terminal.enhanced_search_debug=增强搜索 debug
 nei.options.ae2thing.dual_interface_terminal.enhanced_search_debug.desc=§7开启增强搜索 debug 后，搜索框的提示会额外显示这次查询最终解析到的配方池 id。客户端日志里同时会打印：解析结果、该配方池的催化剂条目、每个接口的显示物品与匹配结论。
+nei.options.ae2thing.dual_interface_terminal.enhanced_search_debug.false=否
+nei.options.ae2thing.dual_interface_terminal.enhanced_search_debug.true=是
 
-ae2thing.tooltip.encode_auto_upload=§7[AE2Things]§r 自动上传样板
-ae2thing.tooltip.encode_auto_upload.desc_short=§7详细信息请查看 nei configs - AE2 Thing - 二合一接口终端
+nei.options.ae2thing.dual_interface_terminal.fill_circuit=自动填充合成菜单名字时,忽略电路编号
+nei.options.ae2thing.dual_interface_terminal.fill_circuit.false=否
+nei.options.ae2thing.dual_interface_terminal.fill_circuit.true=是
 
-ae2thing.chat.auto_upload.no_blank_pattern=自动上传：没有空白样板
-ae2thing.chat.auto_upload.slot_occupied=自动上传：目标槽位已被占用
-ae2thing.chat.auto_upload.duplicate=自动上传：目标接口已有该样板
-ae2thing.chat.auto_upload.failed=自动上传失败
+nei.options.ae2thing.dual_interface_terminal.fill_search_names=自动填充合成菜单名字
+nei.options.ae2thing.dual_interface_terminal.fill_search_names.false=否
+nei.options.ae2thing.dual_interface_terminal.fill_search_names.true=是
 
-ae2thing.chat.universal_bus.config_full=§e书签组中有 %s 个条目没能放入：配置槽已满。安装容量卡可解锁更多槽位。
+nei.options.ae2thing.dual_interface_terminal.hide_encode_button_tooltip=隐藏编码按钮的提示
+nei.options.ae2thing.dual_interface_terminal.hide_encode_button_tooltip.false=否
+nei.options.ae2thing.dual_interface_terminal.hide_encode_button_tooltip.true=是
+
+nei.options.ae2thing.dual_interface_terminal.include_non_consumed=把不消耗原料（电路板、模头等）写入样板
+nei.options.ae2thing.dual_interface_terminal.include_non_consumed.false=否
+nei.options.ae2thing.dual_interface_terminal.include_non_consumed.true=是
+
+nei.options.ae2thing.dual_interface_terminal.no_merge_identifiers=不合并的配方 id：
+
+nei.options.ae2thing.dual_interface_terminal.no_merge_identifiers.tip=用英文逗号分隔配方 id（例如 gt.recipe.centrifuge）。gt.recipe.fakeAssemblylineProcess 始终排除。
+
+nei.options.ae2thing.history=终端历史记录(AE2Thing)
+nei.options.ae2thing.history.false=隐藏
+nei.options.ae2thing.history.true=显示
 
 nei.options.ae2thing.nei_craft_item=NEI中鼠标中键快速下单终端中的物品 
-nei.options.ae2thing.nei_craft_item.true=是
 nei.options.ae2thing.nei_craft_item.false=否
+nei.options.ae2thing.nei_craft_item.true=是
+
+nei.options.ae2thing.pinned_bar=终端合成固定栏
+nei.options.ae2thing.pinned_bar.false=隐藏
+nei.options.ae2thing.pinned_bar.true=显示
+
+nei.options.ae2thing.pinned_bar_crafting_state=固定栏中预览当前物品合成状态
+nei.options.ae2thing.pinned_bar_crafting_state.false=否
+nei.options.ae2thing.pinned_bar_crafting_state.true=是
+
+nei.options.ae2thing.pinned_bar_remove=固定栏移除合成结束物品
+nei.options.ae2thing.pinned_bar_remove.false=溢出移除
+nei.options.ae2thing.pinned_bar_remove.true=默认
+
+nei.options.ae2thing.state=终端库存状态
+nei.options.ae2thing.state.false=隐藏
+nei.options.ae2thing.state.true=显示
 
 nei.options.ae2thing.terminal_auto_craft=在AE2合成终端中使用NEI自动合成
-nei.options.ae2thing.terminal_auto_craft.true=是
 nei.options.ae2thing.terminal_auto_craft.false=否
+nei.options.ae2thing.terminal_auto_craft.true=是
 
-ae2thing.interface_terminal.search.hits=§7增强搜索：§a%1$s§7 个接口
-ae2thing.interface_terminal.search.empty=§7增强搜索：没有能运行该配方池的接口，也没有名称匹配的接口
-ae2thing.interface_terminal.search.invalid.category_only=§c未知配方池：%1$s
-ae2thing.interface_terminal.search.invalid.category_hint=§c未知配方池：%1$s（是否想输入：%2$s？）
-ae2thing.interface_terminal.search.current=§7当前查询：§f%1$s
-ae2thing.interface_terminal.search.pool=§7实际查询的配方池：§b%1$s
-ae2thing.interface_terminal.search.mode_mismatch=§7另有 §e%1$s§7 个接口的机器能切换到该配方池，但当前模式不是它，已隐藏
-ae2thing.interface_terminal.search.disabled=§c强化搜索未开启：请先在 NEI 选项里打开「强化搜索」，@ 开头的查询才会生效
+nei.options.ae2thing.ultra_terminal_mode=终端菜单中通用无线终端支持选择模式
+nei.options.ae2thing.ultra_terminal_mode.false=否
+nei.options.ae2thing.ultra_terminal_mode.true=是
 
 ae2thing.config.general=通用
-ae2thing.config.general.cellLink=启用链接元件
-ae2thing.config.general.magnetRange=背包终端磁力范围
-ae2thing.config.general.updateViewThread=终端视图更新使用独立线程
-ae2thing.config.general.wirelessConnectorTerminalInfinityConnectionRange=无线连接终端无限连接距离
-ae2thing.config.general.exIOPortTransferContentsRate=扩展 IO 端口传输速率
 ae2thing.config.general.backpackTerminalAddTicSupport=允许背包终端加工匠魂工具
+ae2thing.config.general.cellLink=启用链接元件
 ae2thing.config.general.craftingHistorySize=合成历史记录条数
+ae2thing.config.general.enhancedPins=增强原生终端置顶
+ae2thing.config.general.exIOPortTransferContentsRate=扩展 IO 端口传输速率
+ae2thing.config.general.magnetRange=背包终端磁力范围
 ae2thing.config.general.modernInteraction=现代容器左/右键交互（无需按住容器交互键）
-ae2thing.config.general.terminalBaubles=允许将二合一接口终端和背包终端放入任意饰品槽
 ae2thing.config.general.multiPagesSupport=二合一接口终端加工样板页数
 ae2thing.config.general.multiPagesSupport.tooltip=设置二合一接口终端的加工样板页数（2–64 页）。\n每页提供 16 个输入槽和 4 个输出槽，反转模式下两者互换。\n调低此值时，已有配方仍可能保留所需的额外页面。
 ae2thing.config.general.replaceHotIngot=替换配方产物中的炽热锭
 ae2thing.config.general.replaceHotIngot.tooltip=向二合一接口终端转移加工配方时，将炽热锭产物替换为对应的冷却后锭。\n根据矿物词典匹配对应物品，保留原有数量；找不到对应物品时保持原样。\n不影响合成配方和 NEI 鼠标滚轮转移。
-ae2thing.config.general.enhancedPins=增强原生终端置顶
 ae2thing.config.general.scrollPlayerPins=玩家置顶随库存滚动
-
-ae2thing.gui.pin.set_body=左键：在此空槽位置顶物品本体
-ae2thing.gui.pin.set_content=右键：在此空槽位置顶容器内容
-ae2thing.gui.pin.toggle=Ctrl + 左键：切换玩家置顶
-ae2thing.gui.pin.remove=Shift + 右键：移除置顶
-ae2thing.gui.pin.rows=玩家置顶：左键增加一行，右键减少一行
-ae2thing.gui.pin.crafting_auto=合成置顶行随下单自动显示，随条目清理自动收起
-ae2thing.gui.pin.display=Alt + 点击：切换玩家置顶固定区 / 滚动区
-ae2thing.gui.pin.inventory=Ctrl + 左键：切换置顶；Ctrl + Shift + 左键：存入并置顶
-ae2thing.gui.pin.fixed=玩家置顶：固定区
-ae2thing.gui.pin.scrolling=玩家置顶：滚动列表前缀
+ae2thing.config.general.terminalBaubles=允许将二合一接口终端和背包终端放入任意饰品槽
+ae2thing.config.general.updateViewThread=终端视图更新使用独立线程
+ae2thing.config.general.wirelessConnectorTerminalInfinityConnectionRange=无线连接终端无限连接距离

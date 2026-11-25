@@ -7,15 +7,14 @@ import java.util.Set;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.entity.EntityClientPlayerMP;
 import net.minecraft.client.gui.GuiScreen;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
-import net.minecraft.util.ChatComponentText;
 
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.Tags;
+import com.asdflj.ae2thing.client.localization.Messages;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
 import com.asdflj.ae2thing.common.storage.StorageManager;
@@ -25,7 +24,6 @@ import com.asdflj.ae2thing.network.CPacketFindCellItem;
 import com.asdflj.ae2thing.network.CPacketSwitchGuis;
 import com.asdflj.ae2thing.util.Ae2Reflect;
 import com.asdflj.ae2thing.util.AspectUtil;
-import com.asdflj.ae2thing.util.NameConst;
 
 import appeng.me.Grid;
 import cpw.mods.fml.relauncher.FMLInjectionData;
@@ -221,9 +219,7 @@ public final class AE2ThingAPI implements IAE2ThingAPI {
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(json);
             EntityClientPlayerMP player = Minecraft.getMinecraft().thePlayer;
-            player.addChatComponentMessage(
-                new ChatComponentText(
-                    I18n.format(NameConst.CRAFTING_DEBUG_CARD_EXPORT_FILE, Constants.DEBUG_CARD_EXPORT_FILENAME)));
+            player.addChatComponentMessage(Messages.crafting_export_file.toChat(Constants.DEBUG_CARD_EXPORT_FILENAME));
         } catch (Exception ignored) {}
     }
 

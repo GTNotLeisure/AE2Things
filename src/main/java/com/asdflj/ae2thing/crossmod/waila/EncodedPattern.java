@@ -8,7 +8,6 @@ import java.util.Locale;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 import net.minecraft.client.gui.inventory.GuiContainer;
-import net.minecraft.client.resources.I18n;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.init.Blocks;
 import net.minecraft.item.ItemStack;
@@ -16,7 +15,7 @@ import net.minecraft.nbt.NBTTagCompound;
 import net.minecraft.util.EnumChatFormatting;
 import net.minecraft.util.StringUtils;
 
-import com.asdflj.ae2thing.util.NameConst;
+import com.asdflj.ae2thing.client.localization.Tooltips;
 import com.asdflj.ae2thing.util.Util;
 import com.glodblock.github.common.item.ItemFluidDrop;
 
@@ -82,7 +81,7 @@ public class EncodedPattern extends mcp.mobius.waila.handlers.nei.TooltipHandler
             final String with = GuiText.With.getLocal();
             final String result = (EnumChatFormatting.DARK_AQUA + label) + ": " + EnumChatFormatting.RESET;
             final String ingredients = (EnumChatFormatting.DARK_GREEN + with) + ": " + EnumChatFormatting.RESET;
-            final String holdShift = I18n.format(NameConst.TT_SHIFT_FOR_MORE) + EnumChatFormatting.RESET;
+            final String holdShift = Tooltips.shift_for_more.getLocal() + EnumChatFormatting.RESET;
 
             recipeIsBroken = addInformation(inItems, in, ingredients, EnumChatFormatting.GREEN) || recipeIsBroken;
             recipeIsBroken = addInformation(outItems, out, result, EnumChatFormatting.AQUA) || recipeIsBroken;
