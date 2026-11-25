@@ -50,19 +50,41 @@ public class PatternTerminalRecipeTransferHandler implements IOverlayHandler {
     private static final int DEFAULT_MULTIPLIER = 1;
     private static final int MAX_MULTIPLIER = 64;
 
-    private static Object findSameIngredient(ItemStack[] items, ItemStack item, FluidStack fluid,
-        Constants.MouseWheel wheel, boolean skipBoards) {
+    private static Object toMouseWheelStack(ItemStack item, boolean allowFluid) {
+        if (item == null || item.getItem() == null) return null;
+
+        if (allowFluid && StackInfo.isFluidDisplayItem(item)) {
+            final FluidStack fluid = StackInfo.getFluid(item);
+            if (fluid != null) return fluid.copy();
+        }
+
+        return item.copy();
+    }
+
+    private static Object findSameIngredient(ItemStack[] items, Object current,
+        Constants.MouseWheel wheel, boolean skipBoards, boolean allowFluid) {
+        if (items == null || items.length == 0 || current == null) return null;
+
         for (int i = 0; i < items.length; i++) {
-            if (fluid != null) {
-                final FluidStack fluidInfo = StackInfo.getFluid(items[i]);
-                if (fluidInfo == null || !fluid.isFluidEqual(fluidInfo)) continue;
-                return StackInfo.getFluid(items[Math.floorMod(i + wheel.direction, items.length)]);
+            final Object candidate = toMouseWheelStack(items[i], allowFluid);
+            if (candidate == null) continue;
+
+            final boolean matches;
+            if (current instanceof FluidStack fluid && candidate instanceof FluidStack fs) {
+                matches = fluid.isFluidEqual(fs);
+            } else if (current instanceof ItemStack item && candidate instanceof ItemStack is) {
+                matches = Platform.isSameItemPrecise(item, is);
+            } else {
+                matches = false;
             }
-            if (!Platform.isSameItemPrecise(item, items[i])) continue;
+
+            if (!matches) continue;
+
             for (int step = 1; step <= items.length; step++) {
                 final ItemStack picked = items[Math.floorMod(i + step * wheel.direction, items.length)];
+                if (picked == null || picked.getItem() == null) continue;
                 if (skipBoards && GTUtil.isUniversalCircuitBoard(picked)) continue;
-                return picked;
+                return toMouseWheelStack(picked, allowFluid);
             }
             return null;
         }
@@ -71,41 +93,44 @@ public class PatternTerminalRecipeTransferHandler implements IOverlayHandler {
 
     public PatternTerminalRecipeTransferHandler() {
         mouseHandlers.add((event, overlayButton) -> {
-            GuiScreen screen = Minecraft.getMinecraft().currentScreen;
+            final GuiScreen screen = Minecraft.getMinecraft().currentScreen;
             if (screen instanceof AEBaseGui g && overlayButton != null && GuiScreen.isShiftKeyDown()) {
-                GuiOverlayButton btn = ClientProxy.getOverlayButton();
+                final GuiOverlayButton btn = ClientProxy.getOverlayButton();
                 if (btn == null) return false;
+
                 ItemStack slotItem = null;
                 if (g.theSlot instanceof SlotFake slot) {
                     slotItem = slot.getStack();
                 } else if (g instanceof GuiWirelessDualInterfaceTerminal gui
                     && gui.getVirtualMESlotUnderMouse() instanceof DualPatternSlot virtualSlot
                     && virtualSlot.getAEStack() != null) {
-                        slotItem = virtualSlot.getAEStack()
-                            .getItemStackForNEI();
-                    }
-                if (slotItem != null) {
-                    final FluidStack slotFluid = StackInfo.getFluid(slotItem);
+                    slotItem = virtualSlot.getAEStack()
+                        .getItemStackForNEI();
+                }
+
+                final boolean allowFluid = g instanceof GuiWirelessDualInterfaceTerminal dualGui && !dualGui.container.isCraftingMode();
+                final Object current = toMouseWheelStack(slotItem, allowFluid);
+
+                if (current != null) {
                     final boolean skipBoards = NEIUtils
                         .isCircuitToBoardRecipe(btn.handlerRef.handler, btn.handlerRef.recipeIndex);
-                    List<PositionedStack> list = btn.handlerRef.handler.getIngredientStacks(btn.handlerRef.recipeIndex);
+                    final List<PositionedStack> list = btn.handlerRef.handler.getIngredientStacks(btn.handlerRef.recipeIndex);
+                    if (list == null) return false;
+                    final Constants.MouseWheel wheel = event.scrollAmount == -1
+                        ? Constants.MouseWheel.NEXT
+                        : Constants.MouseWheel.PREVIEW;
                     for (PositionedStack stack : list) {
-                        Object result = findSameIngredient(
+                        final Object result = findSameIngredient(
                             stack.items,
-                            slotItem,
-                            slotFluid,
-                            event.scrollAmount == -1 ? Constants.MouseWheel.NEXT : Constants.MouseWheel.PREVIEW,
-                            skipBoards);
+                            current,
+                            wheel,
+                            skipBoards,
+                            allowFluid);
                         if (result != null) {
-                            ObjectList<OrderStack<?>> in = new ObjectArrayList<>();
-                            ObjectList<OrderStack<?>> out = new ObjectArrayList<>();
-                            if (result instanceof FluidStack fluidOut) {
-                                in.add(new OrderStack<>(slotFluid, 0));
-                                out.add(new OrderStack<>(fluidOut, 0));
-                            } else if (result instanceof ItemStack itemOut) {
-                                in.add(new OrderStack<>(slotItem, 0));
-                                out.add(new OrderStack<>(itemOut, 0));
-                            }
+                            final ObjectList<OrderStack<?>> in = new ObjectArrayList<>();
+                            final ObjectList<OrderStack<?>> out = new ObjectArrayList<>();
+                            in.add(new OrderStack<>(current, 0));
+                            out.add(new OrderStack<>(result, 0));
                             AE2Thing.proxy.netHandler.sendToServer(
                                 new CPacketTransferRecipe(
                                     in,

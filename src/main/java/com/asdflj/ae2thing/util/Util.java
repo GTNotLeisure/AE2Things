@@ -70,9 +70,10 @@ import codechicken.nei.recipe.StackInfo;
 import cpw.mods.fml.common.Loader;
 import cpw.mods.fml.common.ModContainer;
 import cpw.mods.fml.common.registry.GameRegistry;
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntObjectImmutablePair;
 import it.unimi.dsi.fastutil.ints.IntObjectPair;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 public class Util {
 
@@ -248,8 +249,8 @@ public class Util {
         return null;
     }
 
-    public static List<Integer> getBackpackSlot(EntityPlayer player) {
-        List<Integer> result = new ObjectArrayList<>();
+    public static IntList getBackpackSlot(EntityPlayer player) {
+        IntList result = new IntArrayList();
         for (int x = 0; x < player.inventory.mainInventory.length; x++) {
             ItemStack item = player.inventory.mainInventory[x];
             if (item == null || item.getItem() == null) continue;
@@ -300,6 +301,17 @@ public class Util {
         if (type == null || is == null || is.getItem() == null) return null;
         final IAEStack<?> converted = type.convertStackFromItem(is);
         return converted != null ? converted : type.getStackFromContainerItem(is);
+    }
+
+    public static IAEStack<?> toPatternStack(ItemStack is) {
+        if (is == null || is.getItem() == null) return null;
+
+        for (IAEStackType<?> type : Util.getTypes()) {
+            final IAEStack<?> converted = type.convertStackFromItem(is.copy());
+            if (converted != null) return converted;
+        }
+
+        return AEItemStack.create(is);
     }
 
     public static IAEStack<?> toPatternStack(IAEStack<?> stack) {

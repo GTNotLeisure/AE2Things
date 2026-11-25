@@ -1,5 +1,6 @@
 package com.asdflj.ae2thing.loader;
 
+import com.asdflj.ae2thing.nei.object.OrderStack;
 import net.minecraft.inventory.IInventory;
 import net.minecraft.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -14,11 +15,8 @@ import com.asdflj.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTe
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.IPatternTerminal;
 import com.asdflj.ae2thing.util.Util;
-import com.glodblock.github.common.item.ItemFluidPacket;
 
 import appeng.api.storage.StorageName;
-import appeng.api.storage.data.IAEFluidStack;
-import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
 import appeng.container.implementations.ContainerPatternTerm;
 import appeng.container.implementations.ContainerPatternTermEx;
@@ -54,65 +52,66 @@ public class PatternTerminalMouseWheelLoader implements Runnable {
             .registerPatternTerminal(new THDualInterfacePatternTerminal())
             .registerIdentifier(Constants.NEI_MOUSE_WHEEL, (container, inputs, outputs, _, _, _) -> {
                 if (container instanceof ContainerWirelessDualInterfaceTerminal c) {
-                    Object in = inputs.getFirst()
-                        .getStack();
-                    Object out = outputs.getFirst()
-                        .getStack();
+                    if (inputs == null || outputs == null || inputs.isEmpty() || outputs.isEmpty()) return;
+
+                    final OrderStack<?> input = inputs.getFirst();
+                    final OrderStack<?> output = outputs.getFirst();
+                    if (input == null || output == null) return;
+
+                    final Object in = input.getStack();
+                    final Object out = output.getStack();
                     final IPatternTerminal pt = c.getContainer()
                         .getPatternTerminal();
-                    if (in instanceof FluidStack fluidIn && out instanceof FluidStack fluidOut) {
-                        if (pt.isCraftingRecipe()) {
-                            final IInventory inv = pt.getInventoryByName(Constants.CRAFTING);
-                            if (inv != null) {
-                                final ItemStack inPacket = ItemFluidPacket.newStack(fluidIn);
-                                final ItemStack outPacket = ItemFluidPacket.newStack(fluidOut);
-                                for (int i = 0; i < inv.getSizeInventory(); i++) {
-                                    if (Platform.isSameItemPrecise(inv.getStackInSlot(i), inPacket)) {
-                                        inv.setInventorySlotContents(i, outPacket);
-                                    }
-                                }
-                                container.onCraftMatrixChanged(inv);
-                            }
-                        } else {
-                            final IAEStackInventory inv = ((appeng.api.parts.IPatternTerminal) pt)
-                                .getAEInventoryByName(StorageName.CRAFTING_INPUT);
-                            if (inv != null) {
-                                final IAEFluidStack target = AEFluidStack.create(fluidIn);
-                                final IAEFluidStack replacement = AEFluidStack.create(fluidOut);
-                                for (int i = 0; i < inv.getSizeInventory(); i++) {
-                                    final IAEStack<?> current = inv.getAEStackInSlot(i);
-                                    if (current != null && target.isSameType(current)) {
-                                        inv.putAEStackInSlot(i, replacement);
-                                    }
-                                }
+                    if (pt == null) return;
+
+                    if (pt.isCraftingRecipe()) {
+                        if (!(in instanceof ItemStack itemIn) || !(out instanceof ItemStack itemOut)) return;
+                        if (itemIn.getItem() == null || itemOut.getItem() == null) return;
+
+                        final IInventory inv = pt.getInventoryByName(Constants.CRAFTING);
+                        if (inv == null) return;
+                        for (int i = 0; i < inv.getSizeInventory(); i++) {
+                            if (Platform.isSameItemPrecise(inv.getStackInSlot(i), itemIn)) {
+                                inv.setInventorySlotContents(i, itemOut.copy());
                             }
                         }
-                    } else if (in instanceof ItemStack itemIn && out instanceof ItemStack itemOut) {
-                        if (pt.isCraftingRecipe()) {
-                            final IInventory inv = pt.getInventoryByName(Constants.CRAFTING);
-                            if (inv != null) {
-                                for (int i = 0; i < inv.getSizeInventory(); i++) {
-                                    if (Platform.isSameItemPrecise(inv.getStackInSlot(i), itemIn)) {
-                                        inv.setInventorySlotContents(i, itemOut);
-                                    }
-                                }
-                                container.onCraftMatrixChanged(inv);
-                            }
-                        } else {
-                            final IAEStackInventory inv = ((appeng.api.parts.IPatternTerminal) pt)
-                                .getAEInventoryByName(StorageName.CRAFTING_INPUT);
-                            final IAEItemStack target = AEItemStack.create(itemIn);
-                            if (inv != null) {
-                                final IAEStack<?> replacement = Util.toAEStack(itemOut);
-                                for (int i = 0; i < inv.getSizeInventory(); i++) {
-                                    final IAEStack<?> current = inv.getAEStackInSlot(i);
-                                    if (current instanceof IAEItemStack item && target.isSameType(item)) {
-                                        inv.putAEStackInSlot(i, replacement);
-                                    }
-                                }
-                            }
+
+                        c.onCraftMatrixChanged(inv);
+                        c.saveChanges();
+                        return;
+                    }
+
+                    final IAEStackInventory inv = ((appeng.api.parts.IPatternTerminal) pt)
+                        .getAEInventoryByName(StorageName.CRAFTING_INPUT);
+                    if (inv == null) return;
+
+                    final IAEStack<?> target;
+                    if (in instanceof FluidStack fluidIn) {
+                        target = AEFluidStack.create(fluidIn.copy());
+                    } else if (in instanceof ItemStack itemIn && itemIn.getItem() != null) {
+                        target = AEItemStack.create(itemIn.copy());
+                    } else {
+                        return;
+                    }
+                    if (target == null) return;
+
+                    final IAEStack<?> replacement;
+                    if (out instanceof FluidStack fluidOut) {
+                        replacement = AEFluidStack.create(fluidOut.copy());
+                    } else if (out instanceof ItemStack itemOut && itemOut.getItem() != null) {
+                        replacement = Util.toPatternStack(itemOut.copy());
+                    } else {
+                        return;
+                    }
+                    if (replacement == null) return;
+
+                    for (int i = 0; i < inv.getSizeInventory(); i++) {
+                        final IAEStack<?> current = inv.getAEStackInSlot(i);
+                        if (current != null && target.isSameType(current)) {
+                            inv.putAEStackInSlot(i, replacement.copy());
                         }
                     }
+
                     c.saveChanges();
                 }
             });

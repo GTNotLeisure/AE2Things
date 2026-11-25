@@ -1,6 +1,7 @@
 package com.asdflj.ae2thing.loader;
 
 import net.minecraft.inventory.IInventory;
+import net.minecraft.item.ItemStack;
 
 import com.asdflj.ae2thing.api.AE2ThingAPI;
 import com.asdflj.ae2thing.api.Constants;
@@ -10,6 +11,7 @@ import com.asdflj.ae2thing.client.gui.container.ContainerWirelessDualInterfaceTe
 import com.asdflj.ae2thing.integration.Mods;
 import com.asdflj.ae2thing.inventory.IPatternTerminal;
 import com.asdflj.ae2thing.nei.NEIUtils;
+import com.asdflj.ae2thing.nei.object.OrderStack;
 import com.asdflj.ae2thing.network.CPacketTransferRecipe;
 
 import appeng.api.storage.StorageName;
@@ -66,7 +68,16 @@ public class PatternTerminalLoader implements Runnable {
                             outputsInv.putAEStackInSlot(i, null);
                         }
                     }
-                    adapter.transferPack(inputs, inputSlot);
+                    for (OrderStack<?> stack : inputs) {
+                        if (stack == null) continue;
+
+                        final int index = stack.getIndex();
+                        if (index < 0 || index >= inputSlot.getSizeInventory()) continue;
+
+                        if (stack.getStack() instanceof ItemStack item) {
+                            inputSlot.setInventorySlotContents(index, item.copy());
+                        }
+                    }
                     ciw.onCraftMatrixChanged(inputSlot);
                     ciw.saveChanges();
                     handleAutoUpload(message, ciw);

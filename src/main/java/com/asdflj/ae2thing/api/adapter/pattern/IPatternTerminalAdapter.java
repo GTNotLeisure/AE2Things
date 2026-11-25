@@ -9,19 +9,20 @@ import com.asdflj.ae2thing.api.Constants;
 import com.asdflj.ae2thing.nei.object.OrderStack;
 import com.asdflj.ae2thing.network.CPacketTransferRecipe;
 import com.asdflj.ae2thing.util.Util;
-import com.glodblock.github.common.item.ItemFluidPacket;
 
 import appeng.api.storage.data.IAEStack;
 import appeng.core.AELog;
 import appeng.helpers.IContainerCraftingPacket;
 import appeng.tile.inventory.IAEStackInventory;
 import appeng.util.item.AEFluidStack;
+import codechicken.nei.item.ItemFluidDisplay;
+import it.unimi.dsi.fastutil.objects.Object2ObjectMap;
 import it.unimi.dsi.fastutil.objects.Object2ObjectOpenHashMap;
 import it.unimi.dsi.fastutil.objects.ObjectList;
 
 public interface IPatternTerminalAdapter {
 
-    Object2ObjectOpenHashMap<Class<? extends Container>, Object2ObjectOpenHashMap<String, IRecipeHandler>> map = new Object2ObjectOpenHashMap<>();
+    Object2ObjectMap<Class<? extends Container>, Object2ObjectMap<String, IRecipeHandler>> map = new Object2ObjectOpenHashMap<>();
 
     default boolean supportFluid() {
         return false;
@@ -34,10 +35,11 @@ public interface IPatternTerminalAdapter {
             if (stack != null) {
                 int index = stack.getIndex();
                 ItemStack stack1;
-                if (stack.getStack() instanceof ItemStack) {
-                    stack1 = ((ItemStack) stack.getStack()).copy();
-                } else if (supportFluid() && stack.getStack() instanceof FluidStack) {
-                    stack1 = ItemFluidPacket.newStack((FluidStack) stack.getStack());
+                final Object t = stack.getStack();
+                if (t instanceof ItemStack is) {
+                    stack1 = is.copy();
+                } else if (supportFluid() && t instanceof FluidStack fs) {
+                    stack1 = ItemFluidDisplay.createStack(fs);
                 } else {
                     AELog.warn(new UnsupportedOperationException("Trying to get an unsupported item!"));
                     continue;
@@ -54,11 +56,12 @@ public interface IPatternTerminalAdapter {
             final int index = stack.getIndex();
             if (index < 0 || index >= inv.getSizeInventory()) continue;
             IAEStack<?> ae = null;
-            if (stack.getStack() instanceof IAEStack<?>aes) {
+            final Object t = stack.getStack();
+            if (t instanceof IAEStack<?>aes) {
                 ae = aes;
-            } else if (stack.getStack() instanceof ItemStack item) {
-                ae = Util.toAEStack(item.copy());
-            } else if (supportFluid() && stack.getStack() instanceof FluidStack fluid) {
+            } else if (t instanceof ItemStack item) {
+                ae = Util.toPatternStack(item.copy());
+            } else if (supportFluid() && t instanceof FluidStack fluid) {
                 ae = AEFluidStack.create(fluid);
             }
             if (ae != null) {
@@ -95,9 +98,8 @@ public interface IPatternTerminalAdapter {
         return this;
     }
 
-    default Object2ObjectOpenHashMap<String, IRecipeHandler> getIdentifiers() {
-        Object2ObjectOpenHashMap<String, IRecipeHandler> m = map
-            .getOrDefault(getContainer(), new Object2ObjectOpenHashMap<>());
+    default Object2ObjectMap<String, IRecipeHandler> getIdentifiers() {
+        Object2ObjectMap<String, IRecipeHandler> m = map.getOrDefault(getContainer(), new Object2ObjectOpenHashMap<>());
         map.put(getContainer(), m);
         return m;
     }

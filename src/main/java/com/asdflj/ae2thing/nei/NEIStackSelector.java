@@ -37,8 +37,10 @@ public final class NEIStackSelector {
         if (positionedStack == null) return null;
         final ItemStack selected = select(positionedStack, identifier, output);
         if (selected == null) return null;
-        final FluidStack fluid = StackInfo.getFluid(selected);
-        if (fluid != null) return new OrderStack<>(fluid, index);
+        if (!isCraftingTable(identifier) && StackInfo.isFluidDisplayItem(selected)) {
+            final FluidStack fluid = StackInfo.getFluid(selected);
+            if (fluid != null) return new OrderStack<>(fluid.copy(), index);
+        }
         final ItemStack[] permutations = positionedStack.items;
         if (permutations == null || permutations.length < 2) return new OrderStack<>(selected, index);
         return new OrderStack<>(selected, index, permutations);
