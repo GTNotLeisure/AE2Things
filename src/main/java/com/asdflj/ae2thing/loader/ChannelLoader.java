@@ -1,9 +1,5 @@
 package com.asdflj.ae2thing.loader;
 
-import net.minecraft.entity.player.EntityPlayerMP;
-import net.minecraft.network.Packet;
-import net.minecraft.world.World;
-
 import com.asdflj.ae2thing.AE2Thing;
 import com.asdflj.ae2thing.api.config.PacketSyncConfig;
 import com.asdflj.ae2thing.network.CPacketCellContentsRequest;
@@ -17,6 +13,7 @@ import com.asdflj.ae2thing.network.CPacketInventoryActionExtend;
 import com.asdflj.ae2thing.network.CPacketNEIRecipe;
 import com.asdflj.ae2thing.network.CPacketNetworkCraftingItems;
 import com.asdflj.ae2thing.network.CPacketOpenTerminal;
+import com.asdflj.ae2thing.network.CPacketPlayerPinAction;
 import com.asdflj.ae2thing.network.CPacketRenamer;
 import com.asdflj.ae2thing.network.CPacketSwitchGuis;
 import com.asdflj.ae2thing.network.CPacketTerminalBtns;
@@ -57,7 +54,7 @@ public class ChannelLoader implements Runnable {
         SPacketInterfaceSuffixUpdate.class, CPacketUniversalStorageBusAction.class,
         SPacketInterfaceRecipeMapUpdate.class, CPacketInterfaceRecipeMapRequest.class, SPacketItemGuiHint.class,
         CPacketContainerInteraction.class, CPacketCellContentsRequest.class, SPacketCellContents.class,
-        PacketSyncConfig.class };
+        PacketSyncConfig.class, CPacketPlayerPinAction.class };
 
     @Override
     @SuppressWarnings({ "rawtypes", "unchecked" })
@@ -87,14 +84,6 @@ public class ChannelLoader implements Runnable {
                         .startsWith("C") ? Side.SERVER : Side.CLIENT);
             } catch (ReflectiveOperationException e) {
                 throw new IllegalStateException("Cannot register packet " + messageType.getName(), e);
-            }
-        }
-    }
-
-    public static void sendPacketToAllPlayers(Packet packet, World world) {
-        for (Object player : world.playerEntities) {
-            if (player instanceof EntityPlayerMP) {
-                ((EntityPlayerMP) player).playerNetServerHandler.sendPacket(packet);
             }
         }
     }

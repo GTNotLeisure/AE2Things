@@ -15,6 +15,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.asdflj.ae2thing.client.ModernContainerInteraction;
+import com.asdflj.ae2thing.client.pin.PinTooltips;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 
 import appeng.client.gui.slots.VirtualMEMonitorableSlot;
@@ -32,6 +33,10 @@ public abstract class MixinVirtualMEMonitorableSlot {
 
     @Inject(method = "addTooltip", at = @At("HEAD"), cancellable = true, remap = false)
     private void ae2t$modernInteractionTooltip(List<String> lines, CallbackInfo ci) {
+        if (PinTooltips.add((VirtualMEMonitorableSlot) (Object) this, lines)) {
+            ci.cancel();
+            return;
+        }
         if (!AE2ThingConfig.modernInteraction) return;
 
         lines.clear();

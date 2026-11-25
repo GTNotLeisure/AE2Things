@@ -23,6 +23,33 @@ public final class ConfigurationManager {
     private ConfigurationManager() {}
 
     @SideOnly(Side.CLIENT)
+    public static void setClientBoolean(Class<?> type, String fieldName, boolean value) {
+        try {
+            Field field = type.getDeclaredField(fieldName);
+            Map<Property, GuiEntry> properties = entries.get(type);
+            Property property = properties == null ? null
+                : properties.keySet()
+                    .stream()
+                    .filter(
+                        p -> p.getName()
+                            .equals(ConfigFieldParser.getFieldName(field)))
+                    .findFirst()
+                    .orElse(null);
+            if (field.getType() != boolean.class || property == null
+                || properties.get(property)
+                    .synced() != null) {
+                throw new IllegalArgumentException("Not a registered client boolean: " + fieldName);
+            }
+            property.set(value);
+            properties.get(property)
+                .update()
+                .run();
+        } catch (NoSuchFieldException e) {
+            throw new IllegalArgumentException(fieldName, e);
+        }
+    }
+
+    @SideOnly(Side.CLIENT)
     @SuppressWarnings("rawtypes")
     public static List<IConfigElement> getConfigElements(Class<?> type) throws ConfigException {
         Map<Property, GuiEntry> properties = entries.get(type);

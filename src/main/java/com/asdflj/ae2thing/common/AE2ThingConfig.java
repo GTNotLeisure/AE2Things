@@ -88,6 +88,17 @@ public final class AE2ThingConfig {
     @LangKey(GENERAL_LANG_KEY + ".replaceHotIngot")
     public static boolean replaceHotIngot = true;
 
+    @Name("Enhanced pins in terminal")
+    @Comment("Enable enhanced native terminal pins. Modern click shortcuts also require modern container interaction.")
+    @LangKey(GENERAL_LANG_KEY + ".enhancedPins")
+    public static boolean enhancedPins = false;
+
+    @Name("Scroll player pins in terminal")
+    @Comment("Display player pins at the beginning of the scrolling inventory instead of in a fixed section.")
+    @LangKey(GENERAL_LANG_KEY + ".scrollPlayerPins")
+    @Sync(false)
+    public static boolean scrollPlayerPins = false;
+
     private AE2ThingConfig() {}
 
     private static File resolveConfigFile() {

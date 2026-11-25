@@ -12,6 +12,7 @@ public enum Mixins implements IMixins {
         .addCommonMixins(
             "ae.MixinContainerCraftConfirm",
             "ae.MixinContainerMEMonitorable",
+            "ae.MixinPinsHandler",
             "ae.MixinContainerSubGui",
             "ae.MixinCraftingJobV2",
             "ae.MixinGridStorage",
@@ -23,6 +24,9 @@ public enum Mixins implements IMixins {
             "ae.MixinContainerCraftAmount")
         .addClientMixins(
             "ae.AccessorGuiScrollbar",
+            "ae.AccessorAEBaseGuiPins",
+            "ae.MixinGuiMEMonitorablePins",
+            "ae.MixinGuiImgButtonPins",
             "ae.MixinAEBaseGui",
             "ae.MixinGuiCraftAmount",
             "ae.MixinGuiCraftConfirm",

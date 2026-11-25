@@ -234,3 +234,14 @@ ae2thing.config.general.multiPagesSupport=二合一接口终端加工样板页�
 ae2thing.config.general.multiPagesSupport.tooltip=设置二合一接口终端的加工样板页数（2–64 页）。\n每页提供 16 个输入槽和 4 个输出槽，反转模式下两者互换。\n调低此值时，已有配方仍可能保留所需的额外页面。
 ae2thing.config.general.replaceHotIngot=替换配方产物中的炽热锭
 ae2thing.config.general.replaceHotIngot.tooltip=向二合一接口终端转移加工配方时，将炽热锭产物替换为对应的冷却后锭。\n根据矿物词典匹配对应物品，保留原有数量；找不到对应物品时保持原样。\n不影响合成配方和 NEI 鼠标滚轮转移。
+ae2thing.config.general.enhancedPins=增强原生终端置顶
+ae2thing.config.general.scrollPlayerPins=玩家置顶随库存滚动
+
+ae2thing.gui.pin.set_body=左键：在此空槽位置顶物品本体
+ae2thing.gui.pin.set_content=右键：在此空槽位置顶容器内容
+ae2thing.gui.pin.toggle=Ctrl + 左键：切换玩家置顶
+ae2thing.gui.pin.remove=Shift + 右键：移除置顶
+ae2thing.gui.pin.display=Alt + 点击：切换玩家置顶固定区 / 滚动区
+ae2thing.gui.pin.inventory=Ctrl + 左键：切换置顶；Ctrl + Shift + 左键：存入并置顶
+ae2thing.gui.pin.fixed=玩家置顶：固定区
+ae2thing.gui.pin.scrolling=玩家置顶：滚动列表前缀

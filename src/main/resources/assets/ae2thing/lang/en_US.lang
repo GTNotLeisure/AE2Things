@@ -241,3 +241,14 @@ ae2thing.config.general.multiPagesSupport=2-in-1 interface terminal processing p
 ae2thing.config.general.multiPagesSupport.tooltip=Set the number of processing pattern pages in the 2-in-1 interface terminal (2-64).\nEach page provides 16 input slots and 4 output slots; inverted mode swaps these capacities.\nPreviously stored recipes may retain extra pages when this value is reduced.
 ae2thing.config.general.replaceHotIngot=Replace hot ingot recipe outputs
 ae2thing.config.general.replaceHotIngot.tooltip=Replace hot ingot outputs with their cooled counterparts when transferring processing recipes to the 2-in-1 interface terminal.\nUses the corresponding Ore Dictionary entry and preserves stack sizes; unmatched outputs remain unchanged.\nDoes not affect crafting recipes or NEI mouse-wheel transfers.
+ae2thing.config.general.enhancedPins=Enhanced native terminal pins
+ae2thing.config.general.scrollPlayerPins=Scroll player pins with inventory
+
+ae2thing.gui.pin.set_body=Left click: pin item body in this empty slot
+ae2thing.gui.pin.set_content=Right click: pin container content in this empty slot
+ae2thing.gui.pin.toggle=Ctrl + left click: toggle player pin
+ae2thing.gui.pin.remove=Shift + right click: remove pin
+ae2thing.gui.pin.display=Alt + click: switch fixed / scrolling player pins
+ae2thing.gui.pin.inventory=Ctrl + left click: toggle pin; Ctrl + Shift + left click: store and pin
+ae2thing.gui.pin.fixed=Player pins: fixed section
+ae2thing.gui.pin.scrolling=Player pins: scrolling prefix
