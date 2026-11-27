@@ -441,24 +441,14 @@ public abstract class ContainerMonitor extends BaseNetworkContainer implements I
         for (int i = 0; i < count; i++) {
             hand = player.inventory.getItemStack();
             if (hand == null) break;
+            ItemStack one = hand.copy();
+            one.stackSize = 1;
+            ItemStack updated;
             if (fill) {
-                IAEStack available = monitor
-                    .extractItems(requested.copy(), Actionable.SIMULATE, this.getActionSource());
-                if (available == null) break;
-                ItemStack one = hand.copy();
-                one.stackSize = 1;
-                ObjectLongPair<ItemStack> result = type.fillContainer(one, available);
-                if (result.left() == null || result.rightLong() <= 0) break;
-                available.setStackSize(result.rightLong());
-                if (Platform.poweredExtraction(this.getPowerSource(), monitor, available, this.getActionSource())
-                    == null) break;
-                if (hand.stackSize == 1) player.inventory.setItemStack(result.left());
-                else {
-                    Platform.addToPlayerInvOrDrop(player, result.left());
-                    hand.stackSize--;
-                }
+                updated = ModernContainerPickup.fillOne(one, requested, player, monitor, this.getPowerSource(), this.getActionSource());
+                if (updated == null) break;
             } else {
-                IAEStack contained = type.getStackFromContainerItem(hand);
+                IAEStack contained = type.getStackFromContainerItem(one);
                 if (contained == null) break;
                 IAEStack leftover = Platform.poweredInsert(
                     this.getPowerSource(),
@@ -470,16 +460,24 @@ public abstract class ContainerMonitor extends BaseNetworkContainer implements I
                     : contained.getStackSize() - leftover.getStackSize();
                 if (accepted <= 0) break;
                 contained.setStackSize(accepted);
-                ObjectLongPair<ItemStack> result = type.drainStackFromContainer(hand.copy(), contained);
-                if (result.left() == null || result.rightLong() <= 0) break;
+                ObjectLongPair<ItemStack> result = type.drainStackFromContainer(one.copy(), contained.copy());
+                if (result.left() == null || result.rightLong() <= 0 || result.rightLong() > accepted) break;
                 contained.setStackSize(result.rightLong());
-                if (Platform.poweredInsert(this.getPowerSource(), monitor, contained, this.getActionSource()) != null)
-                    break;
-                if (hand.stackSize == 1) player.inventory.setItemStack(result.left());
-                else {
-                    hand.stackSize--;
-                    Platform.addToPlayerInvOrDrop(player, result.left());
+                leftover = Platform.poweredInsert(this.getPowerSource(), monitor, contained, this.getActionSource());
+                updated = result.left();
+                if (leftover != null && leftover.getStackSize() > 0) {
+                    long inserted = result.rightLong() - leftover.getStackSize();
+                    if (inserted <= 0) break;
+                    ObjectLongPair<ItemStack> partial = type.drainStackFromContainer(one, contained.copy().setStackSize(inserted));
+                    if (partial.left() != null && partial.rightLong() == inserted) updated = partial.left();
+                    // An indivisible container was drained in full. Return the unaccepted contents separately.
+                    else Platform.handleLeftover(player, leftover);
                 }
+            }
+            if (hand.stackSize == 1) player.inventory.setItemStack(updated);
+            else {
+                hand.stackSize--;
+                Platform.addToPlayerInvOrDrop(player, updated);
             }
         }
         this.updateHeld(player);

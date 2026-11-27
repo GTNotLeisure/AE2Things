@@ -8,6 +8,7 @@ import java.util.Set;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiScreen;
 
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,6 +44,32 @@ public abstract class MixinItemRepo implements IDisplayRepo, IDisplayRepoExtend,
 
     @Unique
     private PlayerPinLayout ae2t$pinLayout;
+
+    @Shadow(remap = false)
+    private IAEStack<?>[] pinsRepo;
+
+    @Unique
+    private IAEStack<?>[] ae2t$pinSource;
+
+    @Unique
+    private IAEStack<?>[] ae2t$occupiedPins;
+
+    @Redirect(
+        method = "postUpdate(Lappeng/api/storage/data/IAEStack;)V",
+        at = @At(value = "FIELD", target = "Lappeng/client/me/ItemRepo;pinsRepo:[Lappeng/api/storage/data/IAEStack;", opcode = Opcodes.GETFIELD),
+        remap = false)
+    private IAEStack<?>[] ae2t$occupiedPinsForUpdate(ItemRepo repo) {
+        // setAEPins replaces the backing array. Stock updates mutate the stack objects in place.
+        if (ae2t$pinSource != pinsRepo) {
+            List<IAEStack<?>> occupied = new ArrayList<>();
+            for (IAEStack<?> pin : pinsRepo) {
+                if (pin != null) occupied.add(pin);
+            }
+            ae2t$occupiedPins = occupied.toArray(new IAEStack<?>[0]);
+            ae2t$pinSource = pinsRepo;
+        }
+        return ae2t$occupiedPins;
+    }
 
     @Override
     public void ae2t$setPinLayout(PlayerPinLayout layout) {
@@ -198,6 +225,7 @@ public abstract class MixinItemRepo implements IDisplayRepo, IDisplayRepoExtend,
             return;
         }
 
+        Set<IAEStack<?>> itemSet = new ObjectOpenHashSet<>(this.view);
         for (int i = 0; i < AE2ThingAPI.instance()
             .getPinned()
             .getMaxPinSize(); i++) {
@@ -207,9 +235,8 @@ public abstract class MixinItemRepo implements IDisplayRepo, IDisplayRepoExtend,
             }
             IAEItemStack is = pinItems.get(i);
             IAEStack<?> item = this.list.findPrecise(is);
-            Set<IAEStack<?>> itemSet = new ObjectOpenHashSet<>(this.view);
             if (item != null) {
-                if (!itemSet.contains(item)) {
+                if (itemSet.add(item)) {
                     this.view.add(i, item);
                 }
                 continue;

@@ -87,37 +87,56 @@ public final class ModernContainerPickup {
         final IAEItemStack container = Platform.poweredExtraction(power, itemMonitor, request, actionSource);
         if (container == null) return false;
 
-        final IAEStack<?> available = Platform
-            .poweredExtraction(power, targetMonitor, target.copy(), actionSource, Actionable.SIMULATE);
-        final ObjectLongPair<ItemStack> filled = available == null || available.getStackSize() <= 0 ? null
-            : type.fillContainer(
-                container.getItemStack()
-                    .copy(),
-                available);
-
-        if (filled == null || filled.left() == null || filled.rightLong() <= 0) {
-            refund(power, itemMonitor, actionSource, container);
+        ItemStack result = fillOne(container.getItemStack(), target, player, targetMonitor, power, actionSource);
+        if (result == null) {
+            refund(player, power, itemMonitor, actionSource, container);
             return false;
         }
-        available.setStackSize(filled.rightLong());
-        if (Platform.poweredExtraction(power, targetMonitor, available, actionSource) == null) {
-            refund(power, itemMonitor, actionSource, container);
-            return false;
-        }
-
-        if (moveToPlayer) {
-            Platform.addToPlayerInvOrDrop(player, filled.left());
-        } else {
-            player.inventory.setItemStack(filled.left());
-        }
+        if (moveToPlayer) Platform.addToPlayerInvOrDrop(player, result);
+        else player.inventory.setItemStack(result);
         player.inventory.markDirty();
         return true;
     }
 
+    @Nullable
     @SuppressWarnings({ "rawtypes", "unchecked" })
-    private static void refund(IEnergySource power, IMEMonitor itemMonitor, BaseActionSource actionSource,
-        IAEItemStack container) {
-        container.setStackSize(1);
-        Platform.poweredInsert(power, itemMonitor, container, actionSource);
+    public static ItemStack fillOne(ItemStack container, IAEStack<?> target, EntityPlayerMP player,
+        IMEMonitor targetMonitor, IEnergySource power, BaseActionSource actionSource) {
+        IAEStackType type = target.getStackType();
+        final IAEStack<?> available = Platform
+            .poweredExtraction(power, targetMonitor, target.copy(), actionSource, Actionable.SIMULATE);
+        ObjectLongPair<ItemStack> filled = available == null || available.getStackSize() <= 0 ? null
+            : type.fillContainer(
+                container.copy(),
+                available.copy());
+
+        if (filled == null || filled.left() == null || filled.rightLong() <= 0 || filled.rightLong() > available.getStackSize()) {
+            return null;
+        }
+        available.setStackSize(filled.rightLong());
+        final IAEStack<?> extracted = Platform.poweredExtraction(power, targetMonitor, available, actionSource);
+        if (extracted == null || extracted.getStackSize() <= 0) {
+            return null;
+        }
+        if (extracted.getStackSize() != filled.rightLong()) {
+            filled = type.fillContainer(container.copy(), extracted.copy());
+            if (filled.left() == null || filled.rightLong() <= 0 || filled.rightLong() > extracted.getStackSize()) {
+                refund(player, power, targetMonitor, actionSource, extracted);
+                return null;
+            }
+            long remainder = extracted.getStackSize() - filled.rightLong();
+            if (remainder > 0) refund(player, power, targetMonitor, actionSource, extracted.copy().setStackSize(remainder));
+        }
+
+        return filled.left();
+    }
+
+    @SuppressWarnings({ "rawtypes", "unchecked" })
+    private static void refund(EntityPlayerMP player, IEnergySource power, IMEMonitor monitor, BaseActionSource actionSource,
+        IAEStack<?> stack) {
+        IAEStack<?> leftover = Platform.poweredInsert(power, monitor, stack, actionSource);
+        if (leftover == null || leftover.getStackSize() <= 0) return;
+        if (leftover instanceof IAEItemStack item) Platform.addToPlayerInvOrDrop(player, item.getItemStack());
+        else Platform.handleLeftover(player, leftover);
     }
 }
