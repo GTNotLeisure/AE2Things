@@ -4,6 +4,7 @@ import java.io.File;
 
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.entity.player.EntityPlayerMP;
+import net.minecraft.init.Items;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.World;
@@ -28,7 +29,6 @@ import com.asdflj.ae2thing.api.adapter.terminal.item.UltraTerminalHandler;
 import com.asdflj.ae2thing.api.adapter.terminal.item.WCTWirelessCraftingTerminalHandler;
 import com.asdflj.ae2thing.api.config.ConfigSyncHandler;
 import com.asdflj.ae2thing.api.container.EmptyContainerProviders;
-import com.asdflj.ae2thing.api.container.FluidContainerProvider;
 import com.asdflj.ae2thing.common.item.ItemBackpackTerminal;
 import com.asdflj.ae2thing.common.item.ItemPatternModifier;
 import com.asdflj.ae2thing.common.item.ItemWirelessDualInterfaceTerminal;
@@ -76,7 +76,6 @@ import cpw.mods.fml.common.gameevent.PlayerEvent;
 import cpw.mods.fml.common.gameevent.TickEvent;
 import de.eydamos.backpack.item.ItemBackpackBase;
 import forestry.storage.items.ItemBackpack;
-import ic2.core.Ic2Items;
 import thaumicenergistics.common.parts.PartEssentiaStorageBus;
 import thaumicenergistics.common.storage.AEEssentiaStackType;
 
@@ -103,7 +102,7 @@ public class CommonProxy {
             .register(new CraftingPinSessions());
         ModAndClassUtil.init();
 
-        EmptyContainerProviders.register(AEFluidStackType.FLUID_STACK_TYPE, FluidContainerProvider.INSTANCE);
+        EmptyContainerProviders.register(AEFluidStackType.FLUID_STACK_TYPE, _ -> new ItemStack(Items.bucket));
         if (Mods.THAUMIC_ENERGISTICS.isModLoaded()) {
             EmptyContainerProviders
                 .register(AEEssentiaStackType.ESSENTIA_STACK_TYPE, _ -> AspectUtil.HELPER.createEmptyPhial());
@@ -228,9 +227,6 @@ public class CommonProxy {
             Upgrades.REDSTONE.registerItem(ItemAndBlockHolder.EX_IO_PORT.stack(), 1);
             Upgrades.SPEED.registerItem(ItemAndBlockHolder.EX_IO_PORT.stack(), 3);
             Upgrades.SUPERSPEED.registerItem(ItemAndBlockHolder.EX_IO_PORT.stack(), 3);
-            if (Mods.IC2.isModLoaded()) {
-                FluidContainerProvider.INSTANCE.setDefaultContainer(Ic2Items.cell);
-            }
             AEApi.instance()
                 .registries()
                 .interfaceTerminal()

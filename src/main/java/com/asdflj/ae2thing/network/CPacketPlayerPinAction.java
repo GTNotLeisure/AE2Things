@@ -6,8 +6,8 @@ import net.minecraft.entity.player.EntityPlayerMP;
 
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.inventory.IPlayerPinInventory;
-import com.asdflj.ae2thing.pin.IPlayerPinActions;
 import com.asdflj.ae2thing.pin.CraftingPinMode;
+import com.asdflj.ae2thing.pin.IPlayerPinActions;
 
 import appeng.api.storage.data.IAEStack;
 import appeng.container.implementations.ContainerMEMonitorable;

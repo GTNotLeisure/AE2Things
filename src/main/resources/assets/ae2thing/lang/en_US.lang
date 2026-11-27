@@ -284,6 +284,7 @@ ae2thing.config.general.enhancedPins=Enhanced native terminal pins
 ae2thing.config.general.exIOPortTransferContentsRate=Ex IO Port transfer rate
 ae2thing.config.general.magnetRange=Backpack terminal magnet range
 ae2thing.config.general.modernInteraction=Modern container click interaction (no modifier key)
+ae2thing.config.general.defaultContainers=Default empty containers by stack type (type=mod:item@meta, comma-separated)
 ae2thing.config.general.multiPagesSupport=2-in-1 interface terminal processing pages
 ae2thing.config.general.multiPagesSupport.tooltip=Set the number of processing pattern pages in the 2-in-1 interface terminal (2-64).\nEach page provides 16 input slots and 4 output slots; inverted mode swaps these capacities.\nPreviously stored recipes may retain extra pages when this value is reduced.
 ae2thing.config.general.replaceHotIngot=Replace hot ingot recipe outputs

@@ -20,16 +20,16 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.asdflj.ae2thing.api.config.ConfigurationManager;
 import com.asdflj.ae2thing.AE2Thing;
-import com.asdflj.ae2thing.network.CPacketPlayerPinAction;
-import com.asdflj.ae2thing.pin.CraftingPinMode;
+import com.asdflj.ae2thing.api.config.ConfigurationManager;
 import com.asdflj.ae2thing.client.pin.CraftingPinRenderer;
 import com.asdflj.ae2thing.client.pin.IPlayerPinRepo;
 import com.asdflj.ae2thing.client.pin.PinHand;
 import com.asdflj.ae2thing.client.pin.PlayerPinLayout;
 import com.asdflj.ae2thing.client.pin.ScrollingPlayerPinSlot;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
+import com.asdflj.ae2thing.network.CPacketPlayerPinAction;
+import com.asdflj.ae2thing.pin.CraftingPinMode;
 import com.asdflj.ae2thing.pin.ICraftingPinState;
 
 import appeng.api.config.PinsRows;
@@ -217,8 +217,12 @@ public abstract class MixinGuiMEMonitorablePins extends AEBaseGui {
         if (!ae2t$enabled() || btn != pinsStateButton) return;
         if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
             if (Mouse.isButtonDown(1)) {
-                AE2Thing.proxy.netHandler.sendToServer(new CPacketPlayerPinAction(inventorySlots.windowId,
-                    CPacketPlayerPinAction.CYCLE_CRAFTING_MODE, -1, null));
+                AE2Thing.proxy.netHandler.sendToServer(
+                    new CPacketPlayerPinAction(
+                        inventorySlots.windowId,
+                        CPacketPlayerPinAction.CYCLE_CRAFTING_MODE,
+                        -1,
+                        null));
                 ci.cancel();
                 return;
             }

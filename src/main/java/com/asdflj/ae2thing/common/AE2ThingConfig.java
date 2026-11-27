@@ -68,6 +68,10 @@ public final class AE2ThingConfig {
     @Comment("Use modern terminal clicks to fill and empty containers.")
     public static boolean modernInteraction = true;
 
+    @Name("Default containers by stack type")
+    @Comment("Comma-separated type=mod:item@metadata entries. Repeat a type to try containers in order. Metadata defaults to zero.")
+    public static String defaultContainers = "fluid=IC2:itemCellEmpty@0";
+
     @Name("Multi-pages support")
     @Comment("Processing pattern pages in the 2-in-1 interface terminal (2-64).")
     @RangeInt(min = 2, max = 64)

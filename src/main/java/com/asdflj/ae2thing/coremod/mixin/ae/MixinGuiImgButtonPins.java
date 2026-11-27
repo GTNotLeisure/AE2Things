@@ -8,11 +8,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import com.asdflj.ae2thing.client.pin.PinTooltips;
 import com.asdflj.ae2thing.client.localization.ButtonTooltips;
-import com.asdflj.ae2thing.pin.ICraftingPinState;
-import com.asdflj.ae2thing.pin.CraftingPinMode;
+import com.asdflj.ae2thing.client.pin.PinTooltips;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
+import com.asdflj.ae2thing.pin.CraftingPinMode;
+import com.asdflj.ae2thing.pin.ICraftingPinState;
 
 import appeng.api.config.ActionItems;
 import appeng.api.config.Settings;

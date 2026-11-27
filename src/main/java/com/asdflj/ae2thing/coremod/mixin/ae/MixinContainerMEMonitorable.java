@@ -17,19 +17,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.ModernContainerPickup;
 import com.asdflj.ae2thing.inventory.IModernContainerPickup;
 import com.asdflj.ae2thing.inventory.IPlayerPinInventory;
-import com.asdflj.ae2thing.pin.CraftingPinSessions;
 import com.asdflj.ae2thing.pin.CraftingPinMode;
+import com.asdflj.ae2thing.pin.CraftingPinSessions;
 import com.asdflj.ae2thing.pin.CraftingPinState;
 import com.asdflj.ae2thing.pin.ICraftingPinActions;
 import com.asdflj.ae2thing.pin.ICraftingPinState;
 import com.asdflj.ae2thing.pin.IPlayerPinActions;
 import com.asdflj.ae2thing.pin.PinIdentity;
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 
 import appeng.api.networking.IGrid;
 import appeng.api.networking.crafting.ICraftingGrid;
@@ -43,8 +42,8 @@ import appeng.container.implementations.ContainerMEMonitorable;
 import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.SlotPlayerHotBar;
 import appeng.container.slot.SlotPlayerInv;
-import appeng.container.sync.handlers.ObjectSyncHandler;
 import appeng.container.sync.handlers.IntSyncHandler;
+import appeng.container.sync.handlers.ObjectSyncHandler;
 import appeng.items.contents.PinsHandler;
 import appeng.util.item.AEItemStackType;
 
@@ -88,7 +87,8 @@ public abstract class MixinContainerMEMonitorable extends AEBaseContainer
         if (!AE2ThingConfig.enhancedPins || !(getPlayerInv().player instanceof EntityPlayerMP player)
             || !(host instanceof ITerminalPins terminal)
             || ae2t$craftingPins == null) return;
-        int mode = CraftingPinMode.get(player).ordinal();
+        int mode = CraftingPinMode.get(player)
+            .ordinal();
         boolean modeChanged = mode != ae2t$mode.get();
         if (modeChanged) ae2t$mode.set(mode);
         IGrid grid = terminal.getGrid();
@@ -121,7 +121,9 @@ public abstract class MixinContainerMEMonitorable extends AEBaseContainer
 
     @ModifyExpressionValue(
         method = { "doMonitorableAction", "pickupStoredItems", "splitStoredItems", "fillSingleFluidContainer" },
-        at = @At(value = "INVOKE", target = "Lappeng/util/Platform;poweredExtraction(Lappeng/api/networking/energy/IEnergySource;Lappeng/api/storage/IMEInventory;Lappeng/api/storage/data/IAEStack;Lappeng/api/networking/security/BaseActionSource;)Lappeng/api/storage/data/IAEStack;"),
+        at = @At(
+            value = "INVOKE",
+            target = "Lappeng/util/Platform;poweredExtraction(Lappeng/api/networking/energy/IEnergySource;Lappeng/api/storage/IMEInventory;Lappeng/api/storage/data/IAEStack;Lappeng/api/networking/security/BaseActionSource;)Lappeng/api/storage/data/IAEStack;"),
         remap = false)
     private IAEStack<?> ae2t$onExtraction(IAEStack<?> extracted) {
         if (extracted != null && extracted.getStackSize() > 0) ae2t$recordPinUse(extracted);

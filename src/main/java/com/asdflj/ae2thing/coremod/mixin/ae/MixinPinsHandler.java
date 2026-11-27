@@ -115,8 +115,10 @@ public abstract class MixinPinsHandler implements IPlayerPinActions, ICraftingPi
 
     @Inject(method = "setPin", at = @At("HEAD"), cancellable = true, remap = false)
     private void ae2t$guardCraftingEdit(int idx, IAEStack<?> stack, CallbackInfo ci) {
-        if (AE2ThingConfig.enhancedPins && idx >= 0 && idx < PinList.CRAFTING_SLOTS
-            && (CraftingPinMode.get(player) == CraftingPinMode.AUTO || idx >= craftingPinsRows.getSlotCount())) ci.cancel();
+        if (AE2ThingConfig.enhancedPins && idx >= 0
+            && idx < PinList.CRAFTING_SLOTS
+            && (CraftingPinMode.get(player) == CraftingPinMode.AUTO || idx >= craftingPinsRows.getSlotCount()))
+            ci.cancel();
     }
 
     @Inject(method = "setPin", at = @At("TAIL"), remap = false)
@@ -132,7 +134,10 @@ public abstract class MixinPinsHandler implements IPlayerPinActions, ICraftingPi
         if (CraftingPinMode.get(player) == CraftingPinMode.AUTO)
             return PinsRows.fromOrdinal(ae2t$craftingActions().requiredRows());
         if (craftingRows.ordinal() <= craftingPinsRows.ordinal()) return craftingRows;
-        return PinsRows.fromOrdinal(Math.min(craftingRows.ordinal(), Math.max(craftingPinsRows.ordinal(), AEConfig.instance.maxCraftingPinRows)));
+        return PinsRows.fromOrdinal(
+            Math.min(
+                craftingRows.ordinal(),
+                Math.max(craftingPinsRows.ordinal(), AEConfig.instance.maxCraftingPinRows)));
     }
 
     @ModifyVariable(method = "update(Z)V", at = @At("HEAD"), argsOnly = true, remap = false, name = "forceSendPacket")

@@ -445,7 +445,8 @@ public abstract class ContainerMonitor extends BaseNetworkContainer implements I
             one.stackSize = 1;
             ItemStack updated;
             if (fill) {
-                updated = ModernContainerPickup.fillOne(one, requested, player, monitor, this.getPowerSource(), this.getActionSource());
+                updated = ModernContainerPickup
+                    .fillOne(one, requested, player, monitor, this.getPowerSource(), this.getActionSource());
                 if (updated == null) break;
             } else {
                 IAEStack contained = type.getStackFromContainerItem(one);
@@ -468,7 +469,10 @@ public abstract class ContainerMonitor extends BaseNetworkContainer implements I
                 if (leftover != null && leftover.getStackSize() > 0) {
                     long inserted = result.rightLong() - leftover.getStackSize();
                     if (inserted <= 0) break;
-                    ObjectLongPair<ItemStack> partial = type.drainStackFromContainer(one, contained.copy().setStackSize(inserted));
+                    ObjectLongPair<ItemStack> partial = type.drainStackFromContainer(
+                        one,
+                        contained.copy()
+                            .setStackSize(inserted));
                     if (partial.left() != null && partial.rightLong() == inserted) updated = partial.left();
                     // An indivisible container was drained in full. Return the unaccepted contents separately.
                     else Platform.handleLeftover(player, leftover);

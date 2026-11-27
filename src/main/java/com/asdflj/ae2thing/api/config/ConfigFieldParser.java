@@ -9,6 +9,7 @@ final class ConfigFieldParser {
 
     private final Field field;
     private final boolean booleanType;
+    private final boolean stringType;
     private final String name;
     private final String comment;
     private final String defaultValue;
@@ -19,7 +20,8 @@ final class ConfigFieldParser {
         this.field = field;
         Class<?> type = field.getType();
         booleanType = type == boolean.class || type == Boolean.class;
-        if (!booleanType && type != int.class && type != Integer.class)
+        stringType = type == String.class;
+        if (!booleanType && !stringType && type != int.class && type != Integer.class)
             throw new ConfigException("No parser for " + field);
         field.setAccessible(true);
         Config.Name fieldName = field.getAnnotation(Config.Name.class);
@@ -31,7 +33,9 @@ final class ConfigFieldParser {
         max = range == null ? Integer.MAX_VALUE : range.max();
         if (min > max) throw new ConfigException("Invalid integer range for " + field);
         try {
-            if (booleanType) {
+            if (stringType) {
+                defaultValue = (String) field.get(null);
+            } else if (booleanType) {
                 Config.DefaultBoolean annotation = field.getAnnotation(Config.DefaultBoolean.class);
                 defaultValue = Boolean.toString(annotation == null ? (Boolean) field.get(null) : annotation.value());
             } else {
@@ -60,7 +64,10 @@ final class ConfigFieldParser {
 
     Property createProperty(Configuration config, String category, String langKey) {
         Property property;
-        if (booleanType) {
+        if (stringType) {
+            property = config.get(category, name, defaultValue);
+            property.comment = comment;
+        } else if (booleanType) {
             property = config.get(category, name, Boolean.parseBoolean(defaultValue));
             property.comment = comment + " [default: " + defaultValue + "]";
         } else {
@@ -75,7 +82,9 @@ final class ConfigFieldParser {
 
     void loadLocalValue(Property property) throws ConfigException {
         try {
-            if (booleanType) {
+            if (stringType) {
+                field.set(null, property.getString());
+            } else if (booleanType) {
                 boolean value = property.getBoolean(Boolean.parseBoolean(defaultValue));
                 field.set(null, value);
                 if (!property.getString()
@@ -102,7 +111,9 @@ final class ConfigFieldParser {
 
     void setValueFromString(String value) throws ConfigException {
         try {
-            if (booleanType) {
+            if (stringType) {
+                field.set(null, value);
+            } else if (booleanType) {
                 if (!"true".equalsIgnoreCase(value) && !"false".equalsIgnoreCase(value))
                     throw new IllegalArgumentException("Invalid boolean: " + value);
                 field.set(null, Boolean.parseBoolean(value));

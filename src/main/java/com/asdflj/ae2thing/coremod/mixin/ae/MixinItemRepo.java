@@ -56,7 +56,10 @@ public abstract class MixinItemRepo implements IDisplayRepo, IDisplayRepoExtend,
 
     @Redirect(
         method = "postUpdate(Lappeng/api/storage/data/IAEStack;)V",
-        at = @At(value = "FIELD", target = "Lappeng/client/me/ItemRepo;pinsRepo:[Lappeng/api/storage/data/IAEStack;", opcode = Opcodes.GETFIELD),
+        at = @At(
+            value = "FIELD",
+            target = "Lappeng/client/me/ItemRepo;pinsRepo:[Lappeng/api/storage/data/IAEStack;",
+            opcode = Opcodes.GETFIELD),
         remap = false)
     private IAEStack<?>[] ae2t$occupiedPinsForUpdate(ItemRepo repo) {
         // setAEPins replaces the backing array. Stock updates mutate the stack objects in place.

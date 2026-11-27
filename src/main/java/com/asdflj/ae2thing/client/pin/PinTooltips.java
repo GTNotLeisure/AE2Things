@@ -7,8 +7,8 @@ import net.minecraft.util.EnumChatFormatting;
 
 import com.asdflj.ae2thing.client.localization.ButtonTooltips;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
-import com.asdflj.ae2thing.pin.ICraftingPinState;
 import com.asdflj.ae2thing.pin.CraftingPinMode;
+import com.asdflj.ae2thing.pin.ICraftingPinState;
 
 import appeng.client.gui.implementations.GuiMEMonitorable;
 import appeng.client.gui.slots.VirtualMEMonitorableSlot;
@@ -57,8 +57,9 @@ public final class PinTooltips {
                 .isEmpty())
             return;
         VirtualMEPinSlot pin = pinSlot(slot);
-        boolean removable = pin != null && (!pin.isCraftingSlot() || ((ICraftingPinState) Minecraft.getMinecraft().thePlayer.openContainer)
-            .ae2t$craftingMode() != CraftingPinMode.AUTO);
+        boolean removable = pin != null && (!pin.isCraftingSlot()
+            || ((ICraftingPinState) Minecraft.getMinecraft().thePlayer.openContainer).ae2t$craftingMode()
+                != CraftingPinMode.AUTO);
         addItemHints(lines, AE2ThingConfig.modernInteraction, removable);
     }
 

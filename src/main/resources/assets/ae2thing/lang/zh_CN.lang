@@ -284,6 +284,7 @@ ae2thing.config.general.enhancedPins=增强原生终端置顶
 ae2thing.config.general.exIOPortTransferContentsRate=扩展 IO 端口传输速率
 ae2thing.config.general.magnetRange=背包终端磁力范围
 ae2thing.config.general.modernInteraction=现代容器左/右键交互（无需按住容器交互键）
+ae2thing.config.general.defaultContainers=按 StackType 指定默认空容器（类型=模组:物品@元数据，多项用英文逗号分隔）
 ae2thing.config.general.multiPagesSupport=二合一接口终端加工样板页数
 ae2thing.config.general.multiPagesSupport.tooltip=设置二合一接口终端的加工样板页数（2–64 页）。\n每页提供 16 个输入槽和 4 个输出槽，反转模式下两者互换。\n调低此值时，已有配方仍可能保留所需的额外页面。
 ae2thing.config.general.replaceHotIngot=替换配方产物中的炽热锭
