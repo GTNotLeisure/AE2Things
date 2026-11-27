@@ -17,11 +17,14 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
+
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.common.ModernContainerPickup;
 import com.asdflj.ae2thing.inventory.IModernContainerPickup;
 import com.asdflj.ae2thing.inventory.IPlayerPinInventory;
 import com.asdflj.ae2thing.pin.CraftingPinSessions;
+import com.asdflj.ae2thing.pin.CraftingPinMode;
 import com.asdflj.ae2thing.pin.CraftingPinState;
 import com.asdflj.ae2thing.pin.ICraftingPinActions;
 import com.asdflj.ae2thing.pin.ICraftingPinState;
@@ -41,6 +44,7 @@ import appeng.container.slot.AppEngSlot;
 import appeng.container.slot.SlotPlayerHotBar;
 import appeng.container.slot.SlotPlayerInv;
 import appeng.container.sync.handlers.ObjectSyncHandler;
+import appeng.container.sync.handlers.IntSyncHandler;
 import appeng.items.contents.PinsHandler;
 import appeng.util.item.AEItemStackType;
 
@@ -56,11 +60,20 @@ public abstract class MixinContainerMEMonitorable extends AEBaseContainer
     @Unique
     private ObjectSyncHandler<long[]> ae2t$craftingPins;
 
+    @Unique
+    private IntSyncHandler ae2t$mode;
+
+    @Override
+    public CraftingPinMode ae2t$craftingMode() {
+        return CraftingPinMode.fromId(ae2t$mode.get());
+    }
+
     @Inject(
         method = "<init>(Lnet/minecraft/entity/player/InventoryPlayer;Lappeng/api/storage/ITerminalHost;Z)V",
         at = @At("RETURN"),
         remap = false)
     private void ae2t$registerCraftingPins(CallbackInfo ci) {
+        ae2t$mode = syncRegistrar().intS2C("ae2thing:craftingPinMode");
         ae2t$craftingPins = syncRegistrar()
             .objectS2C("ae2thing:craftingPins", CraftingPinState.CODEC, new long[CraftingPinState.WORDS]);
     }
@@ -75,13 +88,16 @@ public abstract class MixinContainerMEMonitorable extends AEBaseContainer
         if (!AE2ThingConfig.enhancedPins || !(getPlayerInv().player instanceof EntityPlayerMP player)
             || !(host instanceof ITerminalPins terminal)
             || ae2t$craftingPins == null) return;
+        int mode = CraftingPinMode.get(player).ordinal();
+        boolean modeChanged = mode != ae2t$mode.get();
+        if (modeChanged) ae2t$mode.set(mode);
         IGrid grid = terminal.getGrid();
         if (grid == null) return;
         ICraftingGrid crafting = grid.getCache(ICraftingGrid.class);
         if (crafting == null) return;
         List<IAEStack<?>> outputs = CraftingPinState.pendingOutputs(crafting.getCpus());
         ICraftingPinActions pins = (ICraftingPinActions) getPinsHandler();
-        if (CraftingPinSessions.enter(player, terminal)) pins.ae2t$pruneCraftingPins(outputs);
+        if (CraftingPinSessions.enter(player, terminal) || modeChanged) pins.ae2t$pruneCraftingPins(outputs);
         long[] bits = pins.ae2t$pendingCraftingPins(outputs);
         if (!Arrays.equals(bits, ae2t$craftingPins.get())) ae2t$craftingPins.set(bits);
     }
@@ -102,6 +118,21 @@ public abstract class MixinContainerMEMonitorable extends AEBaseContainer
 
     @Shadow(remap = false)
     public abstract PinsHandler getPinsHandler();
+
+    @ModifyExpressionValue(
+        method = { "doMonitorableAction", "pickupStoredItems", "splitStoredItems", "fillSingleFluidContainer" },
+        at = @At(value = "INVOKE", target = "Lappeng/util/Platform;poweredExtraction(Lappeng/api/networking/energy/IEnergySource;Lappeng/api/storage/IMEInventory;Lappeng/api/storage/data/IAEStack;Lappeng/api/networking/security/BaseActionSource;)Lappeng/api/storage/data/IAEStack;"),
+        remap = false)
+    private IAEStack<?> ae2t$onExtraction(IAEStack<?> extracted) {
+        if (extracted != null && extracted.getStackSize() > 0) ae2t$recordPinUse(extracted);
+        return extracted;
+    }
+
+    @Unique
+    private void ae2t$recordPinUse(IAEStack<?> key) {
+        if (AE2ThingConfig.enhancedPins && getPinsHandler() instanceof ICraftingPinActions pins)
+            pins.ae2t$touchCraftingPin(key);
+    }
 
     @Unique
     private AppEngSlot ae2t$playerSlot(EntityPlayerMP player, int index) {
@@ -165,6 +196,7 @@ public abstract class MixinContainerMEMonitorable extends AEBaseContainer
             this.getActionSource())) {
             return;
         }
+        ae2t$recordPinUse(target);
         this.updateHeld(player);
     }
 }

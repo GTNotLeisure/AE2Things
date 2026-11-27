@@ -21,6 +21,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.asdflj.ae2thing.api.config.ConfigurationManager;
+import com.asdflj.ae2thing.AE2Thing;
+import com.asdflj.ae2thing.network.CPacketPlayerPinAction;
+import com.asdflj.ae2thing.pin.CraftingPinMode;
 import com.asdflj.ae2thing.client.pin.CraftingPinRenderer;
 import com.asdflj.ae2thing.client.pin.IPlayerPinRepo;
 import com.asdflj.ae2thing.client.pin.PinHand;
@@ -213,6 +216,12 @@ public abstract class MixinGuiMEMonitorablePins extends AEBaseGui {
     private void ae2t$pinButton(GuiButton btn, CallbackInfo ci) {
         if (!ae2t$enabled() || btn != pinsStateButton) return;
         if (Keyboard.isKeyDown(Keyboard.KEY_LMENU) || Keyboard.isKeyDown(Keyboard.KEY_RMENU)) {
+            if (Mouse.isButtonDown(1)) {
+                AE2Thing.proxy.netHandler.sendToServer(new CPacketPlayerPinAction(inventorySlots.windowId,
+                    CPacketPlayerPinAction.CYCLE_CRAFTING_MODE, -1, null));
+                ci.cancel();
+                return;
+            }
             ConfigurationManager
                 .setClientBoolean(AE2ThingConfig.class, "scrollPlayerPins", !AE2ThingConfig.scrollPlayerPins);
             reinitalize();
@@ -220,14 +229,18 @@ public abstract class MixinGuiMEMonitorablePins extends AEBaseGui {
             ci.cancel();
             return;
         }
-        int crafting = Math.min(craftingPinsRows.ordinal(), AEConfig.instance.maxCraftingPinRows);
-        int player = Math.min(playerPinsRows.ordinal(), AEConfig.instance.maxPlayerPinRows);
+        int crafting = craftingPinsRows.ordinal();
+        int player = playerPinsRows.ordinal();
         int delta = Mouse.isButtonDown(1) ? -1 : 1;
         if (isCtrlKeyDown()) {
-            ci.cancel();
-            return;
+            if (((ICraftingPinState) inventorySlots).ae2t$craftingMode() == CraftingPinMode.AUTO) {
+                ci.cancel();
+                return;
+            }
+            if (delta < 0 || crafting < AEConfig.instance.maxCraftingPinRows) crafting = Math.max(0, crafting + delta);
+        } else if (delta < 0 || player < AEConfig.instance.maxPlayerPinRows) {
+            player = Math.max(0, player + delta);
         }
-        player = Math.max(0, Math.min(AEConfig.instance.maxPlayerPinRows, player + delta));
         try {
             NetworkHandler.instance
                 .sendToServer(new PacketPinsUpdate(PinsRows.fromOrdinal(crafting), PinsRows.fromOrdinal(player)));

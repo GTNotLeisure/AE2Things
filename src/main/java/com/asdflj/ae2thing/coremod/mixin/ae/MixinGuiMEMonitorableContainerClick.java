@@ -22,6 +22,8 @@ import com.asdflj.ae2thing.client.pin.ScrollingPlayerPinSlot;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.network.CPacketContainerInteraction;
 import com.asdflj.ae2thing.network.CPacketPlayerPinAction;
+import com.asdflj.ae2thing.pin.CraftingPinMode;
+import com.asdflj.ae2thing.pin.ICraftingPinState;
 
 import appeng.api.storage.data.IAEItemStack;
 import appeng.api.storage.data.IAEStack;
@@ -94,7 +96,8 @@ public abstract class MixinGuiMEMonitorableContainerClick {
             PinHand hand = PinHand.read();
             if (!ae2t$dragging && mouseButton == 1 && GuiScreen.isShiftKeyDown() && hand.isEmpty() && pin != null) {
                 if (!pin.isCraftingSlot()) ae2t$pinAction(CPacketPlayerPinAction.REMOVE_SLOT, pin.getSlotIndex(), null);
-                else ae2t$send(MonitorableAction.UNSET_PIN, null, pin.getSlotIndex());
+                else if (((ICraftingPinState) monitorableContainer).ae2t$craftingMode() != CraftingPinMode.AUTO)
+                    ae2t$send(MonitorableAction.UNSET_PIN, null, pin.getSlotIndex());
                 cir.setReturnValue(true);
                 return;
             }

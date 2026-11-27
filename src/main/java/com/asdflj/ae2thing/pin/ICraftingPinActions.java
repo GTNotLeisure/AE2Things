@@ -6,6 +6,8 @@ import appeng.api.storage.data.IAEStack;
 
 public interface ICraftingPinActions {
 
+    void ae2t$touchCraftingPin(IAEStack<?> key);
+
     void ae2t$pruneCraftingPins(List<IAEStack<?>> outputs);
 
     long[] ae2t$pendingCraftingPins(List<IAEStack<?>> outputs);

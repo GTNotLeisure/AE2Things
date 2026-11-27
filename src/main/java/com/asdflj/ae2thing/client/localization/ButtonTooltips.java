@@ -7,6 +7,10 @@ import appeng.core.localization.Localization;
 public enum ButtonTooltips implements Localization {
 
     display("pin"),
+    mode_auto("pin"),
+    mode_fifo("pin"),
+    mode_lru("pin"),
+    crafting_rows("pin"),
     fixed("pin"),
     hold_alt("pin"),
     inventory("pin"),

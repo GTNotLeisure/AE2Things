@@ -7,6 +7,7 @@ import net.minecraft.entity.player.EntityPlayerMP;
 import com.asdflj.ae2thing.common.AE2ThingConfig;
 import com.asdflj.ae2thing.inventory.IPlayerPinInventory;
 import com.asdflj.ae2thing.pin.IPlayerPinActions;
+import com.asdflj.ae2thing.pin.CraftingPinMode;
 
 import appeng.api.storage.data.IAEStack;
 import appeng.container.implementations.ContainerMEMonitorable;
@@ -25,11 +26,12 @@ public class CPacketPlayerPinAction implements IMessage {
     public static final int TOGGLE_INVENTORY = 2;
     public static final int STORE_INVENTORY = 3;
     public static final int REMOVE_SLOT = 4;
+    public static final int CYCLE_CRAFTING_MODE = 5;
 
     public static boolean isEnabled(int operation, boolean enhancedPins, boolean modernInteraction) {
         return enhancedPins && operation >= TOGGLE_STACK
-            && operation <= REMOVE_SLOT
-            && (operation == REMOVE_SLOT || modernInteraction);
+            && operation <= CYCLE_CRAFTING_MODE
+            && (operation >= REMOVE_SLOT || modernInteraction);
     }
 
     private int windowId;
@@ -90,6 +92,9 @@ public class CPacketPlayerPinAction implements IMessage {
             IPlayerPinActions pins = (IPlayerPinActions) handler;
             boolean emptyCursor = player.inventory.getItemStack() == null;
             switch (message.operation) {
+                case CYCLE_CRAFTING_MODE -> {
+                    if (message.key == null && message.slotIndex == -1) CraftingPinMode.cycle(player);
+                }
                 case TOGGLE_STACK -> {
                     if (emptyCursor && message.key != null && message.slotIndex == -1) pins.ae2t$toggle(message.key);
                 }
